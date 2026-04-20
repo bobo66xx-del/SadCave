@@ -1,0 +1,39 @@
+{
+    "className":  "TextButton",
+    "properties":  {
+                       "LayoutOrder":  4,
+                       "FontFace":  {
+                                        "family":  "rbxasset://fonts/families/GothamSSm.json",
+                                        "style":  "Normal",
+                                        "weight":  "Medium"
+                                    },
+                       "TextColor3":  [
+                                          0.882352948,
+                                          0.882352948,
+                                          0.882352948
+                                      ],
+                       "TextTransparency":  0.100000001,
+                       "Text":  "shop",
+                       "AutoButtonColor":  false,
+                       "BackgroundTransparency":  0.400000006,
+                       "Size":  {
+                                    "UDim2":  [
+                                                  [
+                                                      0.159999996,
+                                                      0
+                                                  ],
+                                                  [
+                                                      1,
+                                                      0
+                                                  ]
+                                              ]
+                                },
+                       "TextSize":  16,
+                       "BorderSizePixel":  0,
+                       "BackgroundColor3":  [
+                                                0,
+                                                0,
+                                                0
+                                            ]
+                   }
+}

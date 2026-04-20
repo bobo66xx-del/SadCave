@@ -1,0 +1,57 @@
+{
+    "className": "TextButton",
+    "properties": {
+        "AnchorPoint": [
+            1,
+            1
+        ],
+        "AutoButtonColor": false,
+        "BackgroundColor3": [
+            0,
+            0,
+            0
+        ],
+        "BackgroundTransparency": 0.34,
+        "BorderSizePixel": 0,
+        "FontFace": {
+            "family": "rbxasset://fonts/families/GothamSSm.json",
+            "style": "Normal",
+            "weight": "Medium"
+        },
+        "Position": {
+            "UDim2": [
+                [
+                    1,
+                    -24
+                ],
+                [
+                    1,
+                    -24
+                ]
+            ]
+        },
+        "Size": {
+            "UDim2": [
+                [
+                    0,
+                    72
+                ],
+                [
+                    0,
+                    26
+                ]
+            ]
+        },
+        "Text": "MUSIC",
+        "TextColor3": [
+            0.945098,
+            0.94902,
+            0.960784
+        ],
+        "TextSize": 11,
+        "TextTransparency": 0.02,
+        "Transparency": 0.34,
+        "Visible": false,
+        "ZIndex": 20
+    }
+}

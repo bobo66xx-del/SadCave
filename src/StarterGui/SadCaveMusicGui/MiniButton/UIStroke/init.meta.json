@@ -1,0 +1,12 @@
+{
+    "className": "UIStroke",
+    "properties": {
+        "Color": [
+            0.305882,
+            0.32549,
+            0.364706
+        ],
+        "Thickness": 1,
+        "Transparency": 0.2
+    }
+}

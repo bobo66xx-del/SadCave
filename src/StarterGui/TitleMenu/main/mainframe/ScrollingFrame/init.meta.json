@@ -1,0 +1,66 @@
+{
+    "className":  "ScrollingFrame",
+    "properties":  {
+                       "ScrollBarImageColor3":  [
+                                                    0,
+                                                    0,
+                                                    0
+                                                ],
+                       "Active":  true,
+                       "ScrollBarImageTransparency":  1,
+                       "ScrollBarThickness":  2,
+                       "BackgroundColor3":  [
+                                                0,
+                                                0,
+                                                0
+                                            ],
+                       "AnchorPoint":  [
+                                           0.5,
+                                           0.5
+                                       ],
+                       "BorderColor3":  [
+                                            0,
+                                            0,
+                                            0
+                                        ],
+                       "BackgroundTransparency":  0.5,
+                       "Position":  {
+                                        "UDim2":  [
+                                                      [
+                                                          0.499230623,
+                                                          0
+                                                      ],
+                                                      [
+                                                          0.665000021,
+                                                          0
+                                                      ]
+                                                  ]
+                                    },
+                       "AutomaticCanvasSize":  "Y",
+                       "CanvasSize":  {
+                                          "UDim2":  [
+                                                        [
+                                                            0,
+                                                            0
+                                                        ],
+                                                        [
+                                                            0,
+                                                            0
+                                                        ]
+                                                    ]
+                                      },
+                       "BorderSizePixel":  0,
+                       "Size":  {
+                                    "UDim2":  [
+                                                  [
+                                                      0.983132839,
+                                                      0
+                                                  ],
+                                                  [
+                                                      0.670000017,
+                                                      0
+                                                  ]
+                                              ]
+                                }
+                   }
+}

@@ -1,0 +1,44 @@
+{
+    "className": "Frame",
+    "properties": {
+        "AnchorPoint": [
+            1,
+            1
+        ],
+        "BackgroundColor3": [
+            0,
+            0,
+            0
+        ],
+        "BackgroundTransparency": 0.2,
+        "BorderSizePixel": 0,
+        "ClipsDescendants": true,
+        "Position": {
+            "UDim2": [
+                [
+                    1,
+                    -24
+                ],
+                [
+                    1,
+                    -24
+                ]
+            ]
+        },
+        "Size": {
+            "UDim2": [
+                [
+                    0,
+                    304
+                ],
+                [
+                    0,
+                    160
+                ]
+            ]
+        },
+        "Transparency": 0.2,
+        "Visible": false,
+        "ZIndex": 20
+    }
+}

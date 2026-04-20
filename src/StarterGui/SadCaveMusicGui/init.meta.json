@@ -1,0 +1,12 @@
+{
+    "className": "ScreenGui",
+    "properties": {
+        "Enabled": false,
+        "IgnoreGuiInset": true,
+        "ResetOnSpawn": false,
+        "ScreenInsets": "DeviceSafeInsets"
+    },
+    "attributes": {
+        "SadCaveMusic_Embedded": true
+    }
+}

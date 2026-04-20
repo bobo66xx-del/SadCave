@@ -1,0 +1,21 @@
+{
+    "className": "Frame",
+    "properties": {
+        "BackgroundTransparency": 1,
+        "BorderSizePixel": 0,
+        "Size": {
+            "UDim2": [
+                [
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    0
+                ]
+            ]
+        },
+        "Transparency": 1,
+        "ZIndex": 19
+    }
+}

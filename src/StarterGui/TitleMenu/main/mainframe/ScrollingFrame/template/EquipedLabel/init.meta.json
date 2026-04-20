@@ -1,0 +1,62 @@
+{
+    "className":  "TextLabel",
+    "properties":  {
+                       "BackgroundColor3":  [
+                                                1,
+                                                1,
+                                                1
+                                            ],
+                       "TextWrapped":  true,
+                       "TextScaled":  true,
+                       "TextColor3":  [
+                                          1,
+                                          1,
+                                          1
+                                      ],
+                       "Selectable":  true,
+                       "Text":  "equipped / unequipped",
+                       "Position":  {
+                                        "UDim2":  [
+                                                      [
+                                                          0.71346581,
+                                                          0
+                                                      ],
+                                                      [
+                                                          0.494300544,
+                                                          0
+                                                      ]
+                                                  ]
+                                    },
+                       "TextStrokeTransparency":  0.5,
+                       "AnchorPoint":  [
+                                           0.5,
+                                           0.5
+                                       ],
+                       "BorderSizePixel":  0,
+                       "BackgroundTransparency":  1,
+                       "TextXAlignment":  "Right",
+                       "BorderColor3":  [
+                                            0,
+                                            0,
+                                            0
+                                        ],
+                       "FontFace":  {
+                                        "family":  "rbxasset://fonts/families/Nunito.json",
+                                        "style":  "Normal",
+                                        "weight":  "Regular"
+                                    },
+                       "TextSize":  14,
+                       "Size":  {
+                                    "UDim2":  [
+                                                  [
+                                                      0.431554526,
+                                                      0
+                                                  ],
+                                                  [
+                                                      0.32911393,
+                                                      0
+                                                  ]
+                                              ]
+                                }
+                   }
+}

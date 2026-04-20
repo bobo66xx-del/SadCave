@@ -1,0 +1,63 @@
+{
+    "className":  "TextLabel",
+    "properties":  {
+                       "FontFace":  {
+                                        "family":  "rbxasset://fonts/families/Nunito.json",
+                                        "style":  "Italic",
+                                        "weight":  "Regular"
+                                    },
+                       "Selectable":  true,
+                       "TextStrokeTransparency":  0.5,
+                       "AnchorPoint":  [
+                                           0.5,
+                                           0.5
+                                       ],
+                       "TextSize":  14,
+                       "Size":  {
+                                    "UDim2":  [
+                                                  [
+                                                      0.793478131,
+                                                      0
+                                                  ],
+                                                  [
+                                                      0.0340609513,
+                                                      0
+                                                  ]
+                                              ]
+                                },
+                       "TextColor3":  [
+                                          1,
+                                          1,
+                                          1
+                                      ],
+                       "BorderColor3":  [
+                                            0,
+                                            0,
+                                            0
+                                        ],
+                       "Text":  "make your level worth it.",
+                       "BorderSizePixel":  0,
+                       "TextTransparency":  0.5,
+                       "BackgroundTransparency":  1,
+                       "TextXAlignment":  "Left",
+                       "TextWrapped":  true,
+                       "Position":  {
+                                        "UDim2":  [
+                                                      [
+                                                          0.440969914,
+                                                          0
+                                                      ],
+                                                      [
+                                                          0.110908344,
+                                                          0
+                                                      ]
+                                                  ]
+                                    },
+                       "TextScaled":  true,
+                       "BackgroundColor3":  [
+                                                1,
+                                                1,
+                                                1
+                                            ]
+                   }
+}

@@ -1,0 +1,58 @@
+{
+    "className":  "TextButton",
+    "properties":  {
+                       "Visible":  false,
+                       "FontFace":  {
+                                        "family":  "rbxasset://fonts/families/SourceSansPro.json",
+                                        "style":  "Normal",
+                                        "weight":  "Regular"
+                                    },
+                       "TextColor3":  [
+                                          0,
+                                          0,
+                                          0
+                                      ],
+                       "BorderColor3":  [
+                                            0,
+                                            0,
+                                            0
+                                        ],
+                       "Text":  "",
+                       "AnchorPoint":  [
+                                           0.5,
+                                           0.5
+                                       ],
+                       "BackgroundTransparency":  0.5,
+                       "Position":  {
+                                        "UDim2":  [
+                                                      [
+                                                          0.538621545,
+                                                          0
+                                                      ],
+                                                      [
+                                                          0.0775110275,
+                                                          0
+                                                      ]
+                                                  ]
+                                    },
+                       "Size":  {
+                                    "UDim2":  [
+                                                  [
+                                                      0.997183442,
+                                                      0
+                                                  ],
+                                                  [
+                                                      0.196565121,
+                                                      0
+                                                  ]
+                                              ]
+                                },
+                       "TextSize":  14,
+                       "BorderSizePixel":  0,
+                       "BackgroundColor3":  [
+                                                0,
+                                                0,
+                                                0
+                                            ]
+                   }
+}
