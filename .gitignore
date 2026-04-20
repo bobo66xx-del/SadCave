@@ -1,0 +1,6 @@
+*.rbxl.lock
+*.rbxlx.lock
+*.tmp
+*.bak
+Thumbs.db
+.DS_Store
