@@ -298,3 +298,225 @@ Fix the local `StarterGui.SadCaveMusicGui` layout collisions so the Music panel 
 - 2026-04-19: Moved the authored `MusicPanel` and `MiniButton` defaults from bottom-left to bottom-right and added responsive managed defaults in `MusicGuiController.client.lua`
 - 2026-04-19: Preserved drag persistence by only replacing clearly legacy default placements or offscreen saved positions; custom persisted placements still win
 - 2026-04-19: Validated the new default layout against live `currencyui` HUD geometry for `1920x1080`, `1366x768`, `430x932`, and `393x852`; the panel clears the menu lane by `1242.6px`, `877.2px`, `138.1px`, and `107.9px` respectively
+
+---
+
+## Goal
+Apply SadCave migration Phase 0 and Phase 1 only so the repo begins representing the live shared title/shop contract layer without changing live gameplay behavior.
+
+## Scope
+- Convert `src/ReplicatedStorage` and `src/ServerScriptService` from placeholder roots into real source directories
+- Migrate only the shared title/shop layer recovered from `place-backups/SadCave-before-rojo.rbxlx`
+- Include `TitleEffectPreview` only because the backup confirms both `TitleMenu` and `ShopMenu` require it
+
+## Non-goals
+- No migration of `CashLeaderstats`
+- No migration of `LevelLeaderstats`
+- No migration of `ShopService`
+- No migration of `TitleService`
+- No migration of `DailyRewardsServer`
+- No migration of `NoteSystemServer`
+- No migration of `FavoritePromptPersistence`
+- No migration of `currencyui`
+- No migration of `bruh`
+- No unrelated UI edits
+
+## Files/systems likely touched
+- `C:\Projects\SadCave\PLANS.md`
+- `C:\Projects\SadCave\src\ReplicatedStorage\TitleConfig.lua`
+- `C:\Projects\SadCave\src\ReplicatedStorage\TitleEffectPreview.lua`
+- `C:\Projects\SadCave\src\ReplicatedStorage\ShopCatalog.lua`
+- `C:\Projects\SadCave\src\ReplicatedStorage\TitleRemotes\**\init.meta.json`
+- `C:\Projects\SadCave\src\ReplicatedStorage\ShopRemotes\**\init.meta.json`
+- `C:\Projects\SadCave\src\ReplicatedStorage`
+- `C:\Projects\SadCave\src\ServerScriptService`
+
+## Risks / no-touch systems
+- `TitleRemotes` and `ShopRemotes` names must match live exactly
+- `TitleConfig`, `ShopCatalog`, and `TitleEffectPreview` must be copied without redesign or normalization drift
+- `TitleEffectPreview` is shared behavior for both `TitleMenu` and `ShopMenu`; a bad copy would break both UIs
+- `src\ServerScriptService` should become a real directory, but no server authority scripts should be migrated in this slice
+
+## Step-by-step implementation plan
+1. Remove the placeholder file roots for `src\ReplicatedStorage` and `src\ServerScriptService`
+2. Recreate `src\ReplicatedStorage` as a real Rojo source tree with only the shared title/shop modules and remotes
+3. Recreate `src\ServerScriptService` as an empty real directory only, with no migrated server logic
+4. Preserve remote instance names and classes exactly as recovered from the backup
+5. Stop after Phase 0 and Phase 1 and report any unresolved dependency that still blocks a safe sync
+
+## Validation plan
+- Confirm `src\ReplicatedStorage` and `src\ServerScriptService` are directories after the patch
+- Confirm the created remote trees exactly match backup names and classes
+- Confirm `TitleMenu` and `ShopMenu` local code both require `TitleEffectPreview`
+- Confirm no out-of-scope server scripts or UI systems were migrated
+- No automated install/build/test commands are confirmed in this repo
+- No Studio sync or Studio playtest will be run in this migration step
+
+## Status log
+- 2026-04-20: Audited the backup place file and confirmed the exact shared title/shop modules and remotes needed for Phase 1
+- 2026-04-20: Confirmed `TitleEffectPreview` is a required shared dependency because both live `TitleMenu` and `ShopMenu` require it from `ReplicatedStorage`
+- 2026-04-20: Began the minimum-change Phase 0 and Phase 1 migration plan before making any repo changes
+
+---
+
+## Goal
+Reconcile the repo against the currently connected live Roblox Studio session only, starting with the Rojo sync contract and the exact live-accessible `StarterPlayer` slice.
+
+## Scope
+- Use the connected live Studio session as the only structural source of truth
+- Do not use `place-backups` to restore, infer, or overwrite current content
+- Repair the Rojo sync contract first
+- Export only content that is exact from current live/session-accessible tooling
+- Record everything else in a live-to-repo audit manifest as `manual export needed`
+
+## Non-goals
+- No backup-driven reconstruction
+- No inferred or placeholder server logic
+- No creative UI redesigns or refactors
+- No broad non-live-verified metadata rewrites
+
+## Files/systems likely touched
+- `C:\Projects\SadCave\PLANS.md`
+- `C:\Projects\SadCave\default.project.json`
+- `C:\Projects\SadCave\docs\live-repo-audit.md`
+- `C:\Projects\SadCave\src\StarterPlayer\**`
+- `C:\Projects\SadCave\src\ReplicatedStorage\TipProductConfig.lua`
+- `C:\Projects\SadCave\src\StarterGui\currencyui\init.meta.json`
+- `C:\Projects\SadCave\src\StarterGui\currencyui\maincanvas\init.meta.json`
+- `C:\Projects\SadCave\src\StarterGui\SadCaveMusicGui\init.meta.json`
+
+## Risks / no-touch systems
+- `ServerScriptService` authority scripts must not be recreated unless their exact live source is exported from the current session
+- Existing local UI slices may already drift from live; only live-verified sync-contract fixes should be applied in this pass
+- Any live object whose exact class, path, name, and source/content are not all verified must stay out of repo sync changes
+- Windows paths cannot safely represent some Roblox names exactly, such as the live folder `environment change `
+
+## Step-by-step implementation plan
+1. Capture the live top-level service coverage map and the current repo/Rojo coverage map
+2. Build a live-to-repo audit manifest with `correct`, `missing`, `wrong`, `extra`, and `manual export needed` statuses
+3. Fix the Rojo sync contract by mapping `StarterCharacterScripts` and replacing the broken `StarterPlayerScripts` file path with a real source tree
+4. Export the exact live-accessible `StarterPlayer` scripts that can be copied without approximation
+5. Add only small exact live-accessible shared modules outside `StarterPlayer` when they are directly verified in this pass
+6. Mark all remaining unreconciled live objects as `manual export needed` rather than approximating them
+
+## Validation plan
+- Confirm `default.project.json` now maps both `StarterPlayerScripts` and `StarterCharacterScripts`
+- Confirm `src\StarterPlayer\StarterPlayerScripts` is a real directory tree, not a zero-byte file
+- Confirm exported script files match live class, parent path, name, and enabled state
+- Confirm no repo content was restored from backup place files
+- No automated install/build/test commands are confirmed in this repo
+- Studio validation in this pass is limited to live hierarchy/source inspection, not a sync/playtest
+
+## Status log
+- 2026-04-20: Replaced the backup-driven reconciliation assumption with a strict live-only reconciliation rule
+- 2026-04-20: Confirmed the current repo sync contract is broken because `StarterCharacterScripts` is unmapped and `src\StarterPlayer\StarterPlayerScripts` is a zero-byte file
+- 2026-04-20: Verified exact live script source for the exportable `StarterPlayer` scripts using the connected Studio session
+- 2026-04-20: Began the first live-only implementation pass with sync-contract fixes, exact `StarterPlayer` export, and an audit manifest
+- 2026-04-20: Re-verified the suspicious `StarterPlayer` classes against live and confirmed `PromptFavorite` is still a `Script`, `RainScript` is still a `LocalScript`, and `environment change ` is still a trailing-space `Folder`
+- 2026-04-20: Exported exact live `ReplicatedStorage` trees for `ReportRemotes`, `Remotes`, `NoteSystem`, `Global_Events`, `report`, `Spawn`, `Bonk`, `NameValue`, `RunValue`, `Speed`, `Admin`, and `EButton`
+- 2026-04-20: Exported exact live `StarterGui` trees for `Teleport Button`, `GUIToggle`, and `notificationUI`
+- 2026-04-20: Exported the exact live `ServerScriptService.report.reportHandler` subtree so `src\ServerScriptService` is now a real source tree instead of only a deleted placeholder root
+- 2026-04-20: Identified current tooling blockers for several remaining live trees, especially missing `AnchorPoint` serialization for centered GUI layouts and duplicate-name path collisions under some live parents
+- 2026-04-20: Confirmed the local `ShopCatalog.lua` and `TitleEffectPreview.lua` already match the current live modules exactly; confirmed `TitleConfig.lua` had a one-line blank-line drift and patched it to match live
+- 2026-04-20: Re-verified duplicate-name collisions directly from the live connector; `Purchase`, `SoftShutdown`, `Menu`, and `ScreenGui` still surface as ambiguous duplicate live paths
+- 2026-04-20: Confirmed `IntroScreen` and `NoteUI` still cannot be exported exactly because current live tooling returns `null` for key centered-node `AnchorPoint` values
+- 2026-04-20: Exported exact live standalone `ServerScriptService` authority scripts for `ReportHandler`, `CashLeaderstats`, `LevelLeaderstats`, `TitleService`, `ShopService`, `NoteSystemServer`, `DailyRewardsServer`, `FavoritePromptPersistence`, and disabled `TextChatServiceHandler`
+- 2026-04-20: Confirmed the remaining highest-priority unresolved exports are the `RainScript` subtree, `NameTagScript Owner`, duplicate-name server/UI trees, and GUI/template trees blocked by missing centered-layout serialization
+- 2026-04-20: Exported the live `StarterPlayer.StarterPlayerScripts.RainScript` root script, `Rain` module, and all 15 static value children into a new local Rojo subtree under `src\StarterPlayer\StarterPlayerScripts\RainScript`
+- 2026-04-20: Exported the live `ServerScriptService.NameTagScript Owner` source into the repo as a structurally mapped local file pending final byte-exact re-diff
+- 2026-04-20: Re-checked `ReplicatedStorage.NameTag` and confirmed the blocker is still real; child label `AnchorPoint` and related centered layout properties continue to return `null` from current live tooling
+- 2026-04-20: Measured the newly transcribed standalone server files against live line counts and confirmed they are structurally mapped but not yet byte-exact; none of the newly transcribed standalone server files cleared the final exact-format re-diff in this pass
+- 2026-04-20: Documented the duplicate-name-safe Rojo mapping strategy for future use (`unique filesystem name + properties.Name = live name`) but confirmed it still cannot be applied to current duplicate trees because the connector does not expose unique per-instance identities
+- 2026-04-20: Re-ran the final exactness check for every structurally mapped source file and confirmed all 12 still fail byte-exact line-count comparison against live
+- 2026-04-20: Re-ran the live blocker checks and captured the exact missing connector data for `NameTag`, `IntroScreen`, `NoteUI`, `UIGradient`, and `Rose`
+- 2026-04-20: Re-ran duplicate/path blocker checks for `Purchase`, `SoftShutdown`, `Menu`, `ScreenGui`, `ShopItems.Book.Handle.WeldConstraint`, `AdminServerManager.Admin.Background.TextLabel`, and `environment change `
+- 2026-04-20: Finalized `docs/live-repo-audit.md` so every audited gap now lands in one of five buckets: exact, structurally mapped but not byte-exact, true tooling blocker, duplicate-name/path blocker, or manual export still required
+
+---
+
+## Goal
+Reduce the `manual export still required` backlog by exporting the highest-value live systems that are still representable exactly with current live/session tooling, using `docs/live-repo-audit.md` as the authoritative queue.
+
+## Scope
+- Work only from the current `manual export still required` backlog in `docs/live-repo-audit.md`
+- Prioritize these systems in order:
+  1. `StarterGui.currencyui`
+  2. `StarterGui.ShopMenu`
+  3. `StarterGui.tipui`
+  4. `StarterGui.SadCaveMusicGui`
+  5. `StarterGui.Settings`
+  6. `StarterGui.settingui`
+  7. `StarterGui.Custom Inventory`
+  8. `ServerScriptService.Shop`
+  9. `ServerScriptService.Custom Chat Script`
+  10. `ServerScriptService.AdminGamePass`
+  11. `ServerScriptService.AntiExploit`
+  12. `ServerScriptService.SadCaveMusicPauseData`
+  13. `ServerScriptService.ToolPickupService`
+- Export only what is faithfully representable from the live Studio session and current connector output
+- Shrink `docs/live-repo-audit.md` after each item or batch
+
+## Non-goals
+- No re-audit of already-proven tooling blockers unless the connector exposes new data
+- No low-priority backlog work while higher-priority load-bearing systems remain unresolved
+- No guessed metadata, placeholder logic, or inferred script content
+- No live Studio edits
+
+## Files/systems likely touched
+- `C:\Projects\SadCave\PLANS.md`
+- `C:\Projects\SadCave\docs\live-repo-audit.md`
+- `C:\Projects\SadCave\src\StarterGui\currencyui\**`
+- `C:\Projects\SadCave\src\StarterGui\ShopMenu\**`
+- `C:\Projects\SadCave\src\StarterGui\tipui\**`
+- `C:\Projects\SadCave\src\StarterGui\SadCaveMusicGui\**`
+- `C:\Projects\SadCave\src\StarterGui\Settings\**`
+- `C:\Projects\SadCave\src\StarterGui\settingui\**`
+- `C:\Projects\SadCave\src\StarterGui\Custom Inventory\**`
+- `C:\Projects\SadCave\src\ServerScriptService\Shop.server.lua`
+- `C:\Projects\SadCave\src\ServerScriptService\Custom Chat Script\**`
+- `C:\Projects\SadCave\src\ServerScriptService\AdminGamePass.server.lua`
+- `C:\Projects\SadCave\src\ServerScriptService\AntiExploit.server.lua`
+- `C:\Projects\SadCave\src\ServerScriptService\SadCaveMusicPauseData.server.lua`
+- `C:\Projects\SadCave\src\ServerScriptService\ToolPickupService.server.lua`
+
+## Risks / no-touch systems
+- The current audit remains the contract for what is exact, blocked, or still manual-export-only; do not silently widen scope
+- Many high-priority UI trees are large and may still expose partial property data; export only the exact-safe subset
+- Server authority scripts must stay out of repo if their live source cannot be captured exactly
+- Preserve all live names, classes, parent paths, enabled states, remote names, and current source ordering
+
+## Step-by-step implementation plan
+1. Re-read the current audit backlog and local repo coverage for the top-priority items
+2. For each priority item, inspect the exact live subtree and determine whether current tooling exposes exact-safe structure, scripts, and runtime-relevant metadata
+3. Export the exact-safe item into `src` using the existing Rojo conventions
+4. If an item is blocked, record the precise blocker immediately in the audit and move to the next priority
+5. After each completed item or logical batch, shrink the `manual export still required` list in `docs/live-repo-audit.md`
+6. Stop only when the remaining high-priority items are reduced to proven blockers or still-unfinished exact export work
+
+## Validation plan
+- Verify each exported item against the live path, class, subtree shape, and script source from the connected Studio session
+- Validate every edited `init.meta.json` file with local JSON parsing
+- Re-check `docs/live-repo-audit.md` after each batch so the backlog visibly shrinks
+- No automated install/build/test commands are confirmed in this repo
+- Studio validation in this pass is limited to live hierarchy/source/property inspection, not a sync/playtest unless explicitly run
+
+## Status log
+- 2026-04-20: Closure-mode pass started with `docs/live-repo-audit.md` as the authoritative backlog
+- 2026-04-20: Folded the previous export batch into the audit so `tipui` and `Settings` now sit under duplicate-name/path blockers and `ShopMenu`, `SadCaveMusicGui`, `Shop`, and `AntiExploit` now sit under structurally mapped but not byte-exact
+- 2026-04-20: Confirmed from the live connector that `settingui`, `Custom Inventory`, `Custom Chat Script`, `AdminGamePass`, `SadCaveMusicPauseData`, and `ToolPickupService` remain the next highest-value export candidates after `currencyui`
+- 2026-04-20: Exported live `ServerScriptService` backlog items `AdminGamePass`, `SadCaveMusicPauseData`, `ToolPickupService`, and the full `Custom Chat Script` subtree into `src`
+- 2026-04-20: Validated the new server exports with local line counts against live (`124`, `190`, `133`, and `71`) and re-parsed all `init.meta.json` files successfully
+- 2026-04-20: Re-checked `Custom Inventory` and confirmed the main remaining weight is the `InventoryController.SETTINGS` module at `534` lines; re-checked `settingui` and confirmed its script sources are live-accessible and still exportable in a future pass
+- 2026-04-20: Re-ran the full live `StarterGui.settingui` tree, script sources, and UI property payloads as a closure-mode dedicated pass
+- 2026-04-20: Confirmed `settingui` is not exact-safe to export from current tooling because the connector omits `AnchorPoint` on multiple centered layout nodes (`mainui2`, `title`, `ScrollingFrame`, `mainui2_ShadowPng`, `ShadowImage`, and centered spacer labels)
+- 2026-04-20: Left `settingui` out of `src` and moved it from the manual-export backlog into the audit's true-tooling-blocker section rather than guessing a shifted UI layout
+- 2026-04-20: Re-ran the live `StarterGui.currencyui` tree with the current session and confirmed only the root `ScreenGui` plus the two direct client scripts are exact-safe to represent locally without guessing UI layout
+- 2026-04-20: Exported `game.StarterGui.currencyui.LocalScript` and `game.StarterGui.currencyui.anim` into `src\StarterGui\currencyui` and verified their local line counts match live (`68` and `190`)
+- 2026-04-20: Removed the old local `currencyui\maincanvas` scaffold because the current connector omits `AnchorPoint` on the centered `maincanvas` root, making the shared HUD/menu subtree unsafe to sync faithfully
+- 2026-04-20: Classified `currencyui.maincanvas` as a true layout-data blocker and `currencyui.maincanvas.mainframe.poseui.emotescrip` as a numbered-output-only source blocker in the audit rather than leaving `currencyui` in the manual-export queue
+- 2026-04-20: Re-ran the full live `StarterGui.Custom Inventory` tree and verified the exact source files under `InventoryController` plus the current visual subtree property payloads
+- 2026-04-20: Exported the exact-safe `Custom Inventory` source slice into `src\StarterGui\Custom Inventory`: the root `ScreenGui`, `InventoryController`, and `InventoryController.SETTINGS`
+- 2026-04-20: Verified the exported `Custom Inventory` source file line counts match live (`156` and `534`) and re-parsed all `init.meta.json` files successfully
+- 2026-04-20: Classified the remaining `Custom Inventory` visual subtrees as true layout-data blockers because the connector omits `AnchorPoint` on centered nodes in `Inventory`, `hotBar`, and the `toolButton` template
+- 2026-04-20: Closure-review-only pass re-read `docs\live-repo-audit.md` and sorted the remaining manual-export backlog into likely-next, probable-blocker, and low-priority groups without exporting any new systems
+- 2026-04-20: Ranked the next closure targets as `ServerScriptService.Theme`, `ServerScriptService.OverheadTagsToggleServer`, and `StarterGui.fridge-ui`; these remain the biggest manual-export gaps still keeping the repo from practical source-of-truth status

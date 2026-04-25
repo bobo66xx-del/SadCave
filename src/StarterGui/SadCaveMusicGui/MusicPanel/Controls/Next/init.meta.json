@@ -1,52 +1,21 @@
 {
-    "className": "TextButton",
-    "properties": {
-        "AutoButtonColor": false,
-        "BackgroundColor3": [
-            0.070588,
-            0.078431,
-            0.090196
-        ],
-        "BackgroundTransparency": 0.28,
-        "BorderSizePixel": 0,
-        "FontFace": {
-            "family": "rbxasset://fonts/families/GothamSSm.json",
-            "style": "Normal",
-            "weight": "Medium"
-        },
-        "Position": {
-            "UDim2": [
-                [
-                    0,
-                    144
-                ],
-                [
-                    0,
-                    0
-                ]
-            ]
-        },
-        "Size": {
-            "UDim2": [
-                [
-                    0,
-                    124
-                ],
-                [
-                    0,
-                    28
-                ]
-            ]
-        },
-        "Text": "Next",
-        "TextColor3": [
-            0.913725,
-            0.921569,
-            0.945098
-        ],
-        "TextSize": 13,
-        "TextTransparency": 0,
-        "Transparency": 0.28,
-        "ZIndex": 22
-    }
+  "className": "TextButton",
+  "properties": {
+    "Active": true,
+    "BackgroundColor3": [0, 0, 0],
+    "BackgroundTransparency": 0.7200000286102295,
+    "BorderSizePixel": 0,
+    "Position": {
+      "UDim2": [[[0, 94]], [[0, -16]]]
+    },
+    "Size": {
+      "UDim2": [[[0, 76]], [[0, 28]]]
+    },
+    "Text": "Next",
+    "TextColor3": [1, 1, 1],
+    "TextTransparency": 0,
+    "Transparency": 0.7200000286102295,
+    "Visible": true,
+    "ZIndex": 21
+  }
 }

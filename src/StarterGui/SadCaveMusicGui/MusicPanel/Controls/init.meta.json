@@ -1,32 +1,17 @@
 {
-    "className": "Frame",
-    "properties": {
-        "BackgroundTransparency": 1,
-        "Position": {
-            "UDim2": [
-                [
-                    0,
-                    18
-                ],
-                [
-                    0,
-                    86
-                ]
-            ]
-        },
-        "Size": {
-            "UDim2": [
-                [
-                    1,
-                    -36
-                ],
-                [
-                    0,
-                    56
-                ]
-            ]
-        },
-        "Transparency": 1,
-        "ZIndex": 21
-    }
+  "className": "Frame",
+  "properties": {
+    "Active": false,
+    "BackgroundColor3": [0.639216, 0.635294, 0.647059],
+    "BackgroundTransparency": 1,
+    "Position": {
+      "UDim2": [[[0, 14]], [[0, 80]]]
+    },
+    "Size": {
+      "UDim2": [[[1, -28]], [[0, 40]]]
+    },
+    "Transparency": 1,
+    "Visible": true,
+    "ZIndex": 21
+  }
 }

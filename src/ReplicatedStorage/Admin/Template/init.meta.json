@@ -1,0 +1,47 @@
+{
+  "className": "TextButton",
+  "properties": {
+    "Active": true,
+    "BackgroundColor3": [
+      0,
+      0,
+      0
+    ],
+    "BackgroundTransparency": 0,
+    "BorderSizePixel": 3,
+    "Position": {
+      "UDim2": [
+        [
+          -0.01967354491353035,
+          0
+        ],
+        [
+          0.3680671155452728,
+          0
+        ]
+      ]
+    },
+    "Size": {
+      "UDim2": [
+        [
+          1,
+          0
+        ],
+        [
+          0.028764259070158005,
+          0
+        ]
+      ]
+    },
+    "Text": "OnlyTwentyCharacters",
+    "TextColor3": [
+      1,
+      1,
+      1
+    ],
+    "TextSize": 14,
+    "TextTransparency": 0,
+    "Visible": true,
+    "ZIndex": 1
+  }
+}

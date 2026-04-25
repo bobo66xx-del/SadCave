@@ -1,0 +1,3 @@
+-- Intentionally empty.
+-- This script used to disable Roblox default UI (including the default hotbar/backpack).
+-- You asked to delete anything that has to do with the hotbar, so the logic was removed.

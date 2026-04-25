@@ -1,0 +1,41 @@
+{
+  "className": "TextLabel",
+  "properties": {
+    "BackgroundTransparency": 1,
+    "Position": {
+      "UDim2": [
+        [
+          0.05000000074505806,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    "Size": {
+      "UDim2": [
+        [
+          0,
+          185
+        ],
+        [
+          0,
+          35
+        ]
+      ]
+    },
+    "Text": "",
+    "TextColor3": [
+      0.898039,
+      0.898039,
+      0.898039
+    ],
+    "TextSize": 16,
+    "TextTransparency": 0,
+    "TextWrapped": true,
+    "Visible": true,
+    "ZIndex": 1
+  }
+}

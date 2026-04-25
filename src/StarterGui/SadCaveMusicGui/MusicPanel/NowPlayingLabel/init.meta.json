@@ -1,46 +1,20 @@
 {
-    "className": "TextLabel",
-    "properties": {
-        "BackgroundTransparency": 1,
-        "FontFace": {
-            "family": "rbxasset://fonts/families/GothamSSm.json",
-            "style": "Normal",
-            "weight": "Medium"
-        },
-        "Position": {
-            "UDim2": [
-                [
-                    0,
-                    18
-                ],
-                [
-                    0,
-                    12
-                ]
-            ]
-        },
-        "Size": {
-            "UDim2": [
-                [
-                    0,
-                    140
-                ],
-                [
-                    0,
-                    18
-                ]
-            ]
-        },
-        "Text": "music",
-        "TextColor3": [
-            0.886275,
-            0.894118,
-            0.917647
-        ],
-        "TextSize": 15,
-        "TextTransparency": 0.03,
-        "TextXAlignment": "Left",
-        "Transparency": 1,
-        "ZIndex": 21
-    }
+  "className": "TextLabel",
+  "properties": {
+    "Active": false,
+    "BackgroundColor3": [0.639216, 0.635294, 0.647059],
+    "BackgroundTransparency": 1,
+    "Position": {
+      "UDim2": [[[0, 14]], [[0, 10]]]
+    },
+    "Size": {
+      "UDim2": [[[1, -28]], [[0.0625, 16]]]
+    },
+    "Text": "music",
+    "TextColor3": [1, 1, 1],
+    "TextTransparency": 0,
+    "Transparency": 1,
+    "Visible": true,
+    "ZIndex": 21
+  }
 }

@@ -1,42 +1,18 @@
 {
-    "className": "Frame",
-    "properties": {
-        "AnchorPoint": [
-            0,
-            0.5
-        ],
-        "BackgroundColor3": [
-            0.047059,
-            0.05098,
-            0.058824
-        ],
-        "BackgroundTransparency": 0.08,
-        "BorderSizePixel": 0,
-        "Position": {
-            "UDim2": [
-                [
-                    0,
-                    62
-                ],
-                [
-                    0.5,
-                    0
-                ]
-            ]
-        },
-        "Size": {
-            "UDim2": [
-                [
-                    1,
-                    -62
-                ],
-                [
-                    0,
-                    8
-                ]
-            ]
-        },
-        "Transparency": 0.08,
-        "ZIndex": 23
-    }
+  "className": "Frame",
+  "properties": {
+    "Active": false,
+    "BackgroundColor3": [0, 0, 0],
+    "BackgroundTransparency": 0.699999988079071,
+    "BorderSizePixel": 0,
+    "Position": {
+      "UDim2": [[[-0.0117647061124444, 52]], [[0.2401309609413147, 0]]]
+    },
+    "Size": {
+      "UDim2": [[[1, -52]], [[0.3691507875919342, 7]]]
+    },
+    "Transparency": 0.699999988079071,
+    "Visible": true,
+    "ZIndex": 22
+  }
 }

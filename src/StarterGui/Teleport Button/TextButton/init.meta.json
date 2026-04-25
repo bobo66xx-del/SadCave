@@ -1,0 +1,46 @@
+{
+  "className": "TextButton",
+  "properties": {
+    "Active": true,
+    "BackgroundColor3": [
+      0.443137,
+      0.533333,
+      0.666667
+    ],
+    "BackgroundTransparency": 0,
+    "Position": {
+      "UDim2": [
+        [
+          0.9194437861442566,
+          0
+        ],
+        [
+          0.9453885555267334,
+          0
+        ]
+      ]
+    },
+    "Size": {
+      "UDim2": [
+        [
+          0.07599999755620956,
+          0
+        ],
+        [
+          0.04699999839067459,
+          0
+        ]
+      ]
+    },
+    "Text": "Teleport in cave",
+    "TextColor3": [
+      0.121569,
+      0.121569,
+      0.121569
+    ],
+    "TextSize": 14,
+    "TextTransparency": 0,
+    "Visible": false,
+    "ZIndex": 1
+  }
+}
