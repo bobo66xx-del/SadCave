@@ -1,7 +1,7 @@
 # Live Reconciliation Continuation v1 — Codex Plan
 
 **Date:** 2026-04-25
-**Status:** 🔵 Planned
+**Status:** 🟢 Shipped
 **Related Systems:** [[../02_Systems/_Live_Systems_Reference]], [[../02_Systems/_UI_Hierarchy]]
 **Audit:** `docs/live-repo-audit.md` (at repo root) — read this before starting; it's the queue.
 **Continues:** the live-only reconciliation work whose history lives in `PLANS.md` (entries from 2026-04-19 and 2026-04-20). PLANS.md is historical context only — read it for background, do not append to it. New entries for this work go in the inbox during execution and the change log at integration.

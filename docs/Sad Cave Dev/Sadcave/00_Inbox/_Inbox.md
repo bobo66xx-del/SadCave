@@ -13,6 +13,13 @@
 
 ---
 
+## 2026-04-25
+
+- [C] 12:37 — Starting live-reconciliation continuation. Three targets: fridge-ui, Theme, OverheadTagsToggleServer.
+- [C] 12:38 — Theme exported (structurally mapped, not byte-exact). 9 local lines / 9 live lines.
+- [C] 12:38 — OverheadTagsToggleServer exported (structurally mapped, not byte-exact). 35 local lines / 35 live lines.
+- [C] 12:38 — fridge-ui classified as tooling blocker. `AnchorPoint` returned null for `main`, `mainframe`, and `itemframe`.
+
 <!-- New session entries go HERE — add a new dated section above this line, like:
 ## 2026-04-26
 - [C] 09:15 — first observation
