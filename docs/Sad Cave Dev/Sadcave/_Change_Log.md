@@ -14,6 +14,15 @@
 
 <!-- New entries go directly below this line -->
 
+2026-04-25 — Workflow — Frozen `PLANS.md` as historical-only; consolidated all planning to `06_Codex_Plans/` in the vault. Two surfaces was unnecessary friction; PLANS.md predated the vault and was never the intended go-forward.
+2026-04-25 — Workflow — Vault committed to git for the first time. Backed up to `origin/main` after a near-deletion incident. Future drift cannot wipe the vault silently.
+2026-04-25 — Workflow — Migrated `docs/project-overview.md`, `docs/game-systems.md`, `docs/ui-hierarchy.md`, `docs/known-bugs.md` into the vault. Single source of truth for text documentation. Originals left as stub pointers.
+2026-04-25 — AGENTS.md — Removed `CashLeaderstats` from the no-touch DataStore list. It's slated for removal in cleanup, not a system to preserve. Frozen-not-extended is the correct stance.
+2026-04-25 — AGENTS.md — Restored `PLANS.md` and `docs/live-repo-audit.md` references after audit revealed they were the active record of months of live-only reconciliation work. Repo wasn't "stale" — it was a curated subset with documented blockers.
+2026-04-25 — AGENTS.md — Fixed file extension convention from `.luau`/`.client.luau`/`.server.luau` to `.lua`/`.client.lua`/`.server.lua` to match what the repo actually uses. Language is still Luau; extension is `.lua` for Rojo tooling reasons.
+2026-04-25 — 06_Codex_Plans — Wrote, then superseded, `2026-04-25_Repo_Resync_v1.md`. Brief was based on a wrong premise (treating repo as stale). Replaced with `2026-04-25_Live_Reconciliation_Continuation_v1.md` targeting the audit's actual top priorities: `fridge-ui`, `Theme`, `OverheadTagsToggleServer`. Lesson preserved in the superseded brief's frontmatter.
+2026-04-25 — Vault — Migrated Codex instructions from `_Codex_Instructions.md` (vault) into `AGENTS.md` (repo root) per session 1's plan. Codex's rules now live next to the code Codex edits.
+
 ---
 
 ## Format

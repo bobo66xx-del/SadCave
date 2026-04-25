@@ -13,17 +13,6 @@
 
 ---
 
-## 2026-04-25
-
-- [O] handed off `06_Codex_Plans/2026-04-25_Repo_Resync_v1.md` to Codex. Studio diff captured at plan-write time — Codex re-verifies in Phase 1.
-- [O] full audit of vault + repo + AGENTS + workflow surfaced major issues with the resync brief above. Marked it ⚫ Superseded.
-- [O] discovered `PLANS.md` and `docs/live-repo-audit.md` are an active live-reconciliation effort dating to 2026-04-19. The repo isn't "stale" — it's a curated subset with documented blockers. Restored `PLANS.md` reference in `AGENTS.md`.
-- [O] migrated `docs/project-overview.md`, `docs/game-systems.md`, `docs/ui-hierarchy.md`, `docs/known-bugs.md` into the vault. Originals left as stub pointers — user can delete.
-- [O] dropped `CashLeaderstats` from `AGENTS.md` no-touch list. It's slated for removal (off-tone) so it's frozen-not-extended, not a system to preserve.
-- [O] new active focus: continue live-only reconciliation. Next plan: [[06_Codex_Plans/2026-04-25_Live_Reconciliation_Continuation_v1]] targeting `fridge-ui`, `Theme`, `OverheadTagsToggleServer`.
-
----
-
 ## YYYY-MM-DD (template — do not write here)
 
 - [O] HH:MM — example: noticed `CashLeaderstats` still referenced in three places, see `_Cleanup_Backlog`
