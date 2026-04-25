@@ -4,7 +4,7 @@
 **Status:** 🔵 Planned
 **Related Systems:** [[../02_Systems/_Live_Systems_Reference]], [[../02_Systems/_UI_Hierarchy]]
 **Audit:** `docs/live-repo-audit.md` (at repo root) — read this before starting; it's the queue.
-**Continues:** the live-only reconciliation work whose history lives in `PLANS.md` (entries from 2026-04-19 and 2026-04-20).
+**Continues:** the live-only reconciliation work whose history lives in `PLANS.md` (entries from 2026-04-19 and 2026-04-20). PLANS.md is historical context only — read it for background, do not append to it. New entries for this work go in the inbox during execution and the change log at integration.
 
 ---
 
@@ -71,7 +71,6 @@ Expected outcome:
 - `src/ServerScriptService/Theme.server.lua` — new file
 - `src/ServerScriptService/OverheadTagsToggleServer.server.lua` — new file
 - `docs/live-repo-audit.md` — update bucket assignments for the three targets
-- `PLANS.md` — append a new plan entry following the established format with Status log entries
 - `00_Inbox/_Inbox.md` — `[C]` captures as Codex works
 - This plan's `Status` field — flip 🔵 → 🟡 → 🟢
 
@@ -80,7 +79,7 @@ Expected outcome:
 ### Phase 0 — Setup
 
 1. Read `docs/live-repo-audit.md` end-to-end. Confirm the three targets are still in "manual export still required → highest-priority load-bearing systems still outside repo".
-2. Read `PLANS.md`. Append a new `---`-separated section at the bottom for this work. Use the established format (Goal/Scope/Non-goals/Files/Risks/Steps/Validation/Status log). The Goal is "Export live `fridge-ui`, `Theme`, `OverheadTagsToggleServer` per audit priority queue." Scope is the three targets. Non-goals: don't expand to other audit items, don't modify live, don't refactor.
+2. Read `PLANS.md` for context on prior reconciliation passes — useful background, but do **not** append to it. PLANS.md is historical-only.
 3. Create branch `live-reconciliation-2026-04-25` from current main.
 4. Update this plan's Status: 🔵 Planned → 🟡 In Progress.
 5. `[C]` log: `[C] HH:MM — Starting live-reconciliation continuation. Three targets: fridge-ui, Theme, OverheadTagsToggleServer.`
@@ -129,10 +128,9 @@ Expected outcome:
 ### Phase 5 — Wrap
 
 27. Update this plan's Status: 🟡 In Progress → 🟢 Shipped.
-28. Update `PLANS.md` with the final Status log entries.
-29. Stage and commit on branch: `git commit -m "Live reconciliation: export fridge-ui, Theme, OverheadTagsToggleServer"`.
-30. Push branch. Don't merge to main.
-31. `[C]` log: `[C] HH:MM — Reconciliation continuation complete on branch live-reconciliation-2026-04-25. <N> exact, <N> structural, <N> blocker. Audit updated. Awaiting Opus review.`
+28. Stage and commit on branch: `git commit -m "Live reconciliation: export fridge-ui, Theme, OverheadTagsToggleServer"`.
+29. Push branch. Don't merge to main.
+30. `[C]` log: `[C] HH:MM — Reconciliation continuation complete on branch live-reconciliation-2026-04-25. <N> exact, <N> structural, <N> blocker. Audit updated. Awaiting Opus review.`
 
 ## 6. Roblox Services Involved
 
@@ -167,11 +165,10 @@ Beyond `AGENTS.md`:
 - [ ] Line counts in audit match source files for any "structurally mapped" classifications
 - [ ] No changes outside the three target trees
 - [ ] Audit's bucket assignments updated for all three targets
-- [ ] `PLANS.md` has a new `---`-separated section with full Goal/Scope/Status log
 - [ ] This plan Status flipped to 🟢
 
 ## 10. Rollback Notes
 
 - **Lightweight:** `git checkout main && git branch -D live-reconciliation-2026-04-25`. No Studio impact since this is repo-only work.
 - **No `.rbxl` backup needed.** Studio isn't touched.
-- If Opus review surfaces issues, fix on the branch and re-push. Don't squash; the Status log entries in `PLANS.md` and inbox are the audit trail.
+- If Opus review surfaces issues, fix on the branch and re-push. Don't squash; the inbox `[C]` entries are the audit trail.

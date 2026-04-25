@@ -87,10 +87,10 @@ The vault is the design layer. Two repo-level surfaces sit beside it:
 | Surface | Purpose | Who writes |
 |---------|---------|-----------|
 | `AGENTS.md` (repo root) | Codex's rules — vault access boundaries, build loop, code conventions, no-touch systems, cleanup backlog | Opus, only when workflow itself changes |
-| `PLANS.md` (repo root) | Live-reconciliation plans — the running history of repo-vs-Studio export passes since 2026-04-19. Each plan: Goal/Scope/Non-goals/Risks/Steps/Validation/Status | Codex appends Status log entries; Opus reviews at integration |
+| `PLANS.md` (repo root) | **Historical context only.** Running history of repo-vs-Studio export passes from 2026-04-19 to 2026-04-20, written before the vault existed. Read for prior decisions; never appended to. | Nobody. Frozen. |
 | `docs/live-repo-audit.md` (repo root) | Authoritative classification of every live object's export status (exact / structurally mapped / tooling blocker / duplicate-name blocker / manual export needed). The queue. | Codex updates as items move between buckets |
 
-**Why two planning surfaces?** `06_Codex_Plans/` is for design-driven tasks where Opus writes a self-contained brief and Codex builds it. `PLANS.md` is for the ongoing infrastructure work that started before the vault existed and has its own format (Goal/Scope/Status log). They don't compete — they cover different kinds of work.
+**One planning surface, going forward.** All new plans — design-driven *and* live-reconciliation — live in `06_Codex_Plans/`. `PLANS.md` is sealed for context, not extended.
 
 ---
 
@@ -122,6 +122,6 @@ When opening a new chat with Opus on this project:
 3. Opus reads most recent file in `07_Sessions/` → where we left off
 4. Opus reads `09_Open_Questions/_Open_Questions.md` → outstanding decisions
 5. Opus reads `01_Vision/Tone_and_Rules` → the north star, before any design work
-6. Opus reads `AGENTS.md`, `PLANS.md`, and `docs/live-repo-audit.md` (at repo root) — these are the sibling surfaces to the vault and contain Codex's rules + live-reconciliation history + the export-status queue
+6. Opus reads `AGENTS.md` and `docs/live-repo-audit.md` (at repo root) — Codex's rules and the export-status queue. (`PLANS.md` is also at repo root but is historical-only; read it only when you need context on prior reconciliation decisions.)
 
 > **Codex's rules** live in `AGENTS.md` at the repo root (`C:\Projects\SadCave\AGENTS.md`), not in the vault. Opus reads it once at the start of a fresh session for shared context, but does not edit it during normal design work — update it only when the workflow itself changes.

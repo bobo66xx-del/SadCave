@@ -1,5 +1,13 @@
 # PLANS.md
 
+> **Status: 🧊 Frozen — historical context only.**
+>
+> This file contains the running history of repo-vs-Studio export passes from 2026-04-19 to 2026-04-20, written before the vault existed. New plans — design-driven *and* live-reconciliation — live in `docs/Sad Cave Dev/Sadcave/06_Codex_Plans/` in the vault.
+>
+> Read this file for context on prior reconciliation decisions. Do not append to it.
+
+---
+
 ## Purpose
 Use this file for complex features, risky changes, UI rewrites, system refactors, or anything touching multiple systems.
 

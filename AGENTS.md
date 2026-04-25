@@ -170,14 +170,15 @@ In your final note, state:
 
 ## Planning
 
-This project has two planning surfaces. Use the right one for the task:
+All new plans live in `06_Codex_Plans/YYYY-MM-DD_System_Name_v1.md` in the vault. One file per task. Each plan is self-contained: purpose, files, step-by-step, validation, rollback. Status flips 🔵 → 🟡 → 🟢 as Codex works.
 
-- **`06_Codex_Plans/YYYY-MM-DD_System_Name_v1.md` (in the vault)** — design-driven tasks Opus hands off to Codex. Each plan is self-contained: purpose, files, step-by-step, validation, rollback. Status flips 🔵 → 🟡 → 🟢 as Codex works.
-- **`PLANS.md` (at repo root)** — ongoing live-reconciliation work. Contains a running history of repo-vs-Studio export passes dating back to 2026-04-19. Each plan inside follows a Goal/Scope/Non-goals/Risks/Steps/Validation/Status format. Codex appends to the active plan's Status log as it works. New live-reconciliation plans get appended to the bottom of `PLANS.md` separated by `---`.
+The audit trail during work goes to `00_Inbox/_Inbox.md` as `[C] HH:MM —` entries. At session end, Opus integrates the inbox into the change log. No separate Status log is needed.
+
+**`PLANS.md` (at repo root) is historical context, not an active surface.** It contains the running history of repo-vs-Studio export passes from 2026-04-19 through 2026-04-20, written before the vault existed. Read it when you need context on prior reconciliation decisions. **Do not append to it.** New live-reconciliation work uses `06_Codex_Plans/` like any other task.
 
 **`docs/live-repo-audit.md` (at repo root)** is the authoritative classification of every live object's export status (exact / structurally mapped / tooling blocker / duplicate-name blocker / manual export needed). Codex updates the audit as items move between buckets. Read it before starting any export work — it's the queue.
 
-For anything larger or riskier than a small fix, the relevant plan must exist before you start coding. Update the plan as work progresses. If scope changes, update the plan before continuing.
+For anything larger or riskier than a small fix, the relevant `06_Codex_Plans/` brief must exist before you start coding. Update the plan as work progresses. If scope changes, update the plan before continuing.
 
 ---
 
@@ -187,7 +188,7 @@ For anything larger or riskier than a small fix, the relevant plan must exist be
 - Relevant checks were run, or missing checks were stated clearly
 - No unrelated systems were changed
 - Risks, follow-ups, or limits are stated clearly
-- Plan `Status` is set to 🟢 Shipped (if working from a `06_Codex_Plans/` brief), or the active `PLANS.md` plan's Status log is updated (if doing live-reconciliation work)
+- Plan `Status` is set to 🟢 Shipped
 - Inbox captures from this session are in `00_Inbox/_Inbox.md`
 - For live-reconciliation work, `docs/live-repo-audit.md` reflects any items that moved between buckets
 
