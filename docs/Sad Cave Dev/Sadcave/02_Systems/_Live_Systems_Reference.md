@@ -1,6 +1,14 @@
-# Game Systems
+# Live Systems Reference
 
-Source: live Roblox Studio inspection of `ReplicatedStorage`, `ServerScriptService`, `StarterPlayer`, and `StarterGui`, plus the local Rojo `TitleMenu` source in `src/StarterGui/TitleMenu`, on 2026-04-19.
+> **Role of this doc:** snapshot of *what currently exists* in Studio, not *what should exist* (that's the spec — see individual `02_Systems/` notes). This is reference material for Codex and Opus when working on or near a live system.
+>
+> **Source:** live Roblox Studio inspection of `ReplicatedStorage`, `ServerScriptService`, `StarterPlayer`, and `StarterGui`, plus the local Rojo `TitleMenu` source in `src/StarterGui/TitleMenu`, on 2026-04-19.
+>
+> **Update cadence:** refresh after major resync work, or when a live system's structure materially changes. Not updated during normal design work.
+>
+> **Relationship to the audit:** [the live-repo-audit](../../../../live-repo-audit.md) (in `docs/live-repo-audit.md` at repo root) tracks each live object's *export status* (exact / structurally mapped / blocker / manual). This doc is about *what each system does*. The two are complementary.
+>
+> **Cleanup awareness:** entries marked 🔴 are slated for removal per [[_Cleanup_Backlog]]. Don't extend them.
 
 ## How To Read This
 
@@ -19,10 +27,10 @@ Confirmed facts:
   - `ReplicatedStorage.NoteSystem`
   - `ReplicatedStorage.Remotes`
   - `ReplicatedStorage.ReportRemotes`
-  - `ReplicatedStorage.ShopItems`
-  - `ReplicatedStorage.ShopRemotes`
+  - 🔴 `ReplicatedStorage.ShopItems` — legacy combat-tool shop, see [[_Cleanup_Backlog]]
+  - 🔴 `ReplicatedStorage.ShopRemotes` — paired with legacy Shop, see [[_Cleanup_Backlog]]
   - `ReplicatedStorage.TitleRemotes`
-  - `ReplicatedStorage.ShopCatalog`
+  - 🔴 `ReplicatedStorage.ShopCatalog` — legacy Shop catalog, see [[_Cleanup_Backlog]]
   - `ReplicatedStorage.TipProductConfig`
   - `ReplicatedStorage.TitleConfig`
   - `ReplicatedStorage.TitleEffectPreview`
@@ -36,10 +44,10 @@ Confirmed facts:
 Confirmed facts:
 - Contains the main authoritative server systems.
 - Notable exact scripts / folders:
-  - `ServerScriptService.CashLeaderstats`
+  - 🔴 `ServerScriptService.CashLeaderstats` — legacy currency, see [[_Cleanup_Backlog]] (off-tone, slated for removal once XP_Progression ships)
   - `ServerScriptService.LevelLeaderstats`
   - `ServerScriptService.TitleService`
-  - `ServerScriptService.ShopService`
+  - 🔴 `ServerScriptService.ShopService` — legacy Shop authority, see [[_Cleanup_Backlog]]
   - `ServerScriptService.NoteSystemServer`
   - `ServerScriptService.DailyRewardsServer`
   - `ServerScriptService.NameTagScript Owner`
@@ -72,7 +80,7 @@ Confirmed facts:
   - `SunRayRemove`
   - `Theme`
   - `camera`
-  - `environment change `
+  - `environment change ` (trailing space — see audit's duplicate-name/path blockers)
 
 ## Major Systems
 
@@ -108,7 +116,7 @@ Assumptions / likely responsibilities:
 - This is the canonical title ownership/equip pipeline for the game.
 - `ReplicatedStorage.TitleEffectPreview` likely exists to preview the same title visual effect definitions in UI, but I did not inspect that module directly.
 
-### Shop Titles / Shards Shop
+### 🔴 Shop Titles / Shards Shop *(legacy — see [[_Cleanup_Backlog]])*
 
 Confirmed facts:
 - Shared catalog is `ReplicatedStorage.ShopCatalog`.
@@ -136,10 +144,10 @@ Assumptions / likely responsibilities:
 - The current shard shop logic in `ShopCatalog` and `ShopService` is focused on title purchases, while `ReplicatedStorage.ShopItems` looks like a separate or older physical-item shop path.
 - `ServerScriptService.Shop` may be a legacy or supplemental shop script, but I did not inspect it.
 
-### Currency / Shards / Session Rewards
+### 🔴 Currency / Shards / Session Rewards *(CashLeaderstats slated for removal — see [[_Cleanup_Backlog]])*
 
 Confirmed facts:
-- Main economy persistence script is `ServerScriptService.CashLeaderstats`.
+- Main economy persistence script is `ServerScriptService.CashLeaderstats`. **This is the legacy "Cash" currency system; off-tone and slated for removal once XP_Progression ships and the level-up trigger dependency is cut.**
 - `CashLeaderstats` creates:
   - `player.Shards`
   - `player.TimePlayed`
@@ -388,7 +396,7 @@ Confirmed facts:
 - `ReplicatedStorage.Remotes.Players`
 - `ReplicatedStorage.Remotes.Prompt`
 - `ReplicatedStorage.Remotes.Random`
-- `ReplicatedStorage.Remotes.Shop`
+- 🔴 `ReplicatedStorage.Remotes.Shop` — paired with legacy Shop, see [[_Cleanup_Backlog]]
 - `ReplicatedStorage.Remotes.SongID`
 - `ReplicatedStorage.Remotes.Theme`
 - `ReplicatedStorage.Remotes.TimeSync`
@@ -421,21 +429,21 @@ Confirmed facts:
   - `Commands`
   - `DelayedStarterTools`
   - `DiscordLogs`
-  - `DonationAmount`
-  - `DonationLeaderstats`
+  - 🔴 `DonationAmount` — see [[_Cleanup_Backlog]]
+  - 🔴 `DonationLeaderstats` — see [[_Cleanup_Backlog]]
   - `GenerateSeatMarkers`
   - `HealthChanger`
   - `InviteFriends`
   - `NoticeNew`
   - `OverheadTagsToggleServer`
-  - two `Purchase` scripts
+  - 🔴 two `Purchase` scripts — duplicates, see [[_Cleanup_Backlog]]
   - `RefreshCommand`
   - `RemoveFF`
   - `Reset`
   - `SadCaveMusicPauseData`
-  - `Script`
-  - `Shop`
-  - three `SoftShutdown` scripts
+  - `Script` (generic name — likely orphan)
+  - 🔴 `Shop` — see [[_Cleanup_Backlog]]
+  - 🔴 three `SoftShutdown` scripts — duplicates, see [[_Cleanup_Backlog]]
   - `ToolPickupService`
 - The following exact client scripts exist in `StarterPlayerScripts` but were not read in this pass:
   - `ChatBubbleDarkTheme`

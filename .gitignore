@@ -4,3 +4,8 @@
 *.bak
 Thumbs.db
 .DS_Store
+
+# Obsidian vault — commit settings, ignore per-user/session state
+docs/Sad Cave Dev/.obsidian/workspace.json
+docs/Sad Cave Dev/.obsidian/workspace-mobile.json
+docs/Sad Cave Dev/.obsidian/cache
