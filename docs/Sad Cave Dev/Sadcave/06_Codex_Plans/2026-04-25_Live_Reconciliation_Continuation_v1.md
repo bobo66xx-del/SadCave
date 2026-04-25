@@ -110,9 +110,24 @@ Expected outcome:
     - `src/StarterGui/fridge-ui/main/mainframe/init.meta.json` (Frame)
     - `src/StarterGui/fridge-ui/main/mainframe/LocalScript.client.lua` (the main script)
     - `src/StarterGui/fridge-ui/main/mainframe/itemframe/init.meta.json` (ScrollingFrame)
-    - For each of the 8 food items: a folder with `init.meta.json` (ImageButton) + `setup.client.lua` + child meta.json files for `itemname`, `itemprice`, `UICorner`
+    - `src/StarterGui/fridge-ui/main/mainframe/itemframe/UICorner/init.meta.json`
+    - `src/StarterGui/fridge-ui/main/mainframe/itemframe/UIListLayout/init.meta.json` (UIGridLayout per the snapshot)
+    - For each of the 8 food items (`bloxiade`, `burger`, `cake`, `chockymilk`, `cola`, `pizza`, `smore`, `taco`), build:
+        - `src/StarterGui/fridge-ui/main/mainframe/itemframe/<item>/init.meta.json` (ImageButton)
+        - `src/StarterGui/fridge-ui/main/mainframe/itemframe/<item>/setup.client.lua`
+        - `src/StarterGui/fridge-ui/main/mainframe/itemframe/<item>/itemname/init.meta.json` (TextLabel)
+        - `src/StarterGui/fridge-ui/main/mainframe/itemframe/<item>/itemprice/init.meta.json` (TextLabel)
+        - `src/StarterGui/fridge-ui/main/mainframe/itemframe/<item>/UICorner/init.meta.json`
+    - `src/StarterGui/fridge-ui/main/mainframe/close/init.meta.json` (TextButton)
+    - `src/StarterGui/fridge-ui/main/mainframe/header/init.meta.json` (TextLabel)
+    - `src/StarterGui/fridge-ui/main/mainframe/sub-header/init.meta.json` (TextLabel)
+    - `src/StarterGui/fridge-ui/main/mainframe/UIAspectRatioConstraint/init.meta.json`
+    - `src/StarterGui/fridge-ui/main/mainframe/UICorner/init.meta.json`
+    - `src/StarterGui/fridge-ui/main/UIAspectRatioConstraint/init.meta.json`
     - `src/StarterGui/fridge-ui/close/init.meta.json` (Sound)
     - `src/StarterGui/fridge-ui/open/init.meta.json` (Sound)
+
+   Total: ~50 files if fully exact-safe. Use the live `_UI_Hierarchy.md` snapshot as cross-reference. If live structure differs from the snapshot, follow live (`?` flag the drift per step 21).
 19. For every script (the main `LocalScript` + 8 `setup` LocalScripts), follow the exact-vs-numbered-output rule from Phase 1.
 20. Update audit with the classification (likely a mix: structure exact, scripts mostly exact, some scripts maybe numbered-output-blocker).
 21. **If structural drift exists between live and the `_UI_Hierarchy.md` snapshot,** `[C] ?` flag in inbox: `[C] HH:MM — ? fridge-ui drifted from _UI_Hierarchy snapshot: <details>. Opus update?` Codex does not edit `_UI_Hierarchy.md` directly — Opus updates it at integration if the drift is real.
@@ -127,10 +142,14 @@ Expected outcome:
 
 ### Phase 5 — Wrap
 
-27. Update this plan's Status: 🟡 In Progress → 🟢 Shipped.
-28. Stage and commit on branch: `git commit -m "Live reconciliation: export fridge-ui, Theme, OverheadTagsToggleServer"`.
-29. Push branch. Don't merge to main.
-30. `[C]` log: `[C] HH:MM — Reconciliation continuation complete on branch live-reconciliation-2026-04-25. <N> exact, <N> structural, <N> blocker. Audit updated. Awaiting Opus review.`
+27. Update this plan's Status: 🟡 In Progress → 🟢 Shipped **only if all three targets exported successfully or were classified as blockers**. If any target stopped mid-export awaiting Opus review (per the `[C] ?` flags in Phases 1-3), leave Status at 🟡 In Progress and note the blocker in the inbox.
+28. Stage all changes: `git add -A` (or `git add` the specific paths under `src/`, `docs/live-repo-audit.md`, and the plan file's Status field). Verify with `git status` that no unintended files are staged.
+29. Commit on branch with a message that reflects what actually shipped:
+   - All three exact: `git commit -m "Live reconciliation: export fridge-ui, Theme, OverheadTagsToggleServer"`
+   - Partial success: `git commit -m "Live reconciliation: export <successful items>; <blocked item> classified as <bucket>"`
+   - Example partial: `git commit -m "Live reconciliation: export Theme, OverheadTagsToggleServer; fridge-ui blocked on AnchorPoint serialization"`
+30. Push branch. Don't merge to main.
+31. `[C]` log: `[C] HH:MM — Reconciliation continuation complete on branch live-reconciliation-2026-04-25. <N> exact, <N> structural, <N> blocker. Audit updated. Awaiting Opus review.`
 
 ## 6. Roblox Services Involved
 

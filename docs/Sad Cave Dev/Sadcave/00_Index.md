@@ -52,7 +52,7 @@ Legacy systems to remove (do NOT extend these):
 ### Workflow & Capture
 - [[_Workflow]] — how Opus + Codex + vault fit together (read this first on a fresh session)
 - `AGENTS.md` (at repo root, `C:\Projects\SadCave\AGENTS.md`) — rules Codex follows when reading/writing the vault and the codebase
-- `PLANS.md` (at repo root) — live-reconciliation plans (Codex's ongoing export work)
+- `PLANS.md` (at repo root) — 🧊 historical context only; running history of repo-vs-Studio export passes from 2026-04-19 to 2026-04-20. Do not append.
 - `docs/live-repo-audit.md` (at repo root) — authoritative export-status queue
 - [[00_Inbox/_Inbox]] — unsorted captures, this session
 - [[_Change_Log]] — append-only history of substantive changes

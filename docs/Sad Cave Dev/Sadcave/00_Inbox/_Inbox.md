@@ -13,12 +13,13 @@
 
 ---
 
-## YYYY-MM-DD (template — do not write here)
+<!-- New session entries go HERE — add a new dated section above this line, like:
+## 2026-04-26
+- [C] 09:15 — first observation
+-->
+
+## YYYY-MM-DD (template — do not write here, this is just a format example)
 
 - [O] HH:MM — example: noticed `CashLeaderstats` still referenced in three places, see `_Cleanup_Backlog`
 - [U] HH:MM — example: dialogue cooldown felt too short, bumped to 4s
 - [U] HH:MM — ? should daily reward streak break on 1 missed day or 2?
-
----
-
-<!-- Add new dated section above this line for each session -->

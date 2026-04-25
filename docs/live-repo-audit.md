@@ -161,8 +161,8 @@ These items are not proven tooling blockers. They remain outside the repo becaus
 - `game.ServerScriptService.OverheadTagsToggleServer`
 - `game.StarterGui.fridge-ui`
 - `game.ServerScriptService.Commands`
-- `game.ServerScriptService.DonationLeaderstats`
-- `game.ServerScriptService.DonationAmount`
+- ~~`game.ServerScriptService.DonationLeaderstats`~~ — **decision pending in cleanup backlog; do NOT export until Donations decision resolves. If Donations stay, export then; if Donations go, never export.**
+- ~~`game.ServerScriptService.DonationAmount`~~ — **same as above; tied to the Donations decision.**
 - `game.ServerScriptService.ChatTag`
 - `game.ServerScriptService.InviteFriends`
 - `game.ServerScriptService.AvItems`
