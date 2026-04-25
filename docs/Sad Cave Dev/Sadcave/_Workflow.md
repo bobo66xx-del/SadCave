@@ -15,7 +15,7 @@
 | Source of intent  | Obsidian vault            | What we're building and why                               |
 | Source of reality | Roblox Studio + Rojo repo | What actually exists                                      |
 
-**The core split:** Opus doesn't write code. Codex doesn't design. Both can read and write the vault — it's the shared workspace that lets them stay in sync without you re-explaining context.
+**The core split:** Opus doesn't write code. Codex doesn't design. Both *read* the vault freely — it's the shared workspace that lets them stay in sync without you re-explaining context. *Writes* are scoped: Opus owns design surfaces, Codex writes only to `00_Inbox/_Inbox.md` and the `Status` field of its current plan. Full write rules are in `AGENTS.md`.
 
 ---
 

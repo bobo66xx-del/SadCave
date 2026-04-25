@@ -116,7 +116,7 @@ Expected outcome:
     - `src/StarterGui/fridge-ui/open/init.meta.json` (Sound)
 19. For every script (the main `LocalScript` + 8 `setup` LocalScripts), follow the exact-vs-numbered-output rule from Phase 1.
 20. Update audit with the classification (likely a mix: structure exact, scripts mostly exact, some scripts maybe numbered-output-blocker).
-21. Update `_UI_Hierarchy.md` if Codex sees structural drift from the snapshot. **Wait — `_UI_Hierarchy.md` is in the vault, Codex doesn't have write access there.** If drift exists, `[C] ?` flag in inbox: `[C] HH:MM — ? fridge-ui drifted from _UI_Hierarchy snapshot: <details>. Opus update?`
+21. **If structural drift exists between live and the `_UI_Hierarchy.md` snapshot,** `[C] ?` flag in inbox: `[C] HH:MM — ? fridge-ui drifted from _UI_Hierarchy snapshot: <details>. Opus update?` Codex does not edit `_UI_Hierarchy.md` directly — Opus updates it at integration if the drift is real.
 22. `[C]` log: `[C] HH:MM — fridge-ui exported (<bucket counts>). <details>.`
 
 ### Phase 4 — Validate

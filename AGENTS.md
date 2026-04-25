@@ -86,10 +86,12 @@ The inbox is a **shared scratchpad**. Three of us write to it:
 
 This is a Roblox game. Use **Luau**, not Lua, not JavaScript, not Python.
 
-- Server scripts: `.server.luau`
-- Client scripts: `.client.luau`
-- Module scripts: `.luau`
+- Server scripts: `.server.lua`
+- Client scripts: `.client.lua`
+- Module scripts: `.lua`
 - File structure follows the Rojo project (`default.project.json`).
+
+> **Extension note:** files are named `.lua` (not `.luau`) to match the existing repo convention and Rojo's default mapping. The code inside is Luau — typed annotations, `task.wait`, etc. The extension is `.lua` for tooling reasons; the language is Luau.
 
 Roblox services you'll commonly use: `Players`, `ReplicatedStorage`, `ServerScriptService`, `StarterPlayerScripts`, `StarterGui`, `RunService`, `TweenService`, `DataStoreService`, `Lighting`, `SoundService`.
 
