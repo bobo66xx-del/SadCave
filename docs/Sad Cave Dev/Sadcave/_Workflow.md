@@ -25,6 +25,7 @@
 - You and Opus talk through a system or change here in chat.
 - Opus updates the relevant `02_Systems/` note as the conversation goes.
 - Decisions get logged. Open questions get flagged.
+- Opus may use `execute_luau` (Studio MCP) to query live state during design — current values, instance properties, quick calculations — without breaking conversation flow.
 - By end of conversation, the system note **is** the spec.
 
 ### 2. Handoff brief (Opus → Codex)
@@ -35,8 +36,9 @@
 
 ### 3. Build (with Codex)
 - You drive Codex against the brief.
-- Codex writes Luau, modifies Studio via MCP, commits through Rojo.
+- Codex writes Luau in the Rojo source tree (Rojo syncs files to Studio), uses Studio MCP for Studio-only changes (instances/properties not in the Rojo tree), and commits via git.
 - Codex captures observations to `00_Inbox/_Inbox.md` as it works (prefix `[C]`).
+- Before marking 🟢, Codex playtests via `start_stop_play` + `console_output` (Studio MCP) and notes the result in the inbox: errors, expected behavior confirmed, anything weird.
 - Codex updates the **Status** field of its plan file (🔵 → 🟡 → 🟢).
 - This is where most of the actual building happens.
 
@@ -49,6 +51,7 @@
 ### 5. Codex review (Opus, before integration)
 - After Codex finishes a build, Opus reads the resulting scripts via Studio MCP.
 - Compares against the handoff brief.
+- Reads Codex's playtest notes from the inbox. Spot-checks with `start_stop_play` + `console_output` if the system is high-risk or Codex's notes are thin.
 - Flags drift in the inbox: "spec said cooldown 3s, code has 5s — intentional?"
 - You decide: accept the drift (update the spec) or fix it (update the code).
 
@@ -58,6 +61,7 @@
   - Updates `02_Systems/` notes to match what got built
   - Appends substantive changes to `_Change_Log.md`
   - Moves unresolved `?` items to `09_Open_Questions/`
+  - Logs any Codex-generated placeholder assets in `02_Systems/_Cleanup_Backlog.md` so they don't accumulate untracked
   - Clears the inbox (today's section)
 - Opus writes a session recap in `07_Sessions/` using `_Session_Template.md`.
 
@@ -92,6 +96,8 @@ The vault is the design layer. Two repo-level surfaces sit beside it:
 
 **One planning surface, going forward.** All new plans — design-driven *and* live-reconciliation — live in `06_Codex_Plans/`. `PLANS.md` is sealed for context, not extended.
 
+**`AGENTS.md` is the Codex-facing mirror of `_Workflow.md`.** When workflow rules change that affect Codex (build loop, validation, write boundaries, conventions), update `AGENTS.md` in the same edit pass. The two documents are paired — drift between them creates silent disagreements about how the loop works.
+
 ---
 
 ## Decisions Locked In
@@ -111,6 +117,8 @@ The vault is the design layer. Two repo-level surfaces sit beside it:
 - **Codex implements without a brief** → vault doesn't reflect what was built. Mitigation: every system going to Codex gets a `06_Codex_Plans/` file first.
 - **Codex edits design surfaces** → silent drift, design conversation skipped. Mitigation: convention-only — Codex's instructions tell it to write only to inbox + plan Status. Opus reverts unauthorized edits during integration if it happens.
 - **Change log fills up with stray thoughts** → loses signal. Mitigation: only substantive shipped changes go in change log; ideas go to parking lot, questions go to open questions.
+- **Codex playtests but writes perfunctory observations** → playtest theater, no real validation. Mitigation: format expectation in step 3 ("errors, expected behavior confirmed, anything weird"). If a playtest note is just `[C] Playtested: ok`, treat it as unverified — Opus spot-checks during review.
+- **Generated placeholder assets accumulate untracked** → asset bloat over time, no one remembers what's placeholder vs final. Mitigation: integration logs Codex-generated placeholders to `_Cleanup_Backlog.md`; when real art ships, the placeholder swap gets flagged in the inbox so the entry can be retired.
 
 ---
 

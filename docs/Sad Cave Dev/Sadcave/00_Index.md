@@ -7,10 +7,14 @@
 
 ## 🎯 Current Priority
 
-**Expand the map with more places to chill/explore, then build a smooth XP/progression system that rewards presence, exploration, and light interaction.**
+**Build the new XP progression system, then redesign the title system on top of it.** Replaces the legacy time-only level system with one that rewards presence, exploration, and light interaction.
 
-Active focus this week:
-- [ ] Continue live-only reconciliation — next priority items per [the audit](../../live-repo-audit.md): `fridge-ui`, `Theme`, `OverheadTagsToggleServer`. See [[06_Codex_Plans/2026-04-25_Live_Reconciliation_Continuation_v1]].
+Active focus:
+- [ ] Ship XP Progression MVP — `ProgressionService` + `PresenceTick` + `XPBar`. See [[06_Codex_Plans/2026-04-25_XP_Progression_MVP_v1]].
+- [ ] Then: follow-up briefs for Discovery/Conversation sources, AchievementTracker, and Title System v2.
+
+Recently completed:
+- ✅ Live reconciliation top-priority queue cleared (session 3, 2026-04-25). See [[06_Codex_Plans/2026-04-25_Live_Reconciliation_Continuation_v1]].
 
 ---
 
@@ -18,8 +22,9 @@ Active focus this week:
 
 Legacy systems to remove (do NOT extend these):
 - Shop with Saber/Scythe/Gun/Rocket Launcher → see [[02_Systems/_Cleanup_Backlog]]
-- `CashLeaderstats` and `DonationLeaderstats` → see [[02_Systems/_Cleanup_Backlog]]
+- `CashLeaderstats` and `DonationLeaderstats` → see [[02_Systems/_Cleanup_Backlog]] (Cash removal blocked until XP Progression ships)
 - Duplicate SoftShutdown scripts, duplicate Menu ScreenGuis
+- Old `LevelLeaderstats` and `Levelup` chat notification — retired by XP Progression MVP
 
 ---
 
@@ -31,9 +36,9 @@ Legacy systems to remove (do NOT extend these):
 
 ### Active Systems
 - [[02_Systems/Dialogue_System]] — 🟢 Shipped
-- [[02_Systems/Title_System]] — 🟢 Shipped (cosmetic identity layer)
-- [[02_Systems/Level_System]] — 🟡 Shipped, needs redesign
-- [[02_Systems/XP_Progression]] — 🔵 Planned (current priority)
+- [[02_Systems/Title_System]] — 🔵 Planned (v2 redesign; v1 still live until v2 ships)
+- [[02_Systems/Level_System]] — 🟡 Shipped, being replaced by [[02_Systems/XP_Progression]]
+- [[02_Systems/XP_Progression]] — 🟡 Building (MVP plan written, ready for Codex)
 - [[02_Systems/NameTag_Status]] — 🟢 Shipped
 - [[02_Systems/Area_Discovery]] — 🟢 Shipped (badges only, ready to extend)
 - [[02_Systems/Daily_Rewards]] — 🟢 Shipped (review for tone fit)

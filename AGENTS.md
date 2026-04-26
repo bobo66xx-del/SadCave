@@ -1,6 +1,8 @@
 # AGENTS.md
 
 > Codex reads this at the start of every session. These rules govern how Codex interacts with the vault and the codebase. For the broader workflow doc (Opus side, integration, session loop), see `docs/Sad Cave Dev/Sadcave/_Workflow.md`.
+>
+> **These two docs are paired.** This file is the Codex-facing mirror of relevant rules from `_Workflow.md`. When workflow rules change that affect Codex (build loop, validation, write boundaries, conventions), `_Workflow.md` and `AGENTS.md` are updated in the same edit pass. Drift between them creates silent disagreements about how the loop works.
 
 ---
 
@@ -21,6 +23,14 @@ Opus designs. You implement. The vault is the shared spec.
 This repo is for Sad Cave / Roblox game work. Make the smallest safe change that solves the task and preserve existing behavior unless the user asks for a refactor.
 
 **Tone matters.** Sad Cave is a quiet, emotional, low-stimulation game. Read `docs/Sad Cave Dev/Sadcave/01_Vision/Tone_and_Rules.md` before adding anything player-facing. If a feature feels loud, gamified, or aggressive, it's probably wrong for this game even if it's mechanically sound. Flag tone concerns in the inbox.
+
+---
+
+## Asset Generation
+
+You may use `generate_mesh` and `generate_material` (Studio MCP) for placeholder assets when a brief calls for new visuals — a new prop, an unrigged enemy, a custom material. These are **placeholders**; real art passes happen separately with the user. Note what you generated in the inbox so it shows up at integration. Don't generate assets for systems whose look is design-locked (see relevant `02_Systems/` note).
+
+Placeholders are tracked in `_Cleanup_Backlog.md` (Opus logs them at integration) so they don't accumulate untracked. When real art replaces a placeholder, flag the swap in the inbox so the entry can be retired.
 
 ---
 
@@ -48,6 +58,21 @@ If you think a design surface needs to change, **write a `[C] ?` flag in the inb
 
 ---
 
+## Starting a Fresh Session
+
+When you begin work in a new session, walk this sequence before writing any code:
+
+1. You're reading this (`AGENTS.md`) — that's step 1. Done.
+2. If the user hands you a task with a `06_Codex_Plans/YYYY-MM-DD_*.md` brief: open it, read it fully.
+3. Follow `[[wikilinks]]` from the brief — usually `01_Vision/Tone_and_Rules` and the related `02_Systems/` note(s).
+4. If your task is anywhere near the no-touch list: read `02_Systems/_No_Touch_Systems.md`. If touching legacy: read `02_Systems/_Cleanup_Backlog.md`.
+5. Inspect live state via Studio MCP if the brief is light on context (`search_game_tree`, `inspect_instance`, `script_read`).
+6. Begin the Build Loop.
+
+For ad-hoc tasks (no brief), skip to step 4 if relevant, then step 5, then step 6.
+
+---
+
 ## Build Loop
 
 When the user hands you a task:
@@ -55,14 +80,16 @@ When the user hands you a task:
 1. **Read the brief.** Open the relevant `06_Codex_Plans/YYYY-MM-DD_System_Name_v1.md` file. Read it fully.
 2. **Follow the links.** Read any `[[wikilinks]]` in the brief — usually `01_Vision/Tone_and_Rules` and the related `02_Systems/` notes. These give you the context you need to implement in the right style.
 3. **Update plan status.** Change the `Status` field from 🔵 Planned to 🟡 In Progress.
-4. **Implement.** Write the Luau, modify Studio via MCP, commit through Rojo. Follow the steps in the brief.
+4. **Implement.** Write Luau in the Rojo source tree (`src/...`) — Rojo syncs the files to Studio automatically. Use Studio MCP for changes that live outside the Rojo tree (instances, properties, model edits not represented in the source tree). Commit via git when the change is ready. Follow the steps in the brief.
 5. **Capture as you go.** Drop one-line observations into `00_Inbox/_Inbox.md` with prefix `[C]` and a timestamp. Examples:
    - `[C] 14:32 — Built dialogue cooldown at 4s as spec'd.`
    - `[C] 14:45 — Renamed RemoteEvent OnInteract → OnDialogueRequest to avoid collision with old shop script.`
    - `[C] 15:02 — ? Spec says 3s cooldown but tween animation runs 3.5s. Bumped to 4s, ok?`
-6. **Update plan status when done.** Change `Status` to 🟢 Shipped. Run through the Studio Test Checklist in the brief. Note any failures in the inbox.
+6. **Playtest, then mark shipped.** Use `start_stop_play` + `console_output` (Studio MCP) to playtest the changed system. Note the result in the inbox (`[C] HH:MM — Playtested: ...`); flag any errors with `?`. Then change `Status` to 🟢 Shipped and run through any remaining Studio Test Checklist items in the brief.
+   - **If playtest finds a runtime error:** small/obvious bug → fix and re-playtest. Ambiguous behavior or a design conflict → stop, flag with `[C] ? — Playtest: <description>`, do NOT mark shipped. Leave Status as 🟡.
+   - **If Studio isn't running or MCP is unavailable:** do NOT silently skip the playtest and mark shipped. Flag with `[C] ? — Could not playtest: <reason>` and call this out in your final note. Leave Status as 🟡 until the playtest can run.
 
-For ad-hoc tasks without a `06_Codex_Plans/` brief (small fixes, one-offs), skip steps 1–3 and 6. Still capture observations in the inbox with `[C]` prefix.
+For ad-hoc tasks without a `06_Codex_Plans/` brief (small fixes, one-offs), skip steps 1–3 and the Status update in step 6 — there's no plan file to read or update. Still playtest the change and capture observations in the inbox with `[C]` prefix.
 
 ---
 
@@ -121,13 +148,9 @@ Main live areas:
 
 ## Critical No-Touch Systems
 
-Do not modify these without an explicit request and an Opus-written plan:
+**Canonical list lives in `docs/Sad Cave Dev/Sadcave/02_Systems/_No_Touch_Systems.md`.** Read it before any task that looks adjacent to player data, monetization, moderation, or live networking contracts. The list is maintained alongside the `02_Systems/` notes so it stays current with reality.
 
-- **DataStores / saved player data:** `LevelLeaderstats`, `TitleService`, `DailyRewardsServer`, `FavoritePromptPersistence`, `NoteSystemServer`. Note: `CashLeaderstats` and `ShopService` are slated for removal — they're frozen, not extended (see Cleanup Backlog below).
-- **Monetization / entitlement:** `TipProductConfig`, tip purchase UI/scripts, gamepass checks in `TitleService`, `LevelLeaderstats`, admin-related purchase/access scripts
-- **Admin / moderation / reports:** `AdminServerManager`, `ReportHandler`, `ReplicatedStorage.Admin`, `ReplicatedStorage.ReportRemotes`
-- **Live networking contracts:** `TitleRemotes`, `NoteSystem`, `ReportRemotes`, `ReplicatedStorage.Remotes`, daily reward remotes. Note: `ShopRemotes` and `ReplicatedStorage.Remotes.Shop` are slated for removal with the legacy Shop.
-- **Title / overhead tag pipeline:** `TitleConfig`, `TitleService`, `NameTagScript Owner`. Note: this no-touch warning is about the shared title pipeline, not the locally managed `StarterGui.TitleMenu` UI.
+Do not modify anything on that list without an explicit request from the user AND an Opus-written plan in `06_Codex_Plans/` covering the change. If you're unsure whether a system is on the list, read it — if it is, flag with `[C] ?` and ask before proceeding.
 
 ---
 
@@ -151,12 +174,12 @@ If your task touches a legacy area, read the backlog first. If your work conflic
 
 No automated install/build/test commands are confirmed in this repo. Say that clearly if no automated checks were run.
 
-Use manual Roblox Studio validation. Preferred workflow:
+Use Roblox Studio validation. Preferred workflow:
 
 - inspect the affected live objects/scripts in Studio first
 - make the smallest change
-- run a Studio playtest focused on the changed system
-- if UI changed, verify the exact screen(s) involved
+- run a Studio playtest focused on the changed system using `start_stop_play` + `console_output` (Studio MCP); capture observed behavior and any errors
+- if UI changed, verify the exact screen(s) involved (visual checks still need a human eye)
 - if remotes/data/title/shop/admin behavior changed, test the full client-server flow and call out any untested edge cases
 
 In your final note, state:
@@ -188,7 +211,7 @@ For anything larger or riskier than a small fix, the relevant `06_Codex_Plans/` 
 - Relevant checks were run, or missing checks were stated clearly
 - No unrelated systems were changed
 - Risks, follow-ups, or limits are stated clearly
-- Plan `Status` is set to 🟢 Shipped
+- Plan `Status` is set to 🟢 Shipped (if there is a plan file)
 - Inbox captures from this session are in `00_Inbox/_Inbox.md`
 - For live-reconciliation work, `docs/live-repo-audit.md` reflects any items that moved between buckets
 
