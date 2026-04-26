@@ -14,6 +14,9 @@
 
 <!-- New entries go directly below this line -->
 
+2026-04-25 — Live Reconciliation — Exported `Theme.server.lua` and `OverheadTagsToggleServer.server.lua` to repo (structurally mapped, 9/9 and 35/35 lines). Both hit the numbered-conversational-output connector blocker, so not byte-exact. `fridge-ui` classified as tooling blocker (AnchorPoint null on centered nodes). Audit updated; highest-priority queue cleared.
+2026-04-25 — NameTag_Status — Confirmed `OverheadTagsToggleServer` is a no-op server handler. Overhead tag visibility is client-side only. Server remote kept for backward compatibility. Updated `_Live_Systems_Reference` to reflect this — was previously listed as an unverified assumption.
+
 2026-04-25 — Workflow — Frozen `PLANS.md` as historical-only; consolidated all planning to `06_Codex_Plans/` in the vault. Two surfaces was unnecessary friction; PLANS.md predated the vault and was never the intended go-forward.
 2026-04-25 — Workflow — Vault committed to git for the first time. Backed up to `origin/main` after a near-deletion incident. Future drift cannot wipe the vault silently.
 2026-04-25 — Workflow — Migrated `docs/project-overview.md`, `docs/game-systems.md`, `docs/ui-hierarchy.md`, `docs/known-bugs.md` into the vault. Single source of truth for text documentation. Originals left as stub pointers.

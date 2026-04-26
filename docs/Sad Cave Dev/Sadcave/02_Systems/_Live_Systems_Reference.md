@@ -212,9 +212,11 @@ Confirmed facts:
 - It uses title effect data from `TitleConfig` and applies shimmer / pulse / glow / flicker / tint behavior to title text.
 - `ServerScriptService.AFK` creates `ReplicatedStorage.AfkEvent` and appends `[AFK]` to nametag text in `workspace.NameTags`.
 - `StarterPlayer.StarterPlayerScripts.AFKLS` fires `AfkEvent` when the game window loses or gains focus.
+- `ServerScriptService.OverheadTagsToggleServer` creates `ReplicatedStorage.OverheadTagsToggle` (RemoteEvent), `ReplicatedStorage.OverheadTagsEnabled` (BoolValue, default `true`), and `ReplicatedStorage.RebuildOverheadTags` (BindableEvent). However, its `OnServerEvent` handler is a **no-op** — the server does not toggle global state. Overhead tag visibility is a **client-side preference only**. The server remote exists solely for backward compatibility with older clients that may still fire it. This is the intended design — the original implementation incorrectly made it a global server toggle, and it was later corrected to client-only.
 
 Assumptions / likely responsibilities:
-- `OverheadTagsToggleServer` likely controls global enable/disable behavior for overhead tags, but I did not inspect it directly.
+- This is the canonical nametag/overhead-tag pipeline for the game.
+- `ReplicatedStorage.TitleEffectPreview` likely exists to preview the same title visual effect definitions in UI, but I did not inspect that module directly.
 
 ### Notes / Writable Notes
 
