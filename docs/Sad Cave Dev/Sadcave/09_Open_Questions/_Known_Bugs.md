@@ -40,40 +40,26 @@
 - Actual result: error logged on `FavoritePromptPersistence.SourceCode` line 4.
 - Roblox output / error message: not captured verbatim — Codex flagged the error during PRs #4 and #5 playtests but didn't paste the full stack.
 - Suspected cause: unknown. `FavoritePromptPersistence` is a no-touch system; the error may relate to its `Workspace.Avalog` dependency that the audit refresh flagged as load-bearing-but-not-in-repo.
-- Notes: the audit refresh (PR #6) revealed `FavoritePromptPersistence` depends on `Workspace.Avalog` (a 453-script subtree). Could be related. Investigation deferred until Tyler decides whether to bring `Avalog` into the repo or not. **Do not fix without an Opus-written brief** — `FavoritePromptPersistence` is on the no-touch list.
-
-### PromptFavorite infinite yield warnings on `FavoritePromptShown`
-
-- Status: open
-- Priority: low (pre-existing, not blocking new work)
-- Client or server: client
-- Where it happens: testing place, every Studio playtest
-- Exact object/script path: `StarterPlayer/StarterPlayerScripts/PromptFavorite.client.lua` (or one of the scripts of that name — see class-mismatch bug below)
-- Repro steps:
-  1. Start a Studio playtest.
-  2. Watch the console output for warnings about `FavoritePromptShown`.
-- Expected result: no infinite-yield warnings.
-- Actual result: warning that the script is yielding indefinitely on `FavoritePromptShown`.
-- Suspected cause: a missing or never-fired event named `FavoritePromptShown` somewhere in the dependency chain.
-- Notes: pre-existing; first observed during PR #4 playtest. Not investigated yet.
-
-### PromptFavorite class mismatch — exported as `.client.lua` but live class is `Script`
-
-- Status: open
-- Priority: medium (export type mismatch could cause subtle runtime divergence)
-- Client or server: client (live class is `Script` running in StarterPlayerScripts; uses `Players.LocalPlayer` and client prompt APIs, so it functions as a LocalScript)
-- Exact object/script path: `src/StarterPlayer/StarterPlayerScripts/PromptFavorite.client.lua` was exported during PR #4, but live `StarterPlayerScripts.PromptFavorite` is class `Script` (not `LocalScript`).
-- Repro steps:
-  1. `inspect_instance` on `StarterPlayer.StarterPlayerScripts.PromptFavorite` in Studio — class is `Script`.
-  2. Look at repo file `src/StarterPlayer/StarterPlayerScripts/PromptFavorite.client.lua` — extension implies LocalScript.
-- Expected result: the repo extension matches the live class.
-- Actual result: extension/class mismatch. There's also a duplicate-named `PromptFavorite` Script flagged as a tooling blocker in PR #6.
-- Suspected cause: legacy practice of running client logic in a `Script` parented under StarterPlayerScripts (Roblox treats it as client-side because of the parent). The repo export normalized to `.client.lua` for clarity but didn't update the live class.
-- Notes: needs a small Codex brief to either (a) change live class to `LocalScript` to match repo, or (b) rename repo file to `.lua` and let `init.meta.json` declare the class. Resolve the duplicate-named `PromptFavorite` Script tooling blocker at the same time.
+- Notes: the audit refresh (PR #6) revealed `FavoritePromptPersistence` depends on `Workspace.Avalog` (a 453-script subtree). Could be related. Investigation deferred until Tyler decides whether to bring `Avalog` into the repo or not (Tyler 2026-04-27: skipped the Avalog Manual Export, so this stays deferred). **Do not fix without an Opus-written brief** — `FavoritePromptPersistence` is on the no-touch list.
+- 2026-04-27 PR #8 playtest observation: this error did NOT reproduce in Codex's PR #8 playtest run. One non-repro doesn't equal "fixed" — could be flaky, timing-dependent, or affected by something in the testing-place state. Watch flag: if it stops reproducing across multiple sessions, move to Resolved with a "did not reproduce after PR #8" note.
 
 ## Resolved bugs
 
-- _(none yet)_
+### PromptFavorite infinite yield warnings on `FavoritePromptShown`
+
+- Status: **fixed by PR #8** (2026-04-27 22:00 UTC)
+- Priority: was low
+- Client or server: client
+- Resolution: bounded the unbounded `WaitForChild("FavoritePromptShown")` in `src/StarterPlayer/StarterPlayerScripts/PromptFavorite.client.lua` to a 10s timeout, with a tagged graceful-return warn (`"FavoritePromptShown remote missing in ReplicatedStorage; favorite prompt disabled this session"`) and an early `return` if the remote never appears. Codex's PR #8 read of `FavoritePromptPersistence` confirmed the contract: the server creates `FavoritePromptShown` at runtime via `Instance.new` and listens with `:OnServerEvent`, so the original yield was a race between the client's wait and the server's runtime publish. The 10s bound is comfortably larger than the observed publish time. Codex's playtest confirmed no infinite-yield warning, normal `[FavoritePrompt]` script logs, and `[FavoritePrompt] delayed prompt started FavDelay= 600` firing as expected.
+- See: `06_Codex_Plans/2026-04-27_PromptFavorite_Bugs_Cleanup_v1.md`, `_Change_Log.md` 2026-04-27 22:00 UTC.
+
+### PromptFavorite class mismatch — duplicate `Script` instance in StarterPlayerScripts
+
+- Status: **fixed by PR #8** (2026-04-27 22:00 UTC)
+- Priority: was medium
+- Client or server: client
+- Resolution: deleted the duplicate `StarterPlayer.StarterPlayerScripts.PromptFavorite` `Script` class instance via Studio MCP. The canonical `LocalScript` (matching `src/StarterPlayer/StarterPlayerScripts/PromptFavorite.client.lua` byte-equal modulo one trailing newline) stays. The original "class mismatch" repro in this file was actually `inspect_instance` resolving the ambiguous path to the duplicate `Script` instance and reporting its class — the repo file itself was always Exact-matched against the canonical `LocalScript`. Codex captured the deleted duplicate's full source in inbox before deletion as a recovery path. The audit's `duplicate StarterPlayer.StarterPlayerScripts.PromptFavorite Script` tooling blocker is now resolved.
+- See: `06_Codex_Plans/2026-04-27_PromptFavorite_Bugs_Cleanup_v1.md`, `_Change_Log.md` 2026-04-27 22:00 UTC, `docs/live-repo-audit.md` Tooling Blockers section.
 
 ## Common Roblox bug categories
 

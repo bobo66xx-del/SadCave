@@ -1,7 +1,7 @@
 # AGENTS.md — Workflow & Codex Rules
 
 > The single source of truth for how Sad Cave gets built. Read by:
-> - **Opus (Claude in chat)** — at the start of any fresh session to re-orient.
+> - **Claude (in Cowork)** — at the start of any fresh session to re-orient.
 > - **Codex** — at the start of every session, plus before each task.
 > - **The user (the project owner)** — whenever they want to understand the rules.
 >
@@ -14,13 +14,13 @@
 | Role | Who | What they do |
 | ---- | --- | ------------ |
 | Director | The user | Taste, final call, hands-on Studio work for visual/feel |
-| Planner | Opus (Claude, in chat) | Design, architecture, vault keeper, spec writer, Codex reviewer |
+| Planner | Claude (in Cowork) | Design, architecture, vault keeper, spec writer, Codex reviewer |
 | Builder | Codex | Luau implementation, repo edits, Studio changes via MCP |
 | Source of truth | The repo (`C:\Projects\SadCave\`) | The canonical version of all code and structure |
 | Runtime | Roblox Studio | Where the game runs and gets tested. Currently also holds legacy not yet migrated to the repo. |
 | Documentation | Obsidian vault (`docs/Sad Cave Dev/Sadcave/`) | The shared brain — design intent, history, open questions |
 
-**The core split:** Opus doesn't write code. Codex doesn't design. The repo is the source of truth — Studio is the runtime, not the master copy. Anything edited only in Studio that isn't in the repo is at risk of being lost or going invisible.
+**The core split:** Claude doesn't write code. Codex doesn't design. The repo is the source of truth — Studio is the runtime, not the master copy. Anything edited only in Studio that isn't in the repo is at risk of being lost or going invisible.
 
 ---
 
@@ -28,15 +28,15 @@
 
 How a task flows from idea to shipped change.
 
-### 1. Design (with Opus)
-- The user and Opus talk through a system or change.
-- Opus updates the relevant `02_Systems/` note as the conversation goes.
+### 1. Design (with Claude)
+- The user and Claude talk through a system or change.
+- Claude updates the relevant `02_Systems/` note as the conversation goes.
 - Decisions get logged. Open questions get flagged.
-- Opus may use `execute_luau` (Studio MCP) to query live state during design.
+- Claude may use `execute_luau` (Studio MCP) to query live state during design.
 - By end of conversation, the system note **is** the spec.
 
-### 2. Handoff brief (Opus → Codex)
-- When a system is ready to build, Opus writes a plan in `06_Codex_Plans/` using `_Plan_Template.md`.
+### 2. Handoff brief (Claude → Codex)
+- When a system is ready to build, Claude writes a plan in `06_Codex_Plans/` using `_Plan_Template.md`.
 - Filename: `YYYY-MM-DD_System_Name_v1.md`.
 - The brief is short, declarative, self-contained. Codex reads it directly from the vault.
 - Codex follows wikilinks (e.g. `01_Vision/Tone_and_Rules`, related `02_Systems/` notes) for context.
@@ -50,26 +50,26 @@ How a task flows from idea to shipped change.
 
 ### 4. Capture (everyone → Inbox)
 - Observations go in `00_Inbox/_Inbox.md`.
-- One line per entry. Timestamped. Prefixed `[U]` (user), `[O]` (Opus), or `[C]` (Codex).
+- One line per entry. Timestamped. Prefixed `[U]` (user), `[O]` (Claude — the letter is legacy short for "Opus" and is preserved so older inbox/change-log entries still read cleanly), or `[C]` (Codex).
 - Use `?` for unresolved items needing the user's decision.
-- **Opus rule: inbox-first for any vault edit.** Before editing any file in the vault during a session — `00_Index.md`, `_Change_Log.md`, `_Decisions.md`, any `02_Systems/` spec, any `06_Codex_Plans/` brief, any meta-doc — write an `[O]` inbox line first stating what you're about to change and why. The inbox-first habit catches design-work drift the way it catches Codex's build-work drift; without it, the integration record is incomplete and you can't reconstruct what changed mid-session. The only vault edit that doesn't need a prior `[O]` line is the inbox itself.
+- **Claude rule: inbox-first for any vault edit.** Before editing any file in the vault during a session — `00_Index.md`, `_Change_Log.md`, `_Decisions.md`, any `02_Systems/` spec, any `06_Codex_Plans/` brief, any meta-doc — write an `[O]` inbox line first stating what you're about to change and why. The inbox-first habit catches design-work drift the way it catches Codex's build-work drift; without it, the integration record is incomplete and you can't reconstruct what changed mid-session. The only vault edit that doesn't need a prior `[O]` line is the inbox itself.
 
-### 5. Opus review (before the user accepts Codex's work)
-- **Every Codex task gets reviewed by Opus. No exceptions, no risk gradient.** The user does not need to read code to verify it — Opus does that and reports in plain English.
-- Opus reads the pushed branch via GitHub MCP — full diff against `main`, plus Codex's inbox notes — and runs a playtest if Codex didn't or if behavior needs verifying. (For Studio-only changes that aren't in the Rojo tree, Opus reads via Studio MCP.)
-- Opus tells the user, in plain English, **"looks good — here's what changed"** or **"wait, something's off — here's what and why."**
+### 5. Claude review (before the user accepts Codex's work)
+- **Every Codex task gets reviewed by Claude. No exceptions, no risk gradient.** The user does not need to read code to verify it — Claude does that and reports in plain English.
+- Claude reads the pushed branch via GitHub MCP — full diff against `main`, plus Codex's inbox notes — and runs a playtest if Codex didn't or if behavior needs verifying. (For Studio-only changes that aren't in the Rojo tree, Claude reads via Studio MCP.)
+- Claude tells the user, in plain English, **"looks good — here's what changed"** or **"wait, something's off — here's what and why."**
 - The user decides based on the verdict. If verdict is "looks good," the user merges the branch into `main` (one click on GitHub, or `git merge` locally). If verdict flags problems, Codex fixes on the same branch and the review repeats.
-- The branch never lands in `main` without Opus review + user merge.
+- The branch never lands in `main` without Claude review + user merge.
 
-### 6. Integrate (Opus, end of session)
+### 6. Integrate (Claude, end of session)
 - The user says "wrap up" or "let's integrate."
-- Opus reads the inbox + relevant system notes and reconciles:
+- Claude reads the inbox + relevant system notes and reconciles:
   - Updates `02_Systems/` notes to match what got built
   - Appends substantive changes to `_Change_Log.md`
   - Moves unresolved `?` items to `09_Open_Questions/`
   - Logs any Codex-generated placeholder assets in `02_Systems/_Cleanup_Backlog.md` so they don't accumulate untracked
   - Clears the inbox (today's section)
-- Opus writes a session recap in `07_Sessions/` using `_Session_Template.md`.
+- Claude writes a session recap in `07_Sessions/` using `_Session_Template.md`.
 
 ---
 
@@ -100,7 +100,7 @@ Files that live at the repo root, not in the vault:
 
 | File | Purpose | Who writes |
 |------|---------|-----------|
-| `AGENTS.md` (this file) | Workflow + Codex rules. The single source of process truth. | Opus, only when the workflow itself changes |
+| `AGENTS.md` (this file) | Workflow + Codex rules. The single source of process truth. | Claude, only when the workflow itself changes |
 | `PLANS.md` | **Historical context only.** Pre-vault repo-vs-Studio reconciliation history (2026-04-19 to 2026-04-20). | Nobody. Frozen. |
 | `docs/live-repo-audit.md` | Authoritative classification of every live object's export status (exact / structurally mapped / blocker / manual). | Codex updates as items move between buckets |
 
@@ -110,7 +110,7 @@ All new plans live in `06_Codex_Plans/`. `PLANS.md` is sealed for context, not e
 
 # Codex Rules
 
-The rest of this doc is written for Codex (you, when you're Codex). Opus reads it for shared context but is never the addressee below.
+The rest of this doc is written for Codex (you, when you're Codex). Claude reads it for shared context but is never the addressee below.
 
 ---
 
@@ -119,10 +119,10 @@ The rest of this doc is written for Codex (you, when you're Codex). Opus reads i
 You are the **Builder** in the stack:
 
 - **The user** — director, taste, final call
-- **Opus (Claude, in chat)** — design, architecture, vault keeper, your reviewer
+- **Claude (in Cowork)** — design, architecture, vault keeper, your reviewer
 - **Codex (you)** — Luau implementation, repo edits, Studio changes via MCP
 
-Opus designs. You implement. The repo is the source of truth; Studio is the runtime. Every task you finish is reviewed by Opus before the user accepts it — your job is to leave clear-enough notes in the inbox that the review goes smoothly.
+Claude designs. You implement. The repo is the source of truth; Studio is the runtime. Every task you finish is reviewed by Claude before the user accepts it — your job is to leave clear-enough notes in the inbox that the review goes smoothly.
 
 ---
 
@@ -132,7 +132,7 @@ This repo is for Sad Cave / Roblox game work. Make the smallest safe change that
 
 **Tone matters.** Sad Cave is a quiet, emotional, low-stimulation game. Read `docs/Sad Cave Dev/Sadcave/01_Vision/Tone_and_Rules.md` before adding anything player-facing. If a feature feels loud, gamified, or aggressive, it's probably wrong for this game even if it's mechanically sound. Flag tone concerns in the inbox.
 
-**The user does not script.** Do not assume they will catch bugs by reading your code. Your responsibility is to leave clear inbox notes about what you did, what you tested, and what you weren't sure about — Opus reviews and translates this for the user.
+**The user does not script.** Do not assume they will catch bugs by reading your code. Your responsibility is to leave clear inbox notes about what you did, what you tested, and what you weren't sure about — Claude reviews and translates this for the user.
 
 ---
 
@@ -140,7 +140,7 @@ This repo is for Sad Cave / Roblox game work. Make the smallest safe change that
 
 You may use `generate_mesh` and `generate_material` (Studio MCP) for placeholder assets when a brief calls for new visuals — a new prop, an unrigged enemy, a custom material. These are **placeholders**; real art passes happen separately with the user. Note what you generated in the inbox so it shows up at integration. Don't generate assets for systems whose look is design-locked (see relevant `02_Systems/` note).
 
-Placeholders are tracked in `_Cleanup_Backlog.md` (Opus logs them at integration) so they don't accumulate untracked. When real art replaces a placeholder, flag the swap in the inbox so the entry can be retired.
+Placeholders are tracked in `_Cleanup_Backlog.md` (Claude logs them at integration) so they don't accumulate untracked. When real art replaces a placeholder, flag the swap in the inbox so the entry can be retired.
 
 ---
 
@@ -155,14 +155,14 @@ You have **write access only to** `00_Inbox/_Inbox.md` — append observations a
 You do **NOT** edit:
 
 - `01_Vision/` — north star, locked
-- `02_Systems/` — design specs, owned by Opus
-- `03_Map_Locations/`, `04_Dialogue/`, `05_NPCs/` — design surfaces, owned by Opus
-- `_Change_Log.md` — Opus appends this during integration
-- `06_Codex_Plans/` — Opus owns plan files; you read them but don't modify
-- `00_Index.md` — meta-doc, owned by Opus
-- `09_Open_Questions/` — Opus moves items here during integration
+- `02_Systems/` — design specs, owned by Claude
+- `03_Map_Locations/`, `04_Dialogue/`, `05_NPCs/` — design surfaces, owned by Claude
+- `_Change_Log.md` — Claude appends this during integration
+- `06_Codex_Plans/` — Claude owns plan files; you read them but don't modify
+- `00_Index.md` — meta-doc, owned by Claude
+- `09_Open_Questions/` — Claude moves items here during integration
 
-If you think a design surface needs to change, **write a `[C] ?` flag in the inbox instead**. Opus will pick it up at integration and either update the spec or push back.
+If you think a design surface needs to change, **write a `[C] ?` flag in the inbox instead**. Claude will pick it up at integration and either update the spec or push back.
 
 ---
 
@@ -195,7 +195,7 @@ When the user hands you a task:
 5. **Playtest before declaring done.** Use `start_stop_play` + `console_output` (Studio MCP) to playtest the changed system. Note the result in the inbox (`[C] HH:MM — Playtested: ...`); flag any errors with `?`. Run through any remaining Studio Test Checklist items in the brief.
    - **If playtest finds a runtime error:** small/obvious bug → fix and re-playtest. Ambiguous behavior or design conflict → stop, flag with `[C] ? — Playtest: <description>`, do NOT declare done.
    - **If Studio isn't running or MCP is unavailable:** do NOT silently skip the playtest and declare done. Flag with `[C] ? — Could not playtest: <reason>` and call this out in your final note.
-6. **Push the branch and hand back for review.** Push your branch to GitHub (`git push -u origin codex/<task-name>`). Tell the user the branch is pushed and the task is ready for Opus review. State clearly what you did, what you tested, and what you flagged with `?`. **Do not merge. Do not consider the task shipped** — that's Opus's review + the user's merge.
+6. **Push the branch and hand back for review.** Push your branch to GitHub (`git push -u origin codex/<task-name>`). Tell the user the branch is pushed and the task is ready for Claude review. State clearly what you did, what you tested, and what you flagged with `?`. **Do not merge. Do not consider the task shipped** — that's Claude's review + the user's merge.
 
 ---
 
@@ -204,7 +204,7 @@ When the user hands you a task:
 The inbox is a **shared scratchpad**. Three of us write to it:
 
 - `[U]` — the user
-- `[O]` — Opus
+- `[O]` — Claude (the letter is legacy short for "Opus" and is preserved so older inbox/change-log entries still read cleanly)
 - `[C]` — you
 
 **Format:** `[C] HH:MM — short description.`
@@ -258,11 +258,11 @@ git checkout -b codex/<task-name>
 git push -u origin codex/<task-name>
 ```
 
-Then tell the user the branch is pushed and ready for Opus review. **Do not merge. Do not push to `main`. Do not delete the branch.**
+Then tell the user the branch is pushed and ready for Claude review. **Do not merge. Do not push to `main`. Do not delete the branch.**
 
 **If review flags problems:** fix on the same branch, commit, push again. Same branch, same review cycle.
 
-**`main` is sacred.** Only the user merges (after Opus reviews). Codex never touches `main`.
+**`main` is sacred.** Only the user merges (after Claude reviews). Codex never touches `main`.
 
 ---
 
@@ -288,7 +288,7 @@ Main live areas:
 
 **Canonical list lives in `docs/Sad Cave Dev/Sadcave/02_Systems/_No_Touch_Systems.md`.** Read it before any task that looks adjacent to player data, monetization, moderation, or live networking contracts. The list is maintained alongside the `02_Systems/` notes so it stays current with reality.
 
-Do not modify anything on that list without an explicit request from the user AND an Opus-written plan in `06_Codex_Plans/` covering the change. If you're unsure whether a system is on the list, read it — if it is, flag with `[C] ?` and ask before proceeding.
+Do not modify anything on that list without an explicit request from the user AND a Claude-written plan in `06_Codex_Plans/` covering the change. If you're unsure whether a system is on the list, read it — if it is, flag with `[C] ?` and ask before proceeding.
 
 ---
 
@@ -333,13 +333,13 @@ In your final note, state:
 
 All new plans live in `06_Codex_Plans/YYYY-MM-DD_System_Name_v1.md` in the vault. One file per task. Each plan is self-contained: purpose, files, step-by-step, validation, rollback.
 
-The audit trail during work goes to `00_Inbox/_Inbox.md` as `[C] HH:MM —` entries — that's how progress is tracked. You don't edit plan files. At session end, Opus integrates the inbox into the change log.
+The audit trail during work goes to `00_Inbox/_Inbox.md` as `[C] HH:MM —` entries — that's how progress is tracked. You don't edit plan files. At session end, Claude integrates the inbox into the change log.
 
 **`PLANS.md` (at repo root) is historical context, not an active surface.** It contains the running history of repo-vs-Studio export passes from 2026-04-19 through 2026-04-20, written before the vault existed. Read it when you need context on prior reconciliation decisions. **Do not append to it.** New live-reconciliation work uses `06_Codex_Plans/` like any other task.
 
 **`docs/live-repo-audit.md` (at repo root)** is the authoritative classification of every live object's export status. Codex updates the audit as items move between buckets. Read it before starting any export work — it's the queue.
 
-For anything larger or riskier than a small fix, the relevant `06_Codex_Plans/` brief must exist before you start coding. If scope changes mid-build, flag in the inbox so Opus can update the plan.
+For anything larger or riskier than a small fix, the relevant `06_Codex_Plans/` brief must exist before you start coding. If scope changes mid-build, flag in the inbox so Claude can update the plan.
 
 ---
 
@@ -356,7 +356,7 @@ You consider yourself done with a task when:
 - Your branch is pushed to GitHub (`codex/<task-name>`)
 - You've handed back to the user with a clear summary of what you did and what you tested
 
-**You don't decide that a task is shipped.** That's Opus's review + the user's merge. "Done" from your side means "branch pushed and ready for review."
+**You don't decide that a task is shipped.** That's Claude's review + the user's merge. "Done" from your side means "branch pushed and ready for review."
 
 ---
 
@@ -433,13 +433,13 @@ When Codex pushes a branch and hands back, Claude follows the routine in `docs/S
 # Anti-patterns (things that will break the workflow)
 
 - **Inbox never gets integrated** → vault drifts, becomes useless. Mitigation: integration at end of every session by default.
-- **System notes get edited mid-build without going through inbox** → Opus and the user both editing the same note simultaneously. Mitigation: during active building, observations go to inbox; system notes get updated only at integration.
+- **System notes get edited mid-build without going through inbox** → Claude and the user both editing the same note simultaneously. Mitigation: during active building, observations go to inbox; system notes get updated only at integration.
 - **Codex implements without a brief** → vault doesn't reflect what was built. Mitigation: every system going to Codex gets a `06_Codex_Plans/` file first.
-- **Codex edits design surfaces** → silent drift, design conversation skipped. Mitigation: convention-only — Codex's instructions tell it to write only to inbox. Opus reverts unauthorized edits during integration if it happens.
+- **Codex edits design surfaces** → silent drift, design conversation skipped. Mitigation: convention-only — Codex's instructions tell it to write only to inbox. Claude reverts unauthorized edits during integration if it happens.
 - **Change log fills up with stray thoughts** → loses signal. Mitigation: only substantive shipped changes go in change log; ideas go to parking lot, questions go to open questions.
-- **Codex playtests but writes perfunctory observations** → playtest theater, no real validation. Mitigation: format expectation in Build Loop step 5 ("errors, expected behavior confirmed, anything weird"). If a playtest note is just `[C] Playtested: ok`, treat it as unverified — Opus playtests during review.
+- **Codex playtests but writes perfunctory observations** → playtest theater, no real validation. Mitigation: format expectation in Build Loop step 5 ("errors, expected behavior confirmed, anything weird"). If a playtest note is just `[C] Playtested: ok`, treat it as unverified — Claude playtests during review.
 - **Generated placeholder assets accumulate untracked** → asset bloat over time, no one remembers what's placeholder vs final. Mitigation: integration logs Codex-generated placeholders to `_Cleanup_Backlog.md`; when real art ships, the placeholder swap gets flagged in the inbox so the entry can be retired.
-- **Opus skips reviewing because the task seemed small** → bugs slip through that the user can't catch (the user does not script). Mitigation: review is universal, not risk-graded. Every Codex task gets read by Opus and gets a plain-English verdict before the user accepts.
-- **The user reads code to verify Codex's work** → user can't script, can't catch real problems, gets stuck pretending to evaluate something they can't read. Mitigation: Opus reviews and gives a verdict. The user decides based on the verdict, not the code.
+- **Claude skips reviewing because the task seemed small** → bugs slip through that the user can't catch (the user does not script). Mitigation: review is universal, not risk-graded. Every Codex task gets read by Claude and gets a plain-English verdict before the user accepts.
+- **The user reads code to verify Codex's work** → user can't script, can't catch real problems, gets stuck pretending to evaluate something they can't read. Mitigation: Claude reviews and gives a verdict. The user decides based on the verdict, not the code.
 - **Studio gets edited as if it were the source of truth** → repo and Studio drift, work gets lost. Mitigation: scripts live in the repo; non-script Studio state (lighting, placement, properties) is for testing/feel and either gets committed via Rojo or documented as "Studio-only intentional."
-- **Codex pushes directly to `main`** → bypasses review, bad code lands in canonical history, hard to roll back. Mitigation: branch-and-merge workflow is mandatory. Codex always works on `codex/<task-name>` and only pushes that branch. Only the user merges to `main`, only after Opus review.
+- **Codex pushes directly to `main`** → bypasses review, bad code lands in canonical history, hard to roll back. Mitigation: branch-and-merge workflow is mandatory. Codex always works on `codex/<task-name>` and only pushes that branch. Only the user merges to `main`, only after Claude review.

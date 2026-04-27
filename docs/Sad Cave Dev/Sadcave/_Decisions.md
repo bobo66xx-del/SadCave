@@ -32,6 +32,42 @@ YYYY-MM-DD — <Topic>
 
 <!-- New entries go directly below this line -->
 
+2026-04-27 — NameTag level row: remove
+- Decision: strip the `LevelLabel` and its leaderstats hooking from `NameTagScript.server.lua`. Final form is name-only: a single TextLabel showing the player's display name, no level row, no title row.
+- Why: the level value already renders in the XPBar at the bottom of the screen; doubling it on the overhead nametag put the same number on screen twice and felt louder than the tone allows. The Reality Check this session caught the spec-vs-build mismatch — the spec had always described "name-only" while the live script always had the level row — so this decision both resolves the open inbox `?` and makes the build match the long-stated intent.
+- Alternatives considered: (a) keep the level row as-is, accept the doubled surface for visibility — rejected because the XPBar already covers visibility and the tone is the higher-priority constraint; (b) keep both but make the nametag level only appear when the XPBar is hidden — rejected as overengineering, the simplest fix is removal; (c) remove the XPBar level instead — rejected because the XPBar IS the level surface, that's its whole purpose.
+- Lives in: `02_Systems/NameTag_Status.md` (updated to "name-only, post-decision build pending"), brief `06_Codex_Plans/2026-04-27_NameTag_Strip_Level_Row_v1.md`, eventual change-log entry once the PR ships.
+- Reversibility: trivial — the deleted code is in git history; if the team later wants the level back, it's a re-add, not a rebuild.
+
+2026-04-27 — Brief equality rule: whitespace-tolerant
+- Decision: when a Codex brief asks Codex to compare two source files for "equality" before destructive action (e.g. deleting a duplicate), the rule is "byte-equal **or differs only by trailing whitespace / line-ending characters**" — not "byte-equal or stop." Real non-whitespace diffs (different code, comments, identifiers, constants) still stop-and-flag for Opus review. Captured in `2026-04-27_PromptFavorite_Bugs_Cleanup_v1.md` step 2 + reviewer notes.
+- Why: the original strict "byte-equal" version of the rule fired on a one-trailing-newline diff during PR #8 work (Script source 2190 chars, LocalScript 2189). Codex correctly stopped per the brief, but the stop was over-cautious — Lua/Luau treat trailing whitespace as semantically inert, and Studio copy-paste introduces these deltas trivially. Stricter-feeling defaults aren't always safer when they make Codex stop on something that was never going to break.
+- Alternatives considered: (a) keep strict byte-equal and have Codex flag every whitespace diff for Opus to relax case-by-case — rejected, that's what just happened and it was friction with no upside; (b) compare with Lua's lexer / AST instead of byte-level — rejected, overkill for a one-off comparison and not available without extra tooling; (c) hash both sources after stripping trailing whitespace — equivalent to the chosen rule, just stated differently; chose plain-English version for brief readability.
+- Lives in: `2026-04-27_PromptFavorite_Bugs_Cleanup_v1.md` step 2 and reviewer notes; pattern available for future briefs that need a similar rule.
+- Reversibility: trivial — change one paragraph in any future brief.
+
+2026-04-27 — Drift-found ScreenGuis: keep all three
+- Decision: `IntroScreen`, `Menu`, and `Game Version` ScreenGuis — caught by the 2026-04-27 audit refresh as drift between `_UI_Hierarchy.md` (which said deleted) and live Studio (where they still exist) — are kept as-is. No export to `src/`, no cleanup, no further investigation.
+- Why: Tyler made the call. The cost-benefit on each is "leave it alone." `IntroScreen` is a tooling blocker for faithful export (current MCP inspector can't expose enough UI fidelity); `Menu` could be exported but its 30-line MainScript would need analysis effort; `Game Version` is one tiny LocalScript. None of them are causing problems and none are blocking other work. Deleting them risks breaking something nobody currently understands.
+- Alternatives considered: (a) export each to `src/` to bring under Rojo — rejected, fidelity tooling blocker on `IntroScreen` + non-trivial effort for low-value UI surfaces; (b) delete to match the original cleanup intent — rejected, no current pain and unclear consequences; (c) decide per-ScreenGui (some keep, some delete) — collapsed into the simpler "keep all" call after Tyler's read.
+- Lives in: `_UI_Hierarchy.md` drift section (status: "kept by Tyler 2026-04-27"); `09_Open_Questions/_Open_Questions.md` Resolved.
+- Reversibility: cheap — re-open the question and either delete in Studio or write an export brief if priorities change.
+
+2026-04-27 — Workspace Manual Export queue: skip
+- Decision: the seven Manual-Export-needed Workspace items from the 2026-04-27 audit (`Workspace.Avalog`, `Leader2`, `playerBugReportSystem`, `ReportGUI`, `Truss`, `WelcomeBadge`, plus `ReplicatedStorage.Rose`) are not pursued. They stay live and Studio-only. The audit doc still tracks them as Manual-export-needed for visibility, but no follow-up brief gets written.
+- Why: Tyler's read — `Workspace` is not mapped in `default.project.json` or `xp-only.project.json`, so these items don't affect Rojo sync. They're invisible to the repo and that's fine. The one priority concern was `Workspace.Avalog` (453-script load-bearing dependency of the no-touch `FavoritePromptPersistence`), but pulling it into the repo would be high-effort and high-risk for unclear benefit while `FavoritePromptPersistence` itself is no-touch. `ReplicatedStorage.Rose` is the only non-Workspace item in the queue and is a single Tool asset; same calculus.
+- Alternatives considered: (a) write a follow-up brief to bundle the Workspace queue into one export pass — rejected, low-value high-effort; (b) bring `Workspace.Avalog` in alone since it's load-bearing — rejected, the dependency is fine living in Studio while we don't touch `FavoritePromptPersistence`; (c) document each item's "Studio-only intentional" rationale individually — partly rejected, partly happening (`_Live_Systems_Reference.md` already notes the load-bearing nature of Avalog).
+- Lives in: `09_Open_Questions/_Open_Questions.md` Resolved; `docs/live-repo-audit.md` Manual Export queue keeps the list as informational.
+- Reversibility: cheap — re-open and write a per-item brief if the dependency story ever changes.
+
+2026-04-27 — Next XP follow-up: Title v2
+- Decision: when the next XP follow-up gets designed, it will be **Title v2** — not Discovery source, Conversation source, or AchievementTracker.
+- Why: Tyler's call on sequencing. Title v2 has a full v2 spec already written (`02_Systems/Title_System` — ~60 titles across 6 categories with per-title `tintColor`, five effect tiers, combined `TitleData` DataStore, simplified `owned`/`locked` filter tabs); the spec stage is done, ready for build planning when the time is right. Discovery / Conversation / AchievementTracker still need design conversations before they're ready for briefs. Title v2 is also more visible to players than the back-end XP sources — a good "next ship" candidate.
+- Alternatives considered: (a) Discovery source first to build out the XP source variety — deferred until after Title v2; (b) AchievementTracker first because Title v2's `category-keyed unlock conditions` partly depend on achievement signals — Tyler accepted that Title v2 can ship with level-only categories first and achievement-gated titles get filled in once AchievementTracker exists; (c) Conversation source — same defer-until-after rationale.
+- Lives in: `00_Index.md` Active Focus + Current Priority block; `02_Systems/Title_System.md`; `09_Open_Questions/_Open_Questions.md` Resolved.
+- Reversibility: trivial — until a Title v2 build brief exists, just redirect the next follow-up.
+- Note for execution: Claude doesn't auto-design Title v2. Wait for Tyler to start the thread.
+
 2026-04-27 — Workflow sync hardening
 - Decision: tighten the vault workflow with three new rules to make sync drift visible and enforceable rather than implicit.
   1. **Opus inbox-first.** Before any vault edit during a session, Opus writes an `[O]` inbox line stating what's about to change and why.

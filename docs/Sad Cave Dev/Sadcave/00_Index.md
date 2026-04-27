@@ -7,23 +7,26 @@
 
 ## 🎯 Current Priority
 
-**Land the live-repo-audit refresh, then move into the next XP follow-up.** Five PRs shipped on 2026-04-27: XP MVP, two repo-strip passes, housekeeping export (10 of 11 flagged objects), and DialogueDirector restore. Vault refreshed to match. The remaining repo housekeeping piece is `docs/live-repo-audit.md` — Tyler wants it redone fresh now that most legacy systems are gone.
+**Walk the post-merge XP testing-place checks, then start Title v2 design when Tyler kicks it off.** Eight PRs shipped on 2026-04-27 (XP MVP, two repo-strip passes, housekeeping export, DialogueDirector restore, audit refresh, session-2 vault wrap-up, PromptFavorite bugs cleanup). Vault is in sync with main. Next priority is exercising the open XP testing-place items now that the workflow is clean.
 
 Active focus:
-- [x] Audit refresh shipped via PR #6 (merged 2026-04-27 20:51 UTC). Vault drift caught by the audit (Studio id, IntroScreen/Menu still live, SeatMarkers child-script) reconciled in `Environments.md`, `_UI_Hierarchy.md`, `_Live_Systems_Reference.md`.
-- [ ] Walk the post-merge testing-place checks listed in `09_Open_Questions/_Open_Questions` (sitting boost at a real `SeatMarker` — now unblocked since SeatMarkers has a Seat child, level-up animation, gamepass +22 tick, mobile bar height, second-join migration, DataStore failure simulation). **Next up.**
-- [ ] Decide keep/delete for `IntroScreen` and `Menu` ScreenGuis (drift — present despite cleanup intent), and for `Game Version` ScreenGui (newly discovered). Tracked in `docs/live-repo-audit.md` Manual Export queue and `_UI_Hierarchy.md` drift section.
-- [ ] Manual-export queue from PR #6: `Rose`, `Workspace.Avalog` (453-script dependency of FavoritePromptPersistence — load-bearing), `Leader2`, `playerBugReportSystem`, `ReportGUI`, `Truss`, `WelcomeBadge`. May want a follow-up brief.
-- [x] Dialogue verified working post-PR #5 (Tyler confirmed; no Opus playtest needed).
-- [ ] Pick the next XP follow-up to design — Discovery source, Conversation source, AchievementTracker, or jump straight to Title v2. See [[02_Systems/XP_Progression]] follow-up list.
+- [ ] Hand the NameTag level-row strip brief to Codex — small surgical change, removes the doubled-up level surface from the overhead nametag. See [[06_Codex_Plans/2026-04-27_NameTag_Strip_Level_Row_v1]]. **Next up.**
+- [ ] Walk the XP testing-place checks listed in `09_Open_Questions/_Open_Questions` (sitting boost at a real `SeatMarker` — now unblocked since SeatMarkers has a Seat child, level-up animation, gamepass +22 tick, mobile bar height, second-join migration, DataStore failure simulation).
+- [ ] Title v2 — full v2 spec exists in `02_Systems/Title_System`, ready for build planning when Tyler kicks off the thread (decided 2026-04-27, see `_Decisions.md`). Don't auto-design.
 - [ ] When Tyler greenlights the secret-handling approach, execute the DiscordLogs refactor (currently ⏸ Waiting — see [[06_Codex_Plans/2026-04-27_DiscordLogs_Secret_Refactor_v1]]).
+- [ ] Watch `FavoritePromptPersistence` line-4 SourceCode error across future playtests — did NOT reproduce in PR #8's run; if it stays gone for several sessions, move it from `_Known_Bugs.md` Active to Resolved with a "did not reproduce after PR #8" note. Investigation still blocked by no-touch + Avalog deferral.
 
 Recently completed (all 2026-04-27):
 - ✅ PR #1 — XP Progression MVP merged (08:45 UTC).
 - ✅ PR #2 — Repo strip to Studio state merged (10:13 UTC).
 - ✅ PR #3 — Repo strip follow-up merged (11:33 UTC).
-- ✅ PR #4 — Housekeeping utility export merged (11:58 UTC). 10 of 11 flagged Studio-only kept-list objects exported: DialogueData, DialogueRemotes, RemoveFF, Reset, SoftShutdown, PromptGroup, PromptFavorite, NpcDialogueClient, PlayerDialogueClient. DiscordLogs deferred (secret refactor brief written, on hold). `environment change ` documented as Studio-only.
-- ✅ PR #5 — DialogueDirector restored (13:32 UTC). 679-line server script back from the 2026-04-24 Studio capture; dialogue should work again pending a playtest verification.
+- ✅ PR #4 — Housekeeping utility export merged (11:58 UTC). 10 of 11 flagged Studio-only kept-list objects exported.
+- ✅ PR #5 — DialogueDirector restored (13:32 UTC). 679-line server script back from the 2026-04-24 Studio capture; Tyler verified dialogue works post-merge.
+- ✅ PR #6 — Live-repo-audit refresh shipped (20:51 UTC). 49 rows reclassified post-cleanup; surfaced three vault drift items (Studio id, IntroScreen/Menu, SeatMarkers child) that got reconciled.
+- ✅ PR #7 — Session-2 vault wrap-up shipped to main (21:54 UTC). 18 vault files: AGENTS.md sync-hardening, plan-file Status convention, _Decisions.md introduced, change-log reordered, Open Questions / UI Hierarchy / Live Systems Reference / Index reconciled.
+- ✅ PR #8 — PromptFavorite bugs cleanup shipped (22:00 UTC). Bounded WaitForChild on `FavoritePromptShown` with graceful exit; deleted duplicate `PromptFavorite` Script in StarterPlayerScripts. Resolved two `_Known_Bugs.md` entries and the audit's PromptFavorite tooling blocker.
+- ✅ Three drift-found ScreenGuis (`IntroScreen`, `Menu`, `Game Version`) — Tyler decided keep all three Studio-only.
+- ✅ Manual Export queue from PR #6 (`Rose`, `Avalog`, `Leader2`, `playerBugReportSystem`, `ReportGUI`, `Truss`, `WelcomeBadge`) — Tyler decided skip; `Workspace` isn't Rojo-mapped so they don't affect sync.
 - ✅ Tyler's heavy testing-place cleanup deleted most legacy systems.
 - ✅ Vault refreshed to match post-cleanup reality (Cowork session 1).
 - ✅ Migration to Cowork — same MCPs wired up, no capability lost.
@@ -38,7 +41,7 @@ Recently completed (all 2026-04-27):
 
 ### Active Systems
 - [[02_Systems/XP_Progression]] — 🟡 Building (MVP shipped, follow-ups pending)
-- [[02_Systems/NameTag_Status]] — 🟢 Shipped (rebuilt 2026-04-27, name-only minimal version)
+- [[02_Systems/NameTag_Status]] — 🟡 Building (rebuilt 2026-04-27 with name + level; level row removal queued via brief — see Plans & Logs)
 - [[02_Systems/Dialogue_System]] — 🟢 Shipped (early version live; verify scope next session)
 - [[02_Systems/Title_System]] — 🔵 Planned (v2 redesign; v1 deleted in cleanup)
 - [[02_Systems/Area_Discovery]] — 🔵 Planned (legacy badge script deleted; will be rebuilt as part of XP Discovery source)
@@ -82,6 +85,8 @@ Recently completed (all 2026-04-27):
 - [[06_Codex_Plans/2026-04-27_Restore_DialogueDirector_v1]] — 🟢 Shipped (PR #5).
 - [[06_Codex_Plans/2026-04-27_DiscordLogs_Secret_Refactor_v1]] — ⏸ Waiting (planned, on hold per Tyler).
 - [[06_Codex_Plans/2026-04-27_Live_Repo_Audit_Refresh_v1]] — 🟢 Shipped (PR #6).
+- [[06_Codex_Plans/2026-04-27_PromptFavorite_Bugs_Cleanup_v1]] — 🟢 Shipped (PR #8).
+- [[06_Codex_Plans/2026-04-27_NameTag_Strip_Level_Row_v1]] — 🔵 Queued (Cowork session 4; strip `LevelLabel` per Tyler's decision).
 - [[07_Sessions/_Session_Template]]
 - [[08_Ideas_Parking_Lot/_Parking_Lot]]
 - [[09_Open_Questions/_Open_Questions]] — unresolved design decisions

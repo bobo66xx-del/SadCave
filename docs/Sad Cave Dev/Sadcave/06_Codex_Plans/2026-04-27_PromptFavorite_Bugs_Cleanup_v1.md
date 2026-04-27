@@ -1,9 +1,9 @@
 # PromptFavorite Bugs Cleanup — Codex Plan
 
 **Date:** 2026-04-27
-**Status:** 🔵 Queued
+**Status:** 🟢 Shipped — PR #8 (merged 2026-04-27 22:00 UTC, branch `codex/promptfavorite-bugs-cleanup`)
 *(legend: 🔵 Queued — written, awaiting Codex · 🟡 Building — Codex on branch · 🟢 Shipped — merged, include PR # and date · ⏸ Waiting — written but deliberately on hold · ⚫ Superseded — replaced or invalidated)*
-**Branch:** `codex/promptfavorite-bugs-cleanup` *(once started)*
+**Branch:** `codex/promptfavorite-bugs-cleanup`
 **Related Systems:** [[../09_Open_Questions/_Known_Bugs]], [[../02_Systems/_No_Touch_Systems]], [[../docs/live-repo-audit]]
 
 ---

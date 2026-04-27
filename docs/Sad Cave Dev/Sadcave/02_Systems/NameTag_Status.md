@@ -1,14 +1,17 @@
 # NameTag / Status System
 
-**Status:** 🟢 Shipped (rebuilt 2026-04-27) — minimal name-only version
+**Status:** 🟡 Building — name-only target, build pending via [[../06_Codex_Plans/2026-04-27_NameTag_Strip_Level_Row_v1]]. **Decision 2026-04-27 (Cowork session 4):** Tyler decided to remove the level row from the nametag — the level already lives in the XPBar and the doubled surface was louder than the tone allows. The brief was queued and is waiting on Codex; until it ships, the live build still renders name + level (sections below describe both the current build and the post-brief target).
 
 ---
 
 ## Purpose
-Show each player's display name above their character via a BillboardGui. The previous title- and level-rendering responsibilities are out for now (the v1 title pipeline was deleted in the 2026-04-27 cleanup; v2 title rendering is a follow-up brief).
+Show each player's display name and current level above their character via a BillboardGui. The previous title-rendering responsibility is out for now — the v1 title pipeline was deleted in the 2026-04-27 cleanup; v2 title rendering is a follow-up brief.
 
 ## Player Experience
-Above each player: a single BillboardGui label with the player's display name. No title row, no level handle. Quiet and minimal — fits while the title/level rendering pipeline is being redesigned.
+
+**Target (post-brief, name-only):** Above each player floats a single TextLabel — the player's display name, no level row, no title row. Quiet and minimal. The XPBar at the bottom of the screen carries level visibility; the nametag does not duplicate it.
+
+**Current build (until the brief ships):** Above each player floats a BillboardGui with two stacked rows — display name on top (60% of the bounds), `"level N"` underneath (40%, smaller and dimmer). The level value mirrors the leaderstats `Level` populated by `ProgressionService` and updates live as the player levels up. The level row is the surface being removed by [[../06_Codex_Plans/2026-04-27_NameTag_Strip_Level_Row_v1]].
 
 ---
 
@@ -17,8 +20,13 @@ Above each player: a single BillboardGui label with the player's display name. N
 ### Server
 - **`ServerScriptService.NameTagScript`** (file in repo: `src/ServerScriptService/NameTagScript.server.lua`)
   - Builds the BillboardGui programmatically and adornes it to each character's `HumanoidRootPart`
-  - Watches via `AncestryChanged` and re-applies if the tag is destroyed (Avalog-safe — the third-party Avalog package destroys tags parented to the Head)
-  - Single label, single TextLabel for the player's display name
+  - BillboardGui: `Size UDim2.new(0, 200, 0, 50)`, `StudsOffset Vector3.new(0, 3, 0)`, `MaxDistance = 100`, `AlwaysOnTop = true`
+  - Two TextLabels stacked vertically:
+    - `NameLabel` (top 60%): `Gotham 16`, color `(225, 215, 200)`, stroke `(0, 0, 0)` at transparency 0.6, text = `player.DisplayName`
+    - `LevelLabel` (bottom 40%): `Gotham 12`, color `(180, 170, 155)`, stroke `(0, 0, 0)` at transparency 0.7, text = `"level " .. leaderstats.Level.Value`
+  - Disables Roblox's default `Humanoid.DisplayDistanceType` so it doesn't compete with the BillboardGui
+  - Watches via `AncestryChanged` and re-applies the BillboardGui if it's destroyed (Avalog-safe — the third-party Avalog package destroys tags parented to the Head); the watchdog also re-runs on every re-create
+  - Hooks `leaderstats.Level:GetPropertyChangedSignal("Value")` to update the LevelLabel live; also handles the late-leaderstats case via `player.ChildAdded`
 
 ### Linked AFK plumbing
 - **`ReplicatedStorage.AfkEvent`** (RemoteEvent, repo: `src/ReplicatedStorage/AfkEvent/init.meta.json`) — fired by client when window focus changes
@@ -38,12 +46,12 @@ Above each player: a single BillboardGui label with the player's display name. N
 ## What's Missing vs Pre-Cleanup
 
 - ❌ Title row — will return when [[Title_System]] v2 ships
-- ❌ Level / handle row — deferred design choice; XP MVP keeps level visible via leaderstats, no nametag rendering needed for it yet
+- ✅ Level row — present (`LevelLabel` rendered live from leaderstats `Level`); see Player Experience for the "duplicated with XPBar" question
 - ❌ Distance fade (was unverified pre-cleanup, simply absent now)
 - ❌ Hide-during-dialogue (was an open question pre-cleanup; still open)
 - ❌ Per-player toggle (was the `GUIToggle` ScreenGui; UI was deleted with the legacy menu pass)
 
-These are intentional gaps, not bugs. Each can be reconsidered as part of v2 title rendering or as a small dedicated brief.
+The remaining ❌ items are intentional gaps, not bugs. Each can be reconsidered as part of v2 title rendering or as a small dedicated brief. The level row's keep/remove decision is the open inbox question.
 
 ---
 
@@ -51,6 +59,7 @@ These are intentional gaps, not bugs. Each can be reconsidered as part of v2 tit
 - Keep the visual minimal until v2 titles return — don't ship intermediate styling that gets thrown away.
 - If a per-player toggle is wanted before v2, treat it as a small dedicated brief; don't extend the current script in-place.
 - Avalog watchdog must stay — without it, nametags vanish for any player whose character flow touches Avalog.
+- The level row was originally written into the script during the 2026-04-27 rebuild but the spec was authored describing the cleaner name-only target; the spec was reality-checked back into agreement during Cowork session 4. Decide the keep/remove call before the next nametag-touching brief so the spec doesn't drift again.
 
 ## Related
 - [[XP_Progression]] (drives the presence-tick AFK state)

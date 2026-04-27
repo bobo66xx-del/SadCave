@@ -66,8 +66,8 @@ Authoritative classification of the testing place's top-level live objects again
 | `MobileLightingCompensation` | LocalScript | `src/StarterPlayer/StarterPlayerScripts/MobileLightingCompensation.client.lua` | Exact | 118 live lines. |
 | `NpcDialogueClient` | LocalScript | `src/StarterPlayer/StarterPlayerScripts/NpcDialogueClient.client.lua` | Exact | 825 live lines. |
 | `PlayerDialogueClient` | LocalScript | `src/StarterPlayer/StarterPlayerScripts/PlayerDialogueClient.client.lua` | Exact | 568 live lines. |
-| `PromptFavorite` | LocalScript | `src/StarterPlayer/StarterPlayerScripts/PromptFavorite.client.lua` | Exact | 69 live lines; client-side favorite prompt implementation. |
-| `PromptFavorite` | Script | None | Tooling blocker | Duplicate top-level name beside the LocalScript; not represented in `src/` and ambiguous by normal dot-path addressing. |
+| `PromptFavorite` | LocalScript | `src/StarterPlayer/StarterPlayerScripts/PromptFavorite.client.lua` | Exact | 69 live lines; client-side favorite prompt implementation. PR #8 (2026-04-27 22:00 UTC) bounded the `FavoritePromptShown` `WaitForChild` to 10s with graceful exit. |
+| ~~`PromptFavorite`~~ | ~~Script~~ | ~~None~~ | ~~Tooling blocker~~ | ✅ **Resolved by PR #8 (2026-04-27 22:00 UTC).** Duplicate `Script` instance deleted in Studio after Codex confirmed source matched the canonical `LocalScript` modulo one trailing newline. Only the canonical `LocalScript` row above remains. |
 | `PromptGroup` | LocalScript | `src/StarterPlayer/StarterPlayerScripts/PromptGroup.client.lua` | Exact | 14 live lines. |
 | `SunRayRemove` | LocalScript | `src/StarterPlayer/StarterPlayerScripts/SunRayRemove.client.lua` | Exact | 70 live lines. |
 
@@ -134,7 +134,7 @@ Workspace note: the total above counts grouped Workspace rows, not every individ
 - `ReplicatedStorage.NameTag`
 - `StarterGui.IntroScreen`
 - `StarterGui.NoteUI`
-- duplicate `StarterPlayer.StarterPlayerScripts.PromptFavorite` Script
+- ~~duplicate `StarterPlayer.StarterPlayerScripts.PromptFavorite` Script~~ ✅ resolved by PR #8 (2026-04-27 22:00 UTC)
 - duplicate source-bearing `Workspace.Model` roots
 - duplicate source-bearing `Workspace.Rig` roots
 - duplicate source-bearing `Workspace.toggle Lantern` roots

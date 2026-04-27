@@ -45,19 +45,19 @@ Undocumented surface — discovered by the 2026-04-27 audit refresh. Not on any 
 - `Game Version` [`ScreenGui`]
   - `ShowGameVersion` [`LocalScript`] (1 line)
 
-**Status:** unknown intent. Tyler decision pending: keep (in which case it should be exported to `src/`) or delete (in which case clean up the testing place). Tracked in `docs/live-repo-audit.md` Manual Export queue.
+**Status:** **kept by Tyler 2026-04-27.** Stays live and Studio-only. The 1-line LocalScript is too small to justify export effort and it's not blocking anything. See `_Decisions.md` 2026-04-27 — "Drift-found ScreenGuis: keep all three."
 
 ### `IntroScreen` [`ScreenGui`]
 
-**Drift:** the 2026-04-27 cleanup pass listed `IntroScreen` as deleted, but the audit refresh found it's still live in `StarterGui`. Either Tyler's cleanup missed this entry or it's been re-created since. Current MCP inspector cannot expose enough faithful UI detail for a safe export — classified as a tooling blocker in the audit.
+The 2026-04-27 cleanup pass listed `IntroScreen` as deleted, but the audit refresh found it's still live in `StarterGui`. Either Tyler's cleanup missed this entry or it's been re-created since. Current MCP inspector cannot expose enough faithful UI detail for a safe export — classified as a tooling blocker in the audit.
 
-**Status:** drift, decision pending. Tyler choices: delete (matches the cleanup intent) or document as kept (matches current reality).
+**Status:** **kept by Tyler 2026-04-27.** Stays live and Studio-only. The fidelity tooling blocker on export is the deciding constraint; bringing it into the repo without faithful UI properties would create worse drift. See `_Decisions.md` 2026-04-27 — "Drift-found ScreenGuis: keep all three."
 
 ### `Menu` [`ScreenGui`]
 
-**Drift:** the cleanup pass listed two duplicate `Menu` ScreenGuis as deleted, but the audit refresh found one still live. Contains a 1-line `LocalScript` plus a 30-line `MainScript`. Needs a keep/delete decision.
+The cleanup pass listed two duplicate `Menu` ScreenGuis as deleted, but the audit refresh found one still live. Contains a 1-line `LocalScript` plus a 30-line `MainScript`.
 
-**Status:** drift, decision pending — same as `IntroScreen`.
+**Status:** **kept by Tyler 2026-04-27.** Stays live and Studio-only. Could be exported (it has source content) but the effort to analyze the 30-line MainScript and choose an export shape isn't earning its keep right now. See `_Decisions.md` 2026-04-27 — "Drift-found ScreenGuis: keep all three."
 
 ### Other UI surfaces (verify if drift recurs)
 
