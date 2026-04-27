@@ -80,7 +80,7 @@ Repo-backed:
 
 Studio-only:
 - `ToolPickups` — empty Folder placeholder created 2026-04-27 so `ToolPickupService` stops yielding.
-- `SeatMarkers` — read by `PresenceTick` for the sitting boost. **Note:** as of 2026-04-27 evening, this folder existed but had 0 children. The sitting boost can't be validated end-to-end until at least one `SeatMarker` is placed in the world.
+- `SeatMarkers` — read by `PresenceTick` for the sitting boost. **Updated 2026-04-27 audit refresh:** the folder now has at least one child — a `Seat` with a `CustomSitAnimScript`. The sitting boost is now testable end-to-end. Drift caught by the audit; previous note (0 children) was stale.
 - `QuietKeeperNPC` — the QuietKeeper rig (BlackKnight wings + skeletal horns). See [[../05_NPCs/QuietKeeper]].
 - Cave entrance props — `FirePit`, `Fireflies`, `fast Fireflies`, `Specks`, `SunRayParts`, `Lantern`, `ReadabilityLighting`, foliage and flower variants, `Waterfall`, `Crate`, `Fence`, `NoteInteraction`, `CameraScenes`. See [[../03_Map_Locations/Cave_Entrance]].
 

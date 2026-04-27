@@ -10,8 +10,10 @@
 **Land the live-repo-audit refresh, then move into the next XP follow-up.** Five PRs shipped on 2026-04-27: XP MVP, two repo-strip passes, housekeeping export (10 of 11 flagged objects), and DialogueDirector restore. Vault refreshed to match. The remaining repo housekeeping piece is `docs/live-repo-audit.md` — Tyler wants it redone fresh now that most legacy systems are gone.
 
 Active focus:
-- [~] Audit refresh handed to Codex 2026-04-27 ~14:30 UTC — `[[06_Codex_Plans/2026-04-27_Live_Repo_Audit_Refresh_v1]]` is 🟡 Building. Awaiting branch push for review.
-- [ ] Walk the post-merge testing-place checks listed in `09_Open_Questions/_Open_Questions` (sitting boost at a real `SeatMarker`, level-up animation, gamepass +22 tick, mobile bar height, second-join migration, DataStore failure simulation). **Next up — running this in parallel with Codex's audit work.**
+- [x] Audit refresh shipped via PR #6 (merged 2026-04-27 20:51 UTC). Vault drift caught by the audit (Studio id, IntroScreen/Menu still live, SeatMarkers child-script) reconciled in `Environments.md`, `_UI_Hierarchy.md`, `_Live_Systems_Reference.md`.
+- [ ] Walk the post-merge testing-place checks listed in `09_Open_Questions/_Open_Questions` (sitting boost at a real `SeatMarker` — now unblocked since SeatMarkers has a Seat child, level-up animation, gamepass +22 tick, mobile bar height, second-join migration, DataStore failure simulation). **Next up.**
+- [ ] Decide keep/delete for `IntroScreen` and `Menu` ScreenGuis (drift — present despite cleanup intent), and for `Game Version` ScreenGui (newly discovered). Tracked in `docs/live-repo-audit.md` Manual Export queue and `_UI_Hierarchy.md` drift section.
+- [ ] Manual-export queue from PR #6: `Rose`, `Workspace.Avalog` (453-script dependency of FavoritePromptPersistence — load-bearing), `Leader2`, `playerBugReportSystem`, `ReportGUI`, `Truss`, `WelcomeBadge`. May want a follow-up brief.
 - [x] Dialogue verified working post-PR #5 (Tyler confirmed; no Opus playtest needed).
 - [ ] Pick the next XP follow-up to design — Discovery source, Conversation source, AchievementTracker, or jump straight to Title v2. See [[02_Systems/XP_Progression]] follow-up list.
 - [ ] When Tyler greenlights the secret-handling approach, execute the DiscordLogs refactor (currently ⏸ Waiting — see [[06_Codex_Plans/2026-04-27_DiscordLogs_Secret_Refactor_v1]]).
@@ -66,7 +68,7 @@ Recently completed (all 2026-04-27):
 - **`AGENTS.md`** (at repo root, `C:\Projects\SadCave\AGENTS.md`) — the workflow doc + Codex rules. Read this first on a fresh session.
 - [[_Workflow]] — stub pointing at AGENTS.md (kept so the vault still finds it).
 - `PLANS.md` (at repo root) — 🧊 historical context only.
-- `docs/live-repo-audit.md` (at repo root) — currently frozen with a banner (Option B from PR #4). A fresh refresh pass is queued for Codex; see audit-refresh brief.
+- `docs/live-repo-audit.md` (at repo root) — refreshed 2026-04-27 via PR #6. 49 rows classified against the cleaned testing place. Refresh policy: redo whenever a substantive cleanup or export pass lands.
 - [[00_Inbox/_Inbox]] — unsorted captures, this session
 - [[_Change_Log]] — append-only history of substantive changes
 
@@ -79,7 +81,7 @@ Recently completed (all 2026-04-27):
 - [[06_Codex_Plans/2026-04-27_Housekeeping_Utility_Export_v1]] — 🟢 Shipped (PR #4).
 - [[06_Codex_Plans/2026-04-27_Restore_DialogueDirector_v1]] — 🟢 Shipped (PR #5).
 - [[06_Codex_Plans/2026-04-27_DiscordLogs_Secret_Refactor_v1]] — ⏸ Waiting (planned, on hold per Tyler).
-- [[06_Codex_Plans/2026-04-27_Live_Repo_Audit_Refresh_v1]] — 🔵 Queued (next up for Codex).
+- [[06_Codex_Plans/2026-04-27_Live_Repo_Audit_Refresh_v1]] — 🟢 Shipped (PR #6).
 - [[07_Sessions/_Session_Template]]
 - [[08_Ideas_Parking_Lot/_Parking_Lot]]
 - [[09_Open_Questions/_Open_Questions]] — unresolved design decisions

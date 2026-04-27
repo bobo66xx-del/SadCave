@@ -1,7 +1,7 @@
 # Live Repo Audit Refresh — Codex Plan
 
 **Date:** 2026-04-27
-**Status:** 🟡 Building — Tyler handed brief to Codex 2026-04-27 ~14:30 UTC
+**Status:** 🟢 Shipped — PR #6 (merged 2026-04-27 20:51 UTC, branch `codex/live-repo-audit-refresh`, commit b878ce6). 49 rows classified (27 Exact / 0 Structural / 5 Studio-only / 10 Manual export / 7 Tooling blocker). Audit caught three vault drift items (Studio id, IntroScreen/Menu still live, SeatMarkers child-script) — all reconciled in `Environments.md`, `_UI_Hierarchy.md`, and `_Live_Systems_Reference.md` post-merge.
 **Branch:** `codex/live-repo-audit-refresh`
 **Related Systems:** [[../02_Systems/_Live_Systems_Reference]], [[../02_Systems/_UI_Hierarchy]], [[../02_Systems/_No_Touch_Systems]]
 **Spec source of truth:** the cleaned testing place (Studio MCP — `Testing cave`) compared against the current `src/` tree. The old `docs/live-repo-audit.md` was authored before Tyler's 2026-04-27 cleanup pass and was frozen with a banner via PR #4 (Option B). Tyler's call: redo it fresh now that most legacy systems are gone.
