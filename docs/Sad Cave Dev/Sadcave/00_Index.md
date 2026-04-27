@@ -55,8 +55,8 @@ Legacy systems to remove (do NOT extend these):
 - [[05_NPCs/QuietKeeper]]
 
 ### Workflow & Capture
-- [[_Workflow]] — how Opus + Codex + vault fit together (read this first on a fresh session)
-- `AGENTS.md` (at repo root, `C:\Projects\SadCave\AGENTS.md`) — rules Codex follows when reading/writing the vault and the codebase
+- **`AGENTS.md`** (at repo root, `C:\Projects\SadCave\AGENTS.md`) — the workflow doc + Codex rules. Read this first on a fresh session.
+- [[_Workflow]] — stub pointing at AGENTS.md (kept so the vault still finds it).
 - `PLANS.md` (at repo root) — 🧊 historical context only; running history of repo-vs-Studio export passes from 2026-04-19 to 2026-04-20. Do not append.
 - `docs/live-repo-audit.md` (at repo root) — authoritative export-status queue
 - [[00_Inbox/_Inbox]] — unsorted captures, this session
@@ -98,4 +98,4 @@ Legacy systems to remove (do NOT extend these):
 - Park stray ideas in [[08_Ideas_Parking_Lot/_Parking_Lot]] instead of expanding scope mid-task.
 - Drop in-session captures into [[00_Inbox/_Inbox]] — Opus integrates at session end.
 - Log every working session briefly in `07_Sessions/`.
-- For **how the whole stack works** (Opus + Codex + vault), see [[_Workflow]].
+- For **how the whole stack works** (Opus + Codex + vault), see `AGENTS.md` at the repo root.
