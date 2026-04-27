@@ -10,9 +10,9 @@
 
 ---
 
-## Top-level systems (post-cleanup): 4
+## Top-level source-bearing ScreenGuis (audit-confirmed 2026-04-27 refresh): 5
 
-> Listed in alphabetical order. Each is the top-level `ScreenGui` object name as it appears in `StarterGui`.
+> Listed in alphabetical order. Each is a top-level source-bearing `ScreenGui` object name as it appears in `StarterGui`. The 2026-04-27 audit refresh found three live ScreenGuis we didn't expect (drift, see below) — bringing the count from the 2 we believed (`NoteUI`, `XPBar`) to 5 actually present.
 
 ### `NoteUI` [`ScreenGui`]
 
@@ -38,9 +38,30 @@ The XP Progression MVP UI. Bottom-of-screen ambient bar. Listens to `ReplicatedS
   - `XPBarController` [`LocalScript`]
   - All visual elements (`Background`, `Fill`, `LevelLabel`, `TitleLabel`) are constructed at runtime — not edit-time children.
 
-### Other UI surfaces (verify in next session)
+### `Game Version` [`ScreenGui`]
 
-The cleanup pass deleted the bulk of `StarterGui` (TitleMenu, ShopMenu, the dual `Menu` ScreenGuis, `Settings`, `IntroScreen`, `Custom Inventory`, `ComputerUI`, `fridge-ui`, `SadCaveMusicGui`, `bruh`, `TTTUI`, `NotificationTHingie`, `ScreenGui` orphans). What's *intended* to remain is `NoteUI` + `XPBar`. If `tipui`, `currencyui`, `notificationUI`, `Teleport Button`, `TPUI`, `MainUI`, `GUIToggle`, or any other pre-cleanup surface is still present, treat it as undocumented and verify with Studio MCP before assuming intent — **flag in the inbox** if any unexpected ScreenGui shows up.
+Undocumented surface — discovered by the 2026-04-27 audit refresh. Not on any prior keep-list and not in the cleanup-removed list either. Contains a single 1-line `ShowGameVersion` LocalScript.
+
+- `Game Version` [`ScreenGui`]
+  - `ShowGameVersion` [`LocalScript`] (1 line)
+
+**Status:** unknown intent. Tyler decision pending: keep (in which case it should be exported to `src/`) or delete (in which case clean up the testing place). Tracked in `docs/live-repo-audit.md` Manual Export queue.
+
+### `IntroScreen` [`ScreenGui`]
+
+**Drift:** the 2026-04-27 cleanup pass listed `IntroScreen` as deleted, but the audit refresh found it's still live in `StarterGui`. Either Tyler's cleanup missed this entry or it's been re-created since. Current MCP inspector cannot expose enough faithful UI detail for a safe export — classified as a tooling blocker in the audit.
+
+**Status:** drift, decision pending. Tyler choices: delete (matches the cleanup intent) or document as kept (matches current reality).
+
+### `Menu` [`ScreenGui`]
+
+**Drift:** the cleanup pass listed two duplicate `Menu` ScreenGuis as deleted, but the audit refresh found one still live. Contains a 1-line `LocalScript` plus a 30-line `MainScript`. Needs a keep/delete decision.
+
+**Status:** drift, decision pending — same as `IntroScreen`.
+
+### Other UI surfaces (verify if drift recurs)
+
+If `tipui`, `currencyui`, `notificationUI`, `Teleport Button`, `TPUI`, `MainUI`, `GUIToggle`, or any other pre-cleanup surface beyond the three above shows up in a future audit, treat it as drift and **flag in the inbox**.
 
 ---
 
@@ -50,9 +71,9 @@ Audit trail. None of these are in the testing-place `StarterGui` anymore.
 
 - `ComputerUI` — print-button + note-box panel
 - `Custom Inventory` — hotbar + inventory grid
-- `IntroScreen` — startup splash
+- ~~`IntroScreen` — startup splash~~ ❌ **NOT actually removed** — audit refresh 2026-04-27 found it still live. See drift entry above.
 - `MainUI` — version-stamp wrapper
-- `Menu` (×2 duplicates) — paired with the deleted button rail
+- ~~`Menu` (×2 duplicates) — paired with the deleted button rail~~ ⚠️ **One copy still live** — audit refresh 2026-04-27 found a `Menu` ScreenGui still present. See drift entry above.
 - `NotificationTHingie` — dev artifact
 - two generic `ScreenGui` orphans
 - `Settings` — legacy settings panel

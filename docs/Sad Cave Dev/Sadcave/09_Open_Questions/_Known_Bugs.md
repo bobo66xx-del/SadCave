@@ -26,7 +26,50 @@
 
 ## Active bugs
 
-- _(none yet)_
+### FavoritePromptPersistence runtime error on `SourceCode` line 4
+
+- Status: open
+- Priority: low (pre-existing, not blocking new work)
+- Client or server: server
+- Where it happens: testing place, every Studio playtest
+- Exact object/script path: `ServerScriptService/FavoritePromptPersistence.server.lua` line 4
+- Repro steps:
+  1. Start a Studio playtest in the testing place.
+  2. Watch the console output.
+- Expected result: clean startup, no errors.
+- Actual result: error logged on `FavoritePromptPersistence.SourceCode` line 4.
+- Roblox output / error message: not captured verbatim — Codex flagged the error during PRs #4 and #5 playtests but didn't paste the full stack.
+- Suspected cause: unknown. `FavoritePromptPersistence` is a no-touch system; the error may relate to its `Workspace.Avalog` dependency that the audit refresh flagged as load-bearing-but-not-in-repo.
+- Notes: the audit refresh (PR #6) revealed `FavoritePromptPersistence` depends on `Workspace.Avalog` (a 453-script subtree). Could be related. Investigation deferred until Tyler decides whether to bring `Avalog` into the repo or not. **Do not fix without an Opus-written brief** — `FavoritePromptPersistence` is on the no-touch list.
+
+### PromptFavorite infinite yield warnings on `FavoritePromptShown`
+
+- Status: open
+- Priority: low (pre-existing, not blocking new work)
+- Client or server: client
+- Where it happens: testing place, every Studio playtest
+- Exact object/script path: `StarterPlayer/StarterPlayerScripts/PromptFavorite.client.lua` (or one of the scripts of that name — see class-mismatch bug below)
+- Repro steps:
+  1. Start a Studio playtest.
+  2. Watch the console output for warnings about `FavoritePromptShown`.
+- Expected result: no infinite-yield warnings.
+- Actual result: warning that the script is yielding indefinitely on `FavoritePromptShown`.
+- Suspected cause: a missing or never-fired event named `FavoritePromptShown` somewhere in the dependency chain.
+- Notes: pre-existing; first observed during PR #4 playtest. Not investigated yet.
+
+### PromptFavorite class mismatch — exported as `.client.lua` but live class is `Script`
+
+- Status: open
+- Priority: medium (export type mismatch could cause subtle runtime divergence)
+- Client or server: client (live class is `Script` running in StarterPlayerScripts; uses `Players.LocalPlayer` and client prompt APIs, so it functions as a LocalScript)
+- Exact object/script path: `src/StarterPlayer/StarterPlayerScripts/PromptFavorite.client.lua` was exported during PR #4, but live `StarterPlayerScripts.PromptFavorite` is class `Script` (not `LocalScript`).
+- Repro steps:
+  1. `inspect_instance` on `StarterPlayer.StarterPlayerScripts.PromptFavorite` in Studio — class is `Script`.
+  2. Look at repo file `src/StarterPlayer/StarterPlayerScripts/PromptFavorite.client.lua` — extension implies LocalScript.
+- Expected result: the repo extension matches the live class.
+- Actual result: extension/class mismatch. There's also a duplicate-named `PromptFavorite` Script flagged as a tooling blocker in PR #6.
+- Suspected cause: legacy practice of running client logic in a `Script` parented under StarterPlayerScripts (Roblox treats it as client-side because of the parent). The repo export normalized to `.client.lua` for clarity but didn't update the live class.
+- Notes: needs a small Codex brief to either (a) change live class to `LocalScript` to match repo, or (b) rename repo file to `.lua` and let `init.meta.json` declare the class. Resolve the duplicate-named `PromptFavorite` Script tooling blocker at the same time.
 
 ## Resolved bugs
 

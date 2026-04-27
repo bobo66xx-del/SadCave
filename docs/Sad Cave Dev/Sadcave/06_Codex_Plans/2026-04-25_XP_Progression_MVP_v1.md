@@ -1,6 +1,7 @@
 # XP Progression MVP — Codex Plan
 
 **Date:** 2026-04-25
+**Status:** 🟢 Shipped — PR #1 (merged 2026-04-27 08:45 UTC, branch `codex/xp-progression-mvp`)
 **Related Systems:** [[../02_Systems/XP_Progression]], [[../02_Systems/Level_System]], [[../02_Systems/Title_System]], [[../02_Systems/_Live_Systems_Reference]]
 **Spec source of truth:** [[../02_Systems/XP_Progression]] — read this for design rationale before building. This plan is the build instruction; the spec is the why.
 

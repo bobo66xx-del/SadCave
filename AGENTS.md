@@ -52,6 +52,7 @@ How a task flows from idea to shipped change.
 - Observations go in `00_Inbox/_Inbox.md`.
 - One line per entry. Timestamped. Prefixed `[U]` (user), `[O]` (Opus), or `[C]` (Codex).
 - Use `?` for unresolved items needing the user's decision.
+- **Opus rule: inbox-first for any vault edit.** Before editing any file in the vault during a session — `00_Index.md`, `_Change_Log.md`, `_Decisions.md`, any `02_Systems/` spec, any `06_Codex_Plans/` brief, any meta-doc — write an `[O]` inbox line first stating what you're about to change and why. The inbox-first habit catches design-work drift the way it catches Codex's build-work drift; without it, the integration record is incomplete and you can't reconstruct what changed mid-session. The only vault edit that doesn't need a prior `[O]` line is the inbox itself.
 
 ### 5. Opus review (before the user accepts Codex's work)
 - **Every Codex task gets reviewed by Opus. No exceptions, no risk gradient.** The user does not need to read code to verify it — Opus does that and reports in plain English.
@@ -382,10 +383,11 @@ Walk this sequence in order at the start of every fresh chat. Don't skip steps e
 2. Read `00_Index.md` → current priority, active systems, status legend.
 3. Read `00_Inbox/_Inbox.md` → anything pending or unresolved (`?`-flagged) from prior sessions.
 4. Read the most recent file in `07_Sessions/` → where we left off, what shipped, what broke.
-5. Read `09_Open_Questions/_Open_Questions.md` and `09_Open_Questions/_Known_Bugs.md` → outstanding decisions and bugs.
-6. Read `01_Vision/Tone_and_Rules` → the north star. Read it every session, even if you think you remember it.
-7. Read `01_Vision/Environments.md` if production cutover is in scope for the session.
-8. Run the **Reality Check** below before doing any design or build work.
+5. **Sync from GitHub.** Query `mcp__github__list_pull_requests` (state=all, sort=updated, direction=desc) and look at every PR closed/merged since the timestamp of the latest `07_Sessions/` recap. For each merged PR: (a) confirm `_Change_Log.md` has an entry with `HH:MM UTC` timestamp; if missing, backfill before doing anything else, (b) confirm the corresponding plan file in `06_Codex_Plans/` has `Status: 🟢 Shipped — PR #N (merged YYYY-MM-DD HH:MM UTC, branch ...)` and update if not, (c) confirm `00_Index.md`'s Plans & Logs section reflects the same status. Cross-session Codex work is invisible without this step — most sync drift this project has hit traces back to a session ending before a PR landed and the next session not noticing.
+6. Read `09_Open_Questions/_Open_Questions.md` and `09_Open_Questions/_Known_Bugs.md` → outstanding decisions and bugs.
+7. Read `01_Vision/Tone_and_Rules` → the north star. Read it every session, even if you think you remember it.
+8. Read `01_Vision/Environments.md` if production cutover is in scope for the session.
+9. Run the **Reality Check** below before doing any design or build work.
 
 ## Reality Check (drift detection)
 
@@ -406,13 +408,19 @@ The goal isn't a perfect audit — it's making sure no surprise lurks under the 
 This is the same routine The Loop step 6 describes, formalized here as a checklist so no piece gets forgotten:
 
 1. Read `00_Inbox/_Inbox.md` from top to bottom; resolve every `?`-flagged item or move it to `09_Open_Questions/`.
-2. For each substantive shipped change, append a one-line entry to `_Change_Log.md`. "Substantive" = something built, deleted, renamed, or whose meaning materially changed. Stray ideas go to `08_Ideas_Parking_Lot/`. Open questions go to `09_Open_Questions/`. Bugs go to `09_Open_Questions/_Known_Bugs.md`.
+2. For each substantive shipped change, append a one-line entry to `_Change_Log.md`. "Substantive" = something built, deleted, renamed, or whose meaning materially changed. Use `YYYY-MM-DD HH:MM UTC — [System] — Change. Reason.` format with `HH:MM UTC` when known, `(<session label>)` otherwise. Sort newest-on-top **by event time** (not by write time). Stray ideas go to `08_Ideas_Parking_Lot/`. Open questions go to `09_Open_Questions/`. Bugs go to `09_Open_Questions/_Known_Bugs.md`.
 3. For each design decision (a choice with reasoning, not just a shipped change), append to `_Decisions.md` so the *why* survives.
 4. Update relevant `02_Systems/` notes if the spec moved. Don't just edit silently — the change log entry should reference which system note got touched.
 5. Log Codex-generated placeholder assets in `02_Systems/_Cleanup_Backlog.md`.
-6. Clear the inbox today's section.
-7. Write the session recap in `07_Sessions/YYYY-MM-DD_session_N.md` using `_Session_Template.md`. Keep it short — 3 bullets per heading is plenty.
-8. If the workflow itself changed (a routine added or modified), update this file.
+6. **Validate consistency before clearing the inbox.** Run these checks; fix any failure on the spot:
+   - Every PR merged this session has a change-log entry with `HH:MM UTC` timestamp. (Cross-check against `mcp__github__list_pull_requests`.)
+   - Every plan file in `06_Codex_Plans/` has a `Status:` line; every Shipped status names a real PR; every Queued/Building/Waiting status reflects current reality.
+   - `00_Index.md`'s Plans & Logs section lists every file in `06_Codex_Plans/` with status emoji matching the plan file.
+   - `00_Index.md`'s Current Priority block doesn't reference any brief that's already shipped or any system that doesn't exist anymore.
+   - `00_Index.md`'s Active Systems status emojis match the corresponding `02_Systems/` spec status.
+7. Clear the inbox today's section.
+8. Write the session recap in `07_Sessions/YYYY-MM-DD_session_N.md` using `_Session_Template.md`. Keep it short — 3 bullets per heading is plenty.
+9. If the workflow itself changed (a routine added or modified), update this file.
 
 ---
 

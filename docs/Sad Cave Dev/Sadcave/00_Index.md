@@ -7,17 +7,25 @@
 
 ## 🎯 Current Priority
 
-**Land the repo-strip housekeeping brief, then move into the next XP follow-up.** The XP Progression MVP shipped 2026-04-27 and Tyler did a heavy testing-place cleanup the same day. Vault has been refreshed to match reality. Repo-strip brief is queued for Codex.
+**Land the live-repo-audit refresh, then move into the next XP follow-up.** Five PRs shipped on 2026-04-27: XP MVP, two repo-strip passes, housekeeping export (10 of 11 flagged objects), and DialogueDirector restore. Vault refreshed to match. The remaining repo housekeeping piece is `docs/live-repo-audit.md` — Tyler wants it redone fresh now that most legacy systems are gone.
 
 Active focus:
-- [ ] Hand the repo-strip brief to Codex — `[[06_Codex_Plans/2026-04-27_Repo_Strip_to_Studio_State_v1]]`. Verifies the three new artifacts (`NameTagScript`, `AfkEvent`, `AfkDetector`) are in repo, retires `xp-only.project.json`, freezes or refreshes `docs/live-repo-audit.md`.
-- [ ] Walk the post-merge testing-place checks listed in `09_Open_Questions/_Open_Questions` (sitting boost at a real `SeatMarker`, level-up animation, gamepass +22 tick, mobile bar height, second-join migration, DataStore failure).
+- [x] Audit refresh shipped via PR #6 (merged 2026-04-27 20:51 UTC). Vault drift caught by the audit (Studio id, IntroScreen/Menu still live, SeatMarkers child-script) reconciled in `Environments.md`, `_UI_Hierarchy.md`, `_Live_Systems_Reference.md`.
+- [ ] Walk the post-merge testing-place checks listed in `09_Open_Questions/_Open_Questions` (sitting boost at a real `SeatMarker` — now unblocked since SeatMarkers has a Seat child, level-up animation, gamepass +22 tick, mobile bar height, second-join migration, DataStore failure simulation). **Next up.**
+- [ ] Decide keep/delete for `IntroScreen` and `Menu` ScreenGuis (drift — present despite cleanup intent), and for `Game Version` ScreenGui (newly discovered). Tracked in `docs/live-repo-audit.md` Manual Export queue and `_UI_Hierarchy.md` drift section.
+- [ ] Manual-export queue from PR #6: `Rose`, `Workspace.Avalog` (453-script dependency of FavoritePromptPersistence — load-bearing), `Leader2`, `playerBugReportSystem`, `ReportGUI`, `Truss`, `WelcomeBadge`. May want a follow-up brief.
+- [x] Dialogue verified working post-PR #5 (Tyler confirmed; no Opus playtest needed).
 - [ ] Pick the next XP follow-up to design — Discovery source, Conversation source, AchievementTracker, or jump straight to Title v2. See [[02_Systems/XP_Progression]] follow-up list.
+- [ ] When Tyler greenlights the secret-handling approach, execute the DiscordLogs refactor (currently ⏸ Waiting — see [[06_Codex_Plans/2026-04-27_DiscordLogs_Secret_Refactor_v1]]).
 
-Recently completed:
-- ✅ XP Progression MVP merged via PR #1 (2026-04-27).
-- ✅ Tyler's heavy testing-place cleanup deleted most legacy systems (2026-04-27).
-- ✅ Vault refreshed to match post-cleanup reality (2026-04-27, Cowork session 1).
+Recently completed (all 2026-04-27):
+- ✅ PR #1 — XP Progression MVP merged (08:45 UTC).
+- ✅ PR #2 — Repo strip to Studio state merged (10:13 UTC).
+- ✅ PR #3 — Repo strip follow-up merged (11:33 UTC).
+- ✅ PR #4 — Housekeeping utility export merged (11:58 UTC). 10 of 11 flagged Studio-only kept-list objects exported: DialogueData, DialogueRemotes, RemoveFF, Reset, SoftShutdown, PromptGroup, PromptFavorite, NpcDialogueClient, PlayerDialogueClient. DiscordLogs deferred (secret refactor brief written, on hold). `environment change ` documented as Studio-only.
+- ✅ PR #5 — DialogueDirector restored (13:32 UTC). 679-line server script back from the 2026-04-24 Studio capture; dialogue should work again pending a playtest verification.
+- ✅ Tyler's heavy testing-place cleanup deleted most legacy systems.
+- ✅ Vault refreshed to match post-cleanup reality (Cowork session 1).
 - ✅ Migration to Cowork — same MCPs wired up, no capability lost.
 
 ---
@@ -60,14 +68,20 @@ Recently completed:
 - **`AGENTS.md`** (at repo root, `C:\Projects\SadCave\AGENTS.md`) — the workflow doc + Codex rules. Read this first on a fresh session.
 - [[_Workflow]] — stub pointing at AGENTS.md (kept so the vault still finds it).
 - `PLANS.md` (at repo root) — 🧊 historical context only.
-- `docs/live-repo-audit.md` (at repo root) — currently stale; the repo-strip brief decides whether to refresh or freeze.
+- `docs/live-repo-audit.md` (at repo root) — refreshed 2026-04-27 via PR #6. 49 rows classified against the cleaned testing place. Refresh policy: redo whenever a substantive cleanup or export pass lands.
 - [[00_Inbox/_Inbox]] — unsorted captures, this session
 - [[_Change_Log]] — append-only history of substantive changes
 
 ### Plans & Logs
-- [[06_Codex_Plans/_Plan_Template]]
-- [[06_Codex_Plans/2026-04-25_XP_Progression_MVP_v1]] (shipped)
-- [[06_Codex_Plans/2026-04-27_Repo_Strip_to_Studio_State_v1]] (queued for Codex)
+- [[06_Codex_Plans/_Plan_Template]] — copy this; every new plan now carries a `Status:` line.
+- [[06_Codex_Plans/2026-04-25_Repo_Resync_v1]] — ⚫ Superseded (replaced by Live Reconciliation Continuation).
+- [[06_Codex_Plans/2026-04-25_Live_Reconciliation_Continuation_v1]] — 🟢 Shipped (pre-cleanup reconciliation pass).
+- [[06_Codex_Plans/2026-04-25_XP_Progression_MVP_v1]] — 🟢 Shipped (PR #1).
+- [[06_Codex_Plans/2026-04-27_Repo_Strip_to_Studio_State_v1]] — 🟢 Shipped (PR #2 + PR #3).
+- [[06_Codex_Plans/2026-04-27_Housekeeping_Utility_Export_v1]] — 🟢 Shipped (PR #4).
+- [[06_Codex_Plans/2026-04-27_Restore_DialogueDirector_v1]] — 🟢 Shipped (PR #5).
+- [[06_Codex_Plans/2026-04-27_DiscordLogs_Secret_Refactor_v1]] — ⏸ Waiting (planned, on hold per Tyler).
+- [[06_Codex_Plans/2026-04-27_Live_Repo_Audit_Refresh_v1]] — 🟢 Shipped (PR #6).
 - [[07_Sessions/_Session_Template]]
 - [[08_Ideas_Parking_Lot/_Parking_Lot]]
 - [[09_Open_Questions/_Open_Questions]] — unresolved design decisions
@@ -91,7 +105,8 @@ Recently completed:
 
 - 🟢 **Shipped** — live and working
 - 🟡 **Building** — actively in progress
-- 🔵 **Planned** — designed, not started
+- 🔵 **Planned / Queued** — designed, not started (Codex plans use this as "Queued for Codex")
+- ⏸ **Waiting** — written but deliberately on hold (e.g. waiting on a Tyler decision)
 - ⚪ **Idea** — rough thought, not committed
 - 🔴 **Cleanup** — legacy, to be removed
 - ⚫ **Superseded** — replaced or deleted; doc kept for history
@@ -105,4 +120,5 @@ Recently completed:
 - Drop in-session captures into [[00_Inbox/_Inbox]] — Opus integrates at session end.
 - Log every working session briefly in `07_Sessions/`.
 - For **how the whole stack works** (Claude + Codex + vault), see `AGENTS.md` at the repo root.
+- **Plan statuses are now mandatory.** Every file in `06_Codex_Plans/` carries a `Status:` line at the top. Update it when state changes (Queued → Building → Shipped, or Waiting / Superseded). Keeping this index in sync with plan-file statuses is part of end-of-session integration.
 - **Production caveat:** the testing place was cleaned 2026-04-27. If the live production place still runs the older systems, several pieces of the vault — most notably `_No_Touch_Systems` and `Title_System`'s migration plan — apply differently for production cutover.

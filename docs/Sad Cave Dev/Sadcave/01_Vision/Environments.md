@@ -9,7 +9,7 @@
 The experimental sandbox. Every Codex brief, every playtest, every cleanup pass happens here first.
 
 - **Studio name:** `Testing cave`
-- **Studio MCP id:** `b2f076e7-1056-4618-9ac5-3e41f079a2e4` (verify in `list_roblox_studios` if it changes)
+- **Studio MCP id:** `b00d97e0-2ec5-45ea-b49e-22fdff7d8c5b` (verified 2026-04-27 via `list_roblox_studios` during the audit refresh; previous id `b2f076e7-1056-4618-9ac5-3e41f079a2e4` was stale. Verify again if a future session reports a different id.)
 - **Active players:** none. This is dev-only.
 - **State as of 2026-04-27:** post-cleanup. Most legacy systems deleted; XP Progression MVP live; minimal `NameTagScript`; no titles, no shop, no daily rewards, no admin tools, no cash currency. See `02_Systems/_Live_Systems_Reference.md` for the full kept set.
 - **DataStores:** real Roblox DataStores. Anything the testing place writes to a DataStore lands in the real cloud, not a mock. Be careful with destructive writes during dev — they affect the actual stored values.

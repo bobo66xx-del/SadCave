@@ -7,6 +7,9 @@
 # [System Name] — Codex Plan
 
 **Date:** YYYY-MM-DD
+**Status:** 🔵 Queued
+*(legend: 🔵 Queued — written, awaiting Codex · 🟡 Building — Codex on branch · 🟢 Shipped — merged, include PR # and date · ⏸ Waiting — written but deliberately on hold · ⚫ Superseded — replaced or invalidated)*
+**Branch:** `codex/<task-slug>` *(once started)*
 **Related Systems:** [[../02_Systems/...]]
 
 ---
