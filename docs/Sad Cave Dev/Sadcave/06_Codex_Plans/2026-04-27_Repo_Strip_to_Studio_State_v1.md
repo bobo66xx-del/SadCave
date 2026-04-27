@@ -1,6 +1,7 @@
 # Repo Strip to Studio State — Codex Plan
 
 **Date:** 2026-04-27
+**Status:** 🟢 Shipped — PR #2 (merged 2026-04-27 10:13 UTC) and follow-up PR #3 (re-push of same branch, merged 2026-04-27 11:33 UTC)
 **Related Systems:** [[../02_Systems/_Live_Systems_Reference]], [[../02_Systems/_Cleanup_Backlog]], [[../02_Systems/_No_Touch_Systems]], [[../02_Systems/XP_Progression]]
 **Branch:** `codex/repo-strip-to-studio-state`
 **Spec source of truth:** Tyler's testing-place cleanup pass on 2026-04-27 (logged in `00_Inbox/_Inbox.md` 2026-04-27 evening section). The cleaned testing place is now the structural reference for what should remain in the repo.

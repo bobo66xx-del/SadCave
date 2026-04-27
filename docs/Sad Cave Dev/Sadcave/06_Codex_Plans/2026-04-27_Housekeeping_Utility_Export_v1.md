@@ -1,6 +1,7 @@
 # Housekeeping + Utility Export — Codex Plan
 
 **Date:** 2026-04-27
+**Status:** 🟢 Shipped — PR #4 (merged 2026-04-27 11:58 UTC, branch `codex/housekeeping-utility-export`). Note: DiscordLogs deferred to separate brief; `environment change ` documented as Studio-only; `live-repo-audit.md` was frozen via Option B but is being redone fresh in a follow-up brief.
 **Related Systems:** [[../02_Systems/_Live_Systems_Reference]], [[../02_Systems/_No_Touch_Systems]], [[../02_Systems/_Cleanup_Backlog]], [[../02_Systems/Dialogue_System]]
 **Branch:** `codex/housekeeping-utility-export`
 **Spec source of truth:** the 11 Studio-only objects you flagged in PR #2's "Flagged uncertain / left out for review" section, plus the two pending items from `2026-04-27_Repo_Strip_to_Studio_State_v1` that PR #2 didn't cover.

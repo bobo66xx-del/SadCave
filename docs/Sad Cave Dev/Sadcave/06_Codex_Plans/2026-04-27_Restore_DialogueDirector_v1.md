@@ -1,6 +1,7 @@
 # Restore DialogueDirector — Codex Plan
 
 **Date:** 2026-04-27
+**Status:** 🟢 Shipped — PR #5 (merged 2026-04-27 13:32 UTC, branch `codex/restore-dialogue-server`). Source restored from 2026-04-24 Studio-captured hardened version (679 lines); pushed with static validation only — Rojo sync/playtest deferred to post-merge.
 **Related Systems:** [[../02_Systems/Dialogue_System]], [[../02_Systems/_Live_Systems_Reference]], [[../05_NPCs/QuietKeeper]]
 **Branch:** `codex/restore-dialogue-server`
 **Spec source of truth:** [[../02_Systems/Dialogue_System]] describes the architecture as it was supposed to be — `DialogueDirector` server script + `DialogueData` + 4 `DialogueRemotes` + two client scripts. The housekeeping export brief on 2026-04-27 confirmed via smoke test that the server-side `DialogueDirector` is **missing** from the testing place. Likely cause: it was deleted during the 2026-04-27 cleanup pass. This brief restores it from a place backup.

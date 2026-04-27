@@ -1,6 +1,7 @@
 # DiscordLogs Secret Refactor — Codex Plan
 
 **Date:** 2026-04-27
+**Status:** ⏸ Waiting — Planned, on hold per Tyler. The Discord webhook export is intentionally deferred until the secret-handling approach (Branch A vs B vs C below) is greenlit. Do not execute until Tyler confirms.
 **Related Systems:** [[../02_Systems/_No_Touch_Systems]], [[../02_Systems/_Live_Systems_Reference]]
 **Branch:** `codex/discordlogs-secret-refactor`
 **Spec source of truth:** the housekeeping export brief (`2026-04-27_Housekeeping_Utility_Export_v1.md`) flagged DiscordLogs as un-exportable because its `LogsSettings` child contains a Discord webhook URL marked DO NOT SHARE. Pushing it to a public GitHub repo would leak the credential. This brief refactors DiscordLogs so the webhook URL stays out of source.
