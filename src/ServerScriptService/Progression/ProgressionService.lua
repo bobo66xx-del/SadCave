@@ -268,7 +268,9 @@ function ProgressionService.LoadPlayer(player)
 		return states[player]
 	end
 
-	player:SetAttribute("LevelLoaded", false)
+	if SourceConfig.ENABLED then
+		player:SetAttribute("LevelLoaded", false)
+	end
 
 	local key = getKey(player)
 	local ok, storedData = withRetry("ProgressionData GetAsync", function()

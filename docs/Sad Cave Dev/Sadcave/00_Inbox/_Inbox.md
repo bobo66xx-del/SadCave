@@ -30,7 +30,8 @@
 - [C] 00:51 — ? Phase 6 sitting checklist blocked: testing place has `Workspace.SeatMarkers` but it currently has 0 children/seats, so SeatMarker sitting boost could not be validated against a real marked seat.
 - [C] 00:51 — Phase 6 cleanup complete: stopped playtest, restored `SourceConfig.ENABLED=false`, and re-enabled `LevelLeaderstats` / `Levelup` in Studio without saving the place.
 - [C] 00:53 — ? Phase 6 remaining limits: timed playtest did not naturally cross a level threshold, and did not cover new-player/no-legacy data, second-join migration variants, gamepass-owner +22 tick, mobile height, or manual hover/tap visual feel.
-- [C] 00:53 — XP Progression MVP branch pushed and ready for Opus review. Built: ProgressionService, LevelCurve, SourceConfig, PresenceTick, Driver, XPUpdated/LevelUp remotes, XPBar. Tested in Studio: Rojo sync, XPBar clone, migration/loaded Level+XP values, active +15 tick, AFK +3 tick path, no Progression console errors. Flagged: SeatMarker sitting boost untested because `Workspace.SeatMarkers` is empty in the testing place.
+- [C] 00:55 — Tightened dormant deploy behavior: with `SourceConfig.ENABLED=false`, ProgressionService no longer touches the `LevelLoaded` attribute, leaving the live `LevelLeaderstats` / title pipeline authority alone.
+- [C] 00:55 — XP Progression MVP branch pushed and ready for Opus review. Built: ProgressionService, LevelCurve, SourceConfig, PresenceTick, Driver, XPUpdated/LevelUp remotes, XPBar. Tested in Studio: Rojo sync, XPBar clone, migration/loaded Level+XP values, active +15 tick, AFK +3 tick path, no Progression console errors. Flagged: SeatMarker sitting boost untested because `Workspace.SeatMarkers` is empty in the testing place.
 
 ## 2026-04-26
 
