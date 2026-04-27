@@ -6,13 +6,13 @@ local function buildBillboard(adornee, displayName)
 	bb.Name = "NameTag"
 	bb.Adornee = adornee
 	bb.AlwaysOnTop = true
-	bb.Size = UDim2.new(0, 200, 0, 50)
+	bb.Size = UDim2.new(0, 200, 0, 30)
 	bb.StudsOffset = Vector3.new(0, 3, 0)
 	bb.MaxDistance = 100
 
 	local nameLabel = Instance.new("TextLabel")
 	nameLabel.Name = "NameLabel"
-	nameLabel.Size = UDim2.new(1, 0, 0.6, 0)
+	nameLabel.Size = UDim2.new(1, 0, 1, 0)
 	nameLabel.Position = UDim2.new(0, 0, 0, 0)
 	nameLabel.BackgroundTransparency = 1
 	nameLabel.Font = Enum.Font.Gotham
@@ -23,20 +23,7 @@ local function buildBillboard(adornee, displayName)
 	nameLabel.Text = displayName
 	nameLabel.Parent = bb
 
-	local levelLabel = Instance.new("TextLabel")
-	levelLabel.Name = "LevelLabel"
-	levelLabel.Size = UDim2.new(1, 0, 0.4, 0)
-	levelLabel.Position = UDim2.new(0, 0, 0.6, 0)
-	levelLabel.BackgroundTransparency = 1
-	levelLabel.Font = Enum.Font.Gotham
-	levelLabel.TextSize = 12
-	levelLabel.TextColor3 = Color3.fromRGB(180, 170, 155)
-	levelLabel.TextStrokeTransparency = 0.7
-	levelLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-	levelLabel.Text = "level 0"
-	levelLabel.Parent = bb
-
-	return bb, levelLabel
+	return bb
 end
 
 local function applyNameTag(player, character)
@@ -50,21 +37,13 @@ local function applyNameTag(player, character)
 
 	local function ensureBillboard()
 		local existing = hrp:FindFirstChild("NameTag")
-		if existing and existing:IsA("BillboardGui") then return existing, existing:FindFirstChild("LevelLabel") end
-		local bb, levelLabel = buildBillboard(hrp, player.DisplayName)
+		if existing and existing:IsA("BillboardGui") then return existing end
+		local bb = buildBillboard(hrp, player.DisplayName)
 		bb.Parent = hrp
-		return bb, levelLabel
+		return bb
 	end
 
-	local bb, levelLabel = ensureBillboard()
-
-	local function updateLevel()
-		local lb = player:FindFirstChild("leaderstats")
-		local lvl = lb and lb:FindFirstChild("Level")
-		if lvl and levelLabel and levelLabel.Parent then
-			levelLabel.Text = "level " .. tostring(lvl.Value)
-		end
-	end
+	local bb = ensureBillboard()
 
 	-- Watchdog: if Avalog destroys our BillboardGui, recreate it.
 	local function watchBillboard()
@@ -72,39 +51,12 @@ local function applyNameTag(player, character)
 			if not parent and character.Parent then
 				task.wait(0.1)
 				if not character.Parent then return end
-				bb, levelLabel = ensureBillboard()
-				updateLevel()
+				bb = ensureBillboard()
 				watchBillboard()
 			end
 		end)
 	end
 	watchBillboard()
-
-	-- Hook leaderstats for level updates
-	local function hookLeaderstats(lb)
-		local lvl = lb:FindFirstChild("Level")
-		if lvl then
-			updateLevel()
-			lvl:GetPropertyChangedSignal("Value"):Connect(updateLevel)
-		end
-		lb.ChildAdded:Connect(function(c)
-			if c.Name == "Level" and c:IsA("IntValue") then
-				updateLevel()
-				c:GetPropertyChangedSignal("Value"):Connect(updateLevel)
-			end
-		end)
-	end
-
-	local existingLB = player:FindFirstChild("leaderstats")
-	if existingLB then
-		hookLeaderstats(existingLB)
-	else
-		player.ChildAdded:Connect(function(c)
-			if c.Name == "leaderstats" then hookLeaderstats(c) end
-		end)
-	end
-
-	updateLevel()
 end
 
 local function onPlayer(player)
