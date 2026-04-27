@@ -1,8 +1,12 @@
 # Level System
 
-**Status:** 🟡 Shipped, needs redesign
+**Status:** ⚫ Superseded by [[XP_Progression]] — deleted from testing place 2026-04-27
 
-The numeric layer that drives [[Title_System]] and [[NameTag_Status]]. Currently functional but built like a generic Roblox leaderstats system, not designed for Sad Cave specifically. Needs to be rethought as part of [[XP_Progression]].
+> **Historical doc.** The legacy `LevelLeaderstats` (`+1 level/60s`) + `Levelup` chat client + `LevelSave` DataStore was the live progression system from project start through 2026-04-27. Replaced by the XP Progression MVP (PR #1, merged 2026-04-27). Tyler then deleted both `LevelLeaderstats` and `Levelup` from the testing place during the same-day cleanup pass.
+>
+> **Reading from the old DataStore:** `ProgressionService` still reads `LevelSave` once during migration (first join under the new system). After all live players have migrated, that read can be retired in a follow-up cleanup brief. Production may still hold v1 data — this matters whenever production gets the cutover.
+>
+> Kept as historical record because the change log and `_Cleanup_Backlog` reference "the level system" by this doc's name.
 
 ---
 

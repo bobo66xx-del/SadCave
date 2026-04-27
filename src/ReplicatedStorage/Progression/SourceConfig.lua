@@ -6,7 +6,9 @@ local SourceConfig = {}
 -- Master enable flag. Set to false to keep ProgressionService dormant.
 -- Used during the cutover from LevelLeaderstats so the new system can
 -- be deployed inert and switched on after verification.
-SourceConfig.ENABLED = false
+-- Flipped to true 2026-04-27 — cutover from LevelLeaderstats complete
+-- (legacy script deleted from testing place, repo lean, no risk of conflict).
+SourceConfig.ENABLED = true
 
 -- Level curve constants: XP per level N = floor(A + B * N^C)
 SourceConfig.CURVE_A = 45

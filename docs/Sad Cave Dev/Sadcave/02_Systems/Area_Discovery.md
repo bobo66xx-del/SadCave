@@ -1,6 +1,10 @@
 # Area Discovery
 
-**Status:** 🟢 Shipped (badges only — ready to extend for XP)
+**Status:** 🔵 Planned — prior `AreaDiscoveryBadge` script deleted from testing place 2026-04-27. `Workspace.InsideZones` parts may or may not still exist (verify before building). The XP Progression follow-up `Discovery` source will likely supersede the badge-only design entirely.
+
+> **Recovery note:** the original badge-awarding system used `BadgeService` against zone-touch events, with no DataStore (badges handled their own persistence via Roblox). Badge IDs already live in the Roblox cloud and are still owned by players who earned them — deleting the script doesn't revoke past awards. Re-enabling badge-awarding later is a matter of restoring or rewriting the script; the badge IDs themselves don't need new design work.
+>
+> When building the XP `Discovery` source, the natural choice is to combine: one script awards both the badge (cloud) and the XP (DataStore). Reverses the earlier "keep them separate" recommendation — with the legacy script gone, a unified rewrite is cheaper than restoring two.
 
 ---
 

@@ -1,117 +1,61 @@
 # Cleanup Backlog
 
-Legacy systems and template leftovers to remove or refactor. Do not extend these — strip them.
-
-Each item has: what it is, what to remove, and what to be careful of.
-
----
-
-## 🔴 Shop System (combat items)
-
-**What it is:**
-- `ServerScriptService.Shop` + `ServerScriptService.ShopService`
-- `ReplicatedStorage.ShopCatalog`
-- `ReplicatedStorage.ShopItems` — Saber, Scythe, Book, Gun, Rocket Launcher (each with `Price` IntValue)
-- `ReplicatedStorage.ShopRemotes`
-- `StarterGui.ShopMenu`
-
-**Why it goes:** Saber/Scythe/Gun/Rocket Launcher clash hard with Sad Cave's tone (no flashy/combat items, no aggressive monetization).
-
-**Removal plan:**
-1. Inventory which items are actually purchasable in-game right now (some may be dead code)
-2. Remove combat items from `ShopItems`
-3. Decide: kill the entire Shop UI, or keep the framework for tone-aligned cosmetic items only (e.g. lanterns, calm decorative tools)
-4. Audit any reference to `ShopRemotes` or `ShopService` elsewhere
-5. Remove `StarterGui.ShopMenu`
-6. Update `TitleConfig` if any "shop" category titles depend on shop purchases (30 shop titles exist)
-
-**Watch out for:**
-- Player save data — if anything records owned items via DataStore, decide if that gets cleared or migrated
-- `TipProductConfig` — if this is connected to the shop, evaluate together
+> **Last refreshed:** 2026-04-27 — Tyler executed most of this list during the testing-place cleanup pass. The remaining items are documented below.
+>
+> **What this doc is for:** legacy systems and template leftovers slated for removal or refactor. Don't extend anything listed here as still-pending — strip it.
 
 ---
 
-## 🔴 Cash Currency
+## ✅ Completed in 2026-04-27 Cleanup
 
-**What it is:**
-- `ServerScriptService.CashLeaderstats`
-- Likely tied to the Shop above
+For the audit trail. Each of these is gone from the testing place. None of them need further removal work.
 
-**Why it goes:** Vision rule — no excessive currencies. Sad Cave shouldn't have a cash economy.
-
-**Removal plan:**
-1. Find all references to `Cash` (grep `CashLeaderstats`, `Cash.Value`, `leaderstats.Cash`)
-2. Remove the leaderstat
-3. Remove any earning sources (probably tied to the legacy XP source — verify before removing)
-4. Confirm no shop dependency before deletion
-
-**Watch out for:**
-- ⚠️ If `CashLeaderstats` is currently the source that feeds level-up triggers, removing it before [[XP_Progression]] is built will leave players unable to level up. Build the new XP system first, swap, then remove.
+- **🔴 Combat-tool Shop** — `Shop`, `ShopService`, `ShopCatalog`, `ShopItems` (Saber/Scythe/Gun/Rocket Launcher/Book), `ShopRemotes`, `ShopMenu` UI, `Remotes.Shop` — all deleted.
+- **🔴 Cash currency** — `CashLeaderstats`, `ShardsSave` writes, session shard milestones, `Shards` IntValue sources — deleted. `Shards` no longer exists in player state.
+- **🔴 Daily Rewards** — `DailyRewardsServer`, `DailyRewardsRemotes`, `DailyRewardStatus`, `ClaimDailyReward` — deleted. Tone-aligned alternative is parking-lot territory; not in active queue.
+- **🔴 Title v1 pipeline** — `TitleService`, `TitleConfig`, `TitleEffectPreview`, `TitleRemotes`, `TitleMenu` UI, plus the title-rendering side of `NameTagScript Owner` — deleted. v2 redesign in [[Title_System]] now builds on a blank slate.
+- **🔴 Admin tools** — `AdminServerManager`, `ReplicatedStorage.Admin` (and embedded admin GUI) — deleted. **Reports system kept** (`ReportHandler`, `ReportRemotes`).
+- **🔴 Theme color override** — `ServerScriptService.Theme` + `StarterPlayerScripts.Theme` + `Remotes.Theme` — deleted. `Workspace.Theme` parts (if any) are now decorative-only with no script driving them.
+- **🔴 Sprint** — `StarterCharacterScripts.Sprint` — deleted. Walk speed is default.
+- **🔴 Area Discovery (badge-only version)** — `AreaDiscoveryBadge` deleted. See [[Area_Discovery]] — the XP follow-up `Discovery` source will reintroduce both badge + XP in a unified rewrite.
+- **🔴 Old level system** — `LevelLeaderstats`, `Levelup` chat client, `Remotes.LevelUp` — deleted. See [[Level_System]] for the historical record. `LevelSave` DataStore is read once during migration in `ProgressionService` then ignored thereafter.
+- **🔴 Old AFK plumbing** — `AFK` server, `AFKLS` client — deleted. New `AfkEvent` + `AfkDetector` replace them.
+- **🔴 Duplicate / template UI** — `Menu` (×2), `Settings` (legacy), `IntroScreen`, `Custom Inventory`, `ComputerUI`, `fridge-ui`, `SadCaveMusicGui`, `bruh`, `TTTUI`, `NotificationTHingie`, two generic `ScreenGui` orphans — deleted.
+- **🔴 Backpack tweak** — `BackpackCoreGuiController` deleted.
+- **🔴 SoftShutdown duplicates** — kept one canonical `SoftShutdown`; duplicates deleted.
+- **🔴 Custom chat scripts** — `Custom Chat Script`, `TextChatServiceHandler`, `ChatTag` — deleted (chat now uses Roblox defaults).
 
 ---
 
-## 🟡 Donations
+## 🟡 Still Pending Decision
 
-**What it is:**
-- `ServerScriptService.DonationLeaderstats`
-- `ServerScriptService.DonationAmount`
-- `ReplicatedStorage.TipProductConfig`
+### Donations / Tips
 
-**Status:** Donations are different from "Cash" — they're a Robux-funded support feature. Decide separately whether donations stay.
+`TipProductConfig` and any `tipui` / `tipframe*` ScreenGui (verify if `tipui` survived the cleanup).
+
+**Status:** decision still pending from before the cleanup. Tyler hadn't decided whether donations stay.
 
 **Decision needed:**
 - ✅ Keep donations as a gentle support option (low-key tip jar fits the tone)
 - ❌ Remove if it adds visual clutter or social pressure
 
-For now: **document, don't remove.** Visit later.
+For now: **document, don't remove.** Visit when the tone-fit pass reaches monetization.
+
+### Dialogue (kept; verify scope)
+
+The kept set per the cleanup log is "dialogue scripts." Multiple components plausibly fall under that label: `DialogueDirector`, `NpcDialogueClient`, `PlayerDialogueClient`, `DialogueData`, the four `DialogueRemotes`. Next session that touches dialogue should walk the live tree and confirm each piece is still live and as expected. No removal pending — this is just a verification task.
 
 ---
 
-## 🔴 Duplicate / Cluttered Files
+## ⚪ Tech Debt to Watch (low priority)
 
-**Duplicates found:**
-- Multiple SoftShutdown scripts (`ServerScriptService.SoftShutdown` + `ReplicatedFirst.SoftShutdownClient` is correct, but check for additional copies)
-- Multiple Menu ScreenGuis in `StarterGui` — verify which is current
-- Lighting configurations: `v1`, `V2`, `final`, `build` (all in `Lighting`) — only one should be active
-
-**Cleanup plan:**
-1. Identify the canonical version of each duplicate
-2. Move others to a `_legacy/` folder for one session, run the game
-3. If nothing breaks, delete
+- `Avalog` analytics package in Workspace — large external integration tied into `FavoritePromptPersistence`. No removal action; just don't touch `PlayerDataStore` paths casually.
+- `Brushtool2_Plugin_Storage` in ServerStorage — leftover from the Brushtool plugin; can probably be deleted whenever someone is in there.
+- Duplicate tree models in Workspace — `MapleTree`, `MapleTree2`, `MapleTree 3`, `MapleTree.5`, etc. Polish during next map pass, no urgency.
+- Stale lighting configs — there used to be `Lighting.v1`, `V2`, `final`, `build`. With `Theme` deleted there's no script driving any of them; verify which one is currently active and consider naming it (`Lighting.Presets.Cave` etc.) per the [[Cave_Outside_Lighting]] proposal.
 
 ---
 
-## 🟡 Combat Tools in Inventory
+## Removal Order (no longer needed)
 
-**What it is:** `Custom Inventory` ScreenGui in `StarterGui` may surface combat tools from the Shop.
-
-**Action:** Audit after Shop cleanup. Inventory itself can stay — just make sure it only displays tone-appropriate items.
-
----
-
-## 🟡 TTTUI
-
-**What it is:** `StarterGui.TTTUI` — looks like a "Trouble in Terrorist Town" UI from a template.
-
-**Action:** Confirm it's unused, then remove.
-
----
-
-## ⚪ Tech Debt to Watch
-
-- `Avalog` analytics package in Workspace — large external integration; confirm it's still wanted before extending it
-- `Brushtool2_Plugin_Storage` in ServerStorage — leftover from the Brushtool plugin; can probably be deleted
-- Many tree models with similar names (`MapleTree`, `MapleTree2`, `MapleTree 3`, `MapleTree.5`) — clean up duplicates when you next touch the map
-- `Workspace.bruh` analytics frame — looks like a debug overlay; remove from production
-
----
-
-## Removal Order (recommended)
-
-1. **First:** Build [[XP_Progression]] so you don't break leveling when Cash goes
-2. Remove combat items from Shop
-3. Remove Cash currency
-4. Decide on Daily Rewards tone alignment ([[Daily_Rewards]])
-5. Cleanup duplicates (SoftShutdown, Menu, Lighting configs)
-6. Remove TTTUI and other obvious dead UI
-7. Audit `Avalog` and tree duplicates last
+The original ordered removal plan is moot — Tyler did most of it in one pass. The remaining work is the Donations decision (when monetization gets a fresh tone-fit conversation) and any small follow-up cleanup that surfaces during normal work.

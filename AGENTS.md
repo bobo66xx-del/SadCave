@@ -370,16 +370,55 @@ The repo is the source of truth. Studio is the runtime. The vault is the shared 
 
 ---
 
-# Re-orientation (for Opus, fresh session)
+# Session Bookends
 
-When opening a new chat with Opus on this project, Opus walks this sequence:
+Formalized routines that frame every Claude session on this project. The loop only stays clean if both bookends fire — missing the start routine causes drift, missing the wrap-up causes vault rot.
 
-1. Read `00_Index.md` → current priority and active systems
-2. Read `00_Inbox/_Inbox.md` → anything pending from last session
-3. Read most recent file in `07_Sessions/` → where we left off
-4. Read `09_Open_Questions/_Open_Questions.md` → outstanding decisions
-5. Read `01_Vision/Tone_and_Rules` → the north star, before any design work
-6. Read this file (`AGENTS.md`) and `docs/live-repo-audit.md` for the export queue.
+## Start of session — Re-orient (for Claude, fresh session)
+
+Walk this sequence in order at the start of every fresh chat. Don't skip steps even if you've worked on this project before — each one catches a different kind of drift.
+
+1. Read this file (`AGENTS.md`) — the workflow contract.
+2. Read `00_Index.md` → current priority, active systems, status legend.
+3. Read `00_Inbox/_Inbox.md` → anything pending or unresolved (`?`-flagged) from prior sessions.
+4. Read the most recent file in `07_Sessions/` → where we left off, what shipped, what broke.
+5. Read `09_Open_Questions/_Open_Questions.md` and `09_Open_Questions/_Known_Bugs.md` → outstanding decisions and bugs.
+6. Read `01_Vision/Tone_and_Rules` → the north star. Read it every session, even if you think you remember it.
+7. Read `01_Vision/Environments.md` if production cutover is in scope for the session.
+8. Run the **Reality Check** below before doing any design or build work.
+
+## Reality Check (drift detection)
+
+The vault, the repo, and Studio drift from each other if nobody catches it. Run this at the start of any session that will touch a system, design, or system spec. Skip if the session is purely conversational (e.g. brainstorming, planning a not-yet-buildable feature).
+
+1. Open `02_Systems/_Live_Systems_Reference.md` and note its "Last refreshed" date.
+2. If the last refresh is more than 7 days old, OR the change log shows substantive shipped work since then, walk the relevant Studio area via Studio MCP (`inspect_instance`, `search_game_tree`, or targeted `script_read`) and compare to the doc.
+3. For any drift found:
+   - Mismatch in a kept system → update `_Live_Systems_Reference.md` in the same edit pass.
+   - Studio-only artifact that should be in the repo → flag in inbox with `[O] ?` so it gets a Codex brief.
+   - Repo file that doesn't match Studio → same thing, flag in inbox.
+4. Append a one-line entry to the change log: `YYYY-MM-DD — Vault — Reality check: drift found in <area> / no drift.`
+
+The goal isn't a perfect audit — it's making sure no surprise lurks under the work you're about to do. If unsure whether to check, default to checking; it's cheap.
+
+## End of session — Wrap-up (Claude, integration)
+
+This is the same routine The Loop step 6 describes, formalized here as a checklist so no piece gets forgotten:
+
+1. Read `00_Inbox/_Inbox.md` from top to bottom; resolve every `?`-flagged item or move it to `09_Open_Questions/`.
+2. For each substantive shipped change, append a one-line entry to `_Change_Log.md`. "Substantive" = something built, deleted, renamed, or whose meaning materially changed. Stray ideas go to `08_Ideas_Parking_Lot/`. Open questions go to `09_Open_Questions/`. Bugs go to `09_Open_Questions/_Known_Bugs.md`.
+3. For each design decision (a choice with reasoning, not just a shipped change), append to `_Decisions.md` so the *why* survives.
+4. Update relevant `02_Systems/` notes if the spec moved. Don't just edit silently — the change log entry should reference which system note got touched.
+5. Log Codex-generated placeholder assets in `02_Systems/_Cleanup_Backlog.md`.
+6. Clear the inbox today's section.
+7. Write the session recap in `07_Sessions/YYYY-MM-DD_session_N.md` using `_Session_Template.md`. Keep it short — 3 bullets per heading is plenty.
+8. If the workflow itself changed (a routine added or modified), update this file.
+
+---
+
+# Codex Review Template
+
+When Codex pushes a branch and hands back, Claude follows the routine in `docs/Sad Cave Dev/Sadcave/_Review_Template.md` before giving the user a verdict. The template covers: reading the diff via GitHub MCP, parsing Codex's inbox notes, deciding if an independent playtest is needed, translating to plain English, and the verdict format. Don't skip steps based on "this looked small" — review is universal per the anti-patterns below.
 
 ---
 

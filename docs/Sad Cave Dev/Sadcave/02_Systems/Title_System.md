@@ -1,8 +1,12 @@
 # Title System
 
-**Status:** 🔵 Planned — redesign (v2)
+**Status:** 🔵 Planned — redesign (v2). v1 deleted from testing place 2026-04-27.
 
-> **Previous version:** v1 is currently live (🟢 Shipped). This spec describes the full replacement. v1 stays running until v2 ships. See migration plan at the bottom.
+> **Where we are:** the v1 title pipeline (`TitleService`, `TitleConfig`, `TitleMenu`, `ShopService`, `ShopMenu`, `ShopCatalog`, `TitleEffectPreview`, plus the title-rendering side of the old `NameTagScript Owner`) was deleted from the testing place during the 2026-04-27 cleanup. The migration plan in this doc was originally written assuming v1 would stay live until v2 shipped — that's no longer how this lands. v2 now builds onto a blank slate in the testing place.
+>
+> **Production caveat:** if the live production place still runs v1 with active players, `EquippedTitleV1` DataStore data still matters and the migration table at the bottom is still the plan for the production cutover. The testing-place cleanup affects only the test environment.
+>
+> **Build dependency:** the MVP of [[XP_Progression]] is shipped (2026-04-27) — `ProgressionService`, `ProgressionData` DataStore, level computation are all live. v2 title build can begin whenever; the dependencies it lists below are now satisfied (or scoped as follow-up XP briefs).
 
 ---
 

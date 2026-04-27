@@ -1,6 +1,8 @@
 # Cave / Outside Lighting Transition
 
-**Status:** 🔵 Planned (presets exist, zone-switching script does not)
+**Status:** 🔵 Planned (presets exist; controller does not; legacy `Theme` color-override scripts deleted in 2026-04-27 cleanup)
+
+> **Post-cleanup note:** the old `Theme` server + client scripts that previously drove `game.Lighting.AfterPulseColor` are gone. The four lighting configs (`v1`, `V2`, `final`, `build`) and any `Workspace.Theme` parts remain in the testing place but no script is currently animating them. This doc's design intent is unaffected; the recommended cleanup (collapse the four configs into named `Cave` / `Outside` presets) is now easier because nothing live depends on the existing names.
 
 ---
 
@@ -31,10 +33,10 @@ Each contains the same effect set:
 ### Zones
 - **`Workspace.InsideZones`** — already-defined zone parts for inside-cave detection (also used by [[Area_Discovery]])
 
-### Existing lighting scripts
-- `StarterPlayerScripts.MobileLightingCompensation` — adjusts for mobile clients
-- `StarterPlayerScripts.SunRayRemove` — removes/manages sun rays
-- `StarterPlayerScripts.environment change` — _(unclear purpose, needs verification)_
+### Existing lighting scripts (kept post-cleanup)
+- `StarterPlayerScripts.MobileLightingCompensation` — adjusts for mobile clients (in repo: `src/StarterPlayer/StarterPlayerScripts/MobileLightingCompensation.client.lua`)
+- `StarterPlayerScripts.SunRayRemove` — removes/manages sun rays (in repo: `src/StarterPlayer/StarterPlayerScripts/SunRayRemove.client.lua`)
+- ~~`StarterPlayerScripts.environment change`~~ — verify whether this survived the 2026-04-27 cleanup (was previously listed as unclear purpose)
 
 ## What's Missing (build this)
 - ❌ A controller that detects which zone the player is in and tweens between presets

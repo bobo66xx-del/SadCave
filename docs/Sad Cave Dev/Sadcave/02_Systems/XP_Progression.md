@@ -1,6 +1,12 @@
 # XP / Progression System
 
-**Status:** 🔵 Planned — current priority
+**Status:** 🟡 Building — MVP shipped 2026-04-27 (PR #1), follow-ups pending
+
+> **Where we are:** ProgressionService + LevelCurve + SourceConfig + PresenceTick + XPBar are all live on `main`. Migration tested and recovered the user's level (557, totalXP 230,177). Old `LevelLeaderstats` and `Levelup` chat script were retired during Tyler's 2026-04-27 testing-place cleanup pass — not just disabled, deleted. The MVP is the only progression authority now.
+>
+> **What's left (follow-up briefs):** Discovery source, Conversation source, AchievementTracker, TitleConfig v2 + TitleService v2 + TitleMenu v2, NameTag update for v2 TitleConfig format, retire v1 title pipeline (already deleted in testing place; production may still have v1).
+>
+> **Open testing-place checks** (from `09_Open_Questions/_Open_Questions`): sitting boost at a real `SeatMarker`, level-up animation, gamepass +22 tick, mobile bar height, second-join migration variants, DataStore failure simulation.
 
 ---
 

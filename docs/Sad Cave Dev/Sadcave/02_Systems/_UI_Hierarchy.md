@@ -2,429 +2,78 @@
 
 > **Role of this doc:** snapshot of *what UI currently exists* in `StarterGui`, not *what should exist*. Reference for Codex when working on UI.
 >
-> **Source:** live `StarterGui` inspection from the connected Roblox Studio place on 2026-04-19.
+> **Last refreshed:** 2026-04-27 — after Tyler's heavy cleanup pass that deleted most of the legacy `StarterGui` ScreenGuis. Pre-cleanup snapshot from 2026-04-19 was stale enough that this doc has been rewritten rather than appended.
 >
-> **Update cadence:** refresh after major resync work. Not updated during normal design work.
+> **Production note:** this doc reflects the *testing place*. Production may still hold the larger pre-cleanup UI surface.
 >
-> **Cleanup awareness:** several entries here are slated for removal per [[_Cleanup_Backlog]] — duplicate `Menu` ScreenGuis, duplicate generic `ScreenGui`s, `bruh`, `TTTUI`, `NotificationTHingie`, `Settings` (likely legacy vs canonical `settingui`).
+> **Update cadence:** refresh whenever the UI surface changes meaningfully. Not updated during normal design work.
 
-Top-level systems: 24
+---
 
-Notes:
-- Exact object names are preserved as they exist in `StarterGui`.
-- Duplicate top-level names are listed as separate systems with an index so they can be distinguished in documentation without renaming them.
-- Each system is grouped by its top-level `ScreenGui`.
+## Top-level systems (post-cleanup): 4
 
-## 1. `ComputerUI` [`ScreenGui`]
+> Listed in alphabetical order. Each is the top-level `ScreenGui` object name as it appears in `StarterGui`.
 
-- `ComputerUI` [`ScreenGui`]
-  - `main` [`CanvasGroup`]
-    - `MainFrame` [`Frame`]
-      - `PrintButton` [`ImageButton`]
-        - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-        - `UICorner` [`UICorner`]
-      - `NoteBox` [`TextBox`]
-        - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-        - `UICorner` [`UICorner`]
-        - `UITextSizeConstraint` [`UITextSizeConstraint`]
-      - `CloseButton` [`TextButton`]
-        - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-      - `header` [`TextLabel`]
-        - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-      - `sub-header` [`TextLabel`]
-        - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-      - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-      - `UICorner` [`UICorner`]
-      - `UIScale` [`UIScale`]
-    - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-  - `LocalScript` [`LocalScript`]
+### `NoteUI` [`ScreenGui`]
 
-## 2. `Custom Inventory` [`ScreenGui`]
-
-- `Custom Inventory` [`ScreenGui`]
-  - `hotBar` [`Frame`]
-    - `Grid` [`UIGridLayout`]
-  - `Inventory` [`ImageLabel`]
-    - `Frame` [`ScrollingFrame`]
-      - `Grid` [`UIGridLayout`]
-      - `UIPadding` [`UIPadding`]
-    - `SearchBox` [`TextBox`]
-      - `UICorner` [`UICorner`]
-    - `UICorner` [`UICorner`]
-  - `InventoryController` [`LocalScript`]
-    - `toolButton` [`ImageButton`]
-      - `toolIcon` [`ImageLabel`]
-        - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-      - `toolAmount` [`TextLabel`]
-        - `UIStroke` [`UIStroke`]
-      - `toolName` [`TextLabel`]
-        - `UIStroke` [`UIStroke`]
-        - `UITextSizeConstraint` [`UITextSizeConstraint`]
-      - `toolNumber` [`TextLabel`]
-      - `UICorner` [`UICorner`]
-      - `UIStroke` [`UIStroke`]
-    - `SETTINGS` [`ModuleScript`]
-
-## 3. `GUIToggle` [`ScreenGui`]
-
-- `GUIToggle` [`ScreenGui`]
-  - `EyeButton` [`ImageButton`]
-    - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-    - `UICorner` [`UICorner`]
-    - `UIScale` [`UIScale`]
-    - `UIStroke` [`UIStroke`]
-  - `ToggleScript` [`LocalScript`]
-
-## 4. `IntroScreen` [`ScreenGui`]
-
-- `IntroScreen` [`ScreenGui`]
-  - `Background` [`Frame`]
-  - `IntroScript` [`LocalScript`]
-  - `CommandHint` [`TextLabel`]
-    - `UITextSizeConstraint` [`UITextSizeConstraint`]
-  - `SubtitleLabel` [`TextLabel`]
-    - `UITextSizeConstraint` [`UITextSizeConstraint`]
-  - `TitleLabel` [`TextLabel`]
-    - `UITextSizeConstraint` [`UITextSizeConstraint`]
-
-## 5. `MainUI` [`ScreenGui`]
-
-- `MainUI` [`ScreenGui`]
-  - `MainFrame` [`CanvasGroup`]
-    - `ver` [`TextLabel`]
-      - `ShowGameVersion` [`LocalScript`]
-    - `UIScale` [`UIScale`]
-
-## 6. 🔴 `Menu` [`ScreenGui`] (first top-level `Menu` — duplicate, see [[_Cleanup_Backlog]])
-
-- `Menu` [`ScreenGui`]
-  - `Frame` [`Frame`]
-    - `CloseButton` [`TextButton`]
-      - `CloseMenuS` [`Script`]
-    - `TextButton` [`TextButton`]
-      - `LocalScript` [`LocalScript`]
-      - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-    - `TextButton` [`TextButton`]
-      - `LocalScript` [`LocalScript`]
-      - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-    - `TextButton` [`TextButton`]
-      - `LocalScript` [`LocalScript`]
-      - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-    - `TextButton` [`TextButton`]
-      - `LocalScript` [`LocalScript`]
-      - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-    - `TextLabel` [`TextLabel`]
-  - `MainScript` [`Script`]
-  - `MenuButton` [`TextButton`]
-    - `OpenMenuS` [`Script`]
-    - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-    - `UITextSizeConstraint` [`UITextSizeConstraint`]
-
-## 7. 🔴 `Menu` [`ScreenGui`] (second top-level `Menu` — duplicate, see [[_Cleanup_Backlog]])
-
-- `Menu` [`ScreenGui`]
-  - `MainFrame` [`CanvasGroup`]
-    - `LoadLabel` [`TextLabel`]
-      - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-      - `LoadLabelUIScale` [`UIScale`]
-  - `LocalScript` [`LocalScript`]
-  - `MainScript` [`LocalScript`]
-  - `Intro` [`Sound`]
-    - `EqualizerSoundEffect` [`EqualizerSoundEffect`]
-  - `Woosh` [`Sound`]
-    - `EqualizerSoundEffect` [`EqualizerSoundEffect`]
-
-## 8. `NoteUI` [`ScreenGui`]
+The writable-notes UI. Paired with `NoteSystemServer` + `ReplicatedStorage.NoteSystem.*`. Lets a player edit a note tied to a `Workspace.NoteInteraction` spot via `ProximityPrompt`.
 
 - `NoteUI` [`ScreenGui`]
   - `MainFrame` [`Frame`]
     - `NoteCard` [`Frame`]
-      - `EditButton` [`ImageButton`]
-        - `Corner` [`UICorner`]
-        - `Stroke` [`UIStroke`]
-      - `NoteInput` [`TextBox`]
-        - `Padding` [`UIPadding`]
-      - `CancelButton` [`TextButton`]
-        - `Glyph` [`TextLabel`]
-        - `Corner` [`UICorner`]
-      - `PostButton` [`TextButton`]
-        - `Corner` [`UICorner`]
-        - `Stroke` [`UIStroke`]
+      - `EditButton` [`ImageButton`] (Corner, Stroke)
+      - `NoteInput` [`TextBox`] (Padding)
+      - `CancelButton` [`TextButton`] (Glyph, Corner)
+      - `PostButton` [`TextButton`] (Corner, Stroke)
       - `NoteText` [`TextLabel`]
       - `StatusLabel` [`TextLabel`]
-      - `Corner` [`UICorner`]
-      - `PaperGradient` [`UIGradient`]
+      - Corner, PaperGradient
   - `NoteUIClient` [`LocalScript`]
 
-## 9. 🔴 `NotificationTHingie` [`ScreenGui`] (likely dev artifact, see [[_Cleanup_Backlog]])
+### `XPBar` [`ScreenGui`]
 
-- `NotificationTHingie` [`ScreenGui`]
-  - `Main` [`CanvasGroup`]
-    - `LocalScript` [`LocalScript`]
-    - `Sound` [`Sound`]
-    - `Text` [`TextLabel`]
-      - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-      - `UIScale` [`UIScale`]
-    - `UIListLayout` [`UIListLayout`]
+The XP Progression MVP UI. Bottom-of-screen ambient bar. Listens to `ReplicatedStorage.Progression.XPUpdated` and `LevelUp` remotes. Built programmatically by `XPBarController.client.lua`.
 
-## 10. `SadCaveMusicGui` [`ScreenGui`]
+- `XPBar` [`ScreenGui`] — `IgnoreGuiInset = true`, `ResetOnSpawn = false`, `DisplayOrder = 0`
+  - `XPBarController` [`LocalScript`]
+  - All visual elements (`Background`, `Fill`, `LevelLabel`, `TitleLabel`) are constructed at runtime — not edit-time children.
 
-- `SadCaveMusicGui` [`ScreenGui`]
-  - `MusicPanel` [`Frame`]
-    - `Controls` [`Frame`]
-      - `Volume` [`Frame`]
-        - `SliderBack` [`Frame`]
-          - `Knob` [`Frame`]
-            - `UICorner` [`UICorner`]
-          - `SliderFill` [`Frame`]
-            - `UICorner` [`UICorner`]
-          - `UICorner` [`UICorner`]
-        - `VolumeLabel` [`TextLabel`]
-      - `Next` [`TextButton`]
-        - `UICorner` [`UICorner`]
-      - `PlayPause` [`TextButton`]
-        - `UICorner` [`UICorner`]
-    - `mainframe_ShadowPng` [`Frame`]
-      - `ShadowImage` [`ImageLabel`]
-    - `NowPlayingLabel` [`TextLabel`]
-    - `SongLabel` [`TextLabel`]
-    - `UICorner` [`UICorner`]
-  - `MusicGuiController` [`LocalScript`]
-  - `MusicWorldDisplayController` [`LocalScript`]
-  - `MiniButton` [`TextButton`]
-    - `UICorner` [`UICorner`]
-    - `AutoUIScale` [`UIScale`]
-    - `UIStroke` [`UIStroke`]
+### Other UI surfaces (verify in next session)
 
-## 11. 🔴 `ScreenGui` [`ScreenGui`] (first generic-named — likely orphan, see [[_Cleanup_Backlog]])
+The cleanup pass deleted the bulk of `StarterGui` (TitleMenu, ShopMenu, the dual `Menu` ScreenGuis, `Settings`, `IntroScreen`, `Custom Inventory`, `ComputerUI`, `fridge-ui`, `SadCaveMusicGui`, `bruh`, `TTTUI`, `NotificationTHingie`, `ScreenGui` orphans). What's *intended* to remain is `NoteUI` + `XPBar`. If `tipui`, `currencyui`, `notificationUI`, `Teleport Button`, `TPUI`, `MainUI`, `GUIToggle`, or any other pre-cleanup surface is still present, treat it as undocumented and verify with Studio MCP before assuming intent — **flag in the inbox** if any unexpected ScreenGui shows up.
 
-- `ScreenGui` [`ScreenGui`]
+---
 
-## 12. 🔴 `ScreenGui` [`ScreenGui`] (second generic-named — likely orphan, see [[_Cleanup_Backlog]])
+## Removed in 2026-04-27 Cleanup
 
-- `ScreenGui` [`ScreenGui`]
-  - `LocalScript` [`LocalScript`]
+Audit trail. None of these are in the testing-place `StarterGui` anymore.
 
-## 13. 🔴 `Settings` [`ScreenGui`] (likely legacy vs canonical `settingui`, see [[_Cleanup_Backlog]])
+- `ComputerUI` — print-button + note-box panel
+- `Custom Inventory` — hotbar + inventory grid
+- `IntroScreen` — startup splash
+- `MainUI` — version-stamp wrapper
+- `Menu` (×2 duplicates) — paired with the deleted button rail
+- `NotificationTHingie` — dev artifact
+- two generic `ScreenGui` orphans
+- `Settings` — legacy settings panel
+- `ShopMenu` — paired with the deleted `ShopService`
+- `TTTUI` — Trouble-in-Terrorist-Town template leftover
+- `TitleMenu` — paired with the deleted v1 title pipeline
+- `bruh` — debug/analytics overlay
+- `fridge-ui` — combat-shop adjacent food UI
+- `SadCaveMusicGui` — music control panel
+- `currencyui` — primary HUD with shards display + side menu rail (deletion of currency UI follows the deletion of `CashLeaderstats` and `Shards`)
+- `tipui` — tip / donation purchase panel (verify; may have been kept if donations are intentionally preserved — see `_Cleanup_Backlog.md` "Donations" entry)
+- `notificationUI` — notification banner system (verify; was kept-pending depending on whether `Global_Events.Notification_Event` is still actively used)
+- `Teleport Button`, `TPUI`, `GUIToggle` — small utility surfaces; verify presence in next session
 
-- `Settings` [`ScreenGui`]
-  - `Frame` [`Frame`]
-    - `Settings` [`Frame`]
-      - `ScrollingFrame` [`ScrollingFrame`]
-        - `Diffuse` [`Frame`]
-          - `CloseButton` [`TextButton`]
-            - `LocalScript` [`LocalScript`]
-            - `UICorner` [`UICorner`]
-          - `Name` [`TextLabel`]
-          - `UICorner` [`UICorner`]
-        - `Diffuse` [`Frame`]
-          - `CloseButton` [`TextButton`]
-            - `LocalScript` [`LocalScript`]
-            - `UICorner` [`UICorner`]
-          - `Name` [`TextLabel`]
-          - `UICorner` [`UICorner`]
-        - `Shadows` [`Frame`]
-          - `CloseButton` [`TextButton`]
-            - `LocalScript` [`LocalScript`]
-            - `UICorner` [`UICorner`]
-          - `Name` [`TextLabel`]
-          - `UICorner` [`UICorner`]
-        - `UIListLayout` [`UIListLayout`]
-      - `UICorner` [`UICorner`]
-    - `Up` [`Frame`]
-      - `Frame` [`Frame`]
-        - `UICorner` [`UICorner`]
-      - `ImageLabel` [`ImageLabel`]
-        - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-      - `CloseButton` [`TextButton`]
-        - `LocalScript` [`LocalScript`]
-        - `UICorner` [`UICorner`]
-      - `TextLabel` [`TextLabel`]
-    - `UICorner` [`UICorner`]
+The ones marked "verify" are uncertain — the cleanup log in `_Inbox` doesn't itemize which UI was kept by name, only the categories. The next time anyone touches `StarterGui`, walk the live tree once and update this doc.
 
-## 14. 🔴 `ShopMenu` [`ScreenGui`] (paired with legacy Shop, see [[_Cleanup_Backlog]])
+---
 
-- `ShopMenu` [`ScreenGui`]
-  - `main` [`CanvasGroup`]
-    - `mainframe` [`Frame`]
-      - `ScrollingFrame` [`ScrollingFrame`]
-        - `template` [`TextButton`]
-          - `EquipedLabel` [`TextLabel`]
-          - `TitleName` [`TextLabel`]
-          - `TitleRequiredLevel` [`TextLabel`]
-          - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-          - `UICorner` [`UICorner`]
-        - `UICorner` [`UICorner`]
-        - `UIListLayout` [`UIListLayout`]
-      - `CurrentTitle` [`TextLabel`]
-      - `header` [`TextLabel`]
-      - `sub-header` [`TextLabel`]
-      - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-      - `UICorner` [`UICorner`]
-    - `mainframe_ShadowPng` [`Frame`]
-      - `ShadowImage` [`ImageLabel`]
-      - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-    - `LocalScript` [`LocalScript`]
-    - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
+## Conventions
 
-## 15. `TPUI` [`ScreenGui`]
-
-- `TPUI` [`ScreenGui`]
-  - `main` [`CanvasGroup`]
-    - `loading circle` [`ImageLabel`]
-      - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-    - `TPSOUND` [`Sound`]
-    - `funfacttext` [`TextLabel`]
-      - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-    - `tptext` [`TextLabel`]
-      - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-  - `LocalScript` [`LocalScript`]
-
-## 16. 🔴 `TTTUI` [`ScreenGui`] (template leftover, see [[_Cleanup_Backlog]])
-
-- `TTTUI` [`ScreenGui`]
-  - `mainframe` [`CanvasGroup`]
-    - `FRAME` [`Frame`]
-      - `O` [`TextLabel`]
-        - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-        - `UICorner` [`UICorner`]
-      - `X` [`TextLabel`]
-        - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-        - `UICorner` [`UICorner`]
-      - `status` [`TextLabel`]
-        - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-        - `UICorner` [`UICorner`]
-      - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-      - `UICorner` [`UICorner`]
-
-## 17. `Teleport Button` [`ScreenGui`]
-
-- `Teleport Button` [`ScreenGui`]
-  - `TextButton` [`TextButton`]
-    - `LocalScript` [`LocalScript`]
-    - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-
-## 18. `TitleMenu` [`ScreenGui`]
-
-- `TitleMenu` [`ScreenGui`]
-  - `main` [`CanvasGroup`]
-    - `mainframe` [`Frame`]
-      - `FilterTabs` [`Frame`]
-        - `All` [`TextButton`]
-          - `UICorner` [`UICorner`]
-          - `TabStroke` [`UIStroke`]
-        - `Gamepass` [`TextButton`]
-          - `UICorner` [`UICorner`]
-          - `TabStroke` [`UIStroke`]
-        - `Level` [`TextButton`]
-          - `UICorner` [`UICorner`]
-          - `TabStroke` [`UIStroke`]
-        - `Owned` [`TextButton`]
-          - `UICorner` [`UICorner`]
-          - `TabStroke` [`UIStroke`]
-        - `Shop` [`TextButton`]
-          - `UICorner` [`UICorner`]
-          - `TabStroke` [`UIStroke`]
-        - `UIListLayout` [`UIListLayout`]
-      - `ScrollingFrame` [`ScrollingFrame`]
-        - `template` [`TextButton`]
-          - `EquipedLabel` [`TextLabel`]
-          - `TitleName` [`TextLabel`]
-          - `TitleRequiredLevel` [`TextLabel`]
-          - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-          - `UICorner` [`UICorner`]
-        - `UICorner` [`UICorner`]
-        - `UIListLayout` [`UIListLayout`]
-      - `CurrentTitle` [`TextLabel`]
-      - `header` [`TextLabel`]
-      - `sub-header` [`TextLabel`]
-      - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-      - `UICorner` [`UICorner`]
-    - `mainframe_ShadowPng` [`Frame`]
-      - `ShadowImage` [`ImageLabel`]
-      - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-    - `LocalScript` [`LocalScript`]
-    - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-
-## 19. 🔴 `bruh` [`ScreenGui`] (dev/analytics overlay, see [[_Cleanup_Backlog]])
-
-> Full subtree was extensive — preserved here in original detail. Contains analytics frame, daily rewards mirror frame, button frame, updates frame.
-
-- `bruh` [`ScreenGui`]
-  - `Frame` [`Frame`] *(analytics + daily rewards + updates panels)*
-  - `Frame_ShadowPng` [`Frame`]
-  - `upd` [`LocalScript`]
-
-*Full subtree omitted from vault doc — reads as a debug overlay. Original ui-hierarchy.md in repo had full detail; if it's needed before deletion, restore from the audit.*
-
-## 20. `currencyui` [`ScreenGui`]
-
-> Large subtree — primary HUD. Contains shards display, side menu rail, pose/emote panel, music launcher, settings/avatar/title launchers.
-
-- `currencyui` [`ScreenGui`]
-  - `maincanvas` [`CanvasGroup`] *(blocked from exact export — see audit)*
-    - `mainframe` [`Frame`]
-      - `menuframe` [`Frame`] (Shop/Avatar/Hub/Music/Titles/dono/emote/settings buttons)
-      - `poseui` [`Frame`] (Emotes + Poses scrolling frames, switch button)
-      - `poseui_ShadowPng` [`Frame`]
-      - `menubutton` [`TextButton`]
-      - `ShardsValue` [`TextLabel`]
-      - `madeby` [`TextLabel`]
-      - `realtitle` [`TextLabel`]
-    - `mainframe_ShadowPng` [`Frame`]
-  - `LocalScript` [`LocalScript`]
-  - `anim` [`LocalScript`]
-
-## 21. `fridge-ui` [`ScreenGui`]
-
-- `fridge-ui` [`ScreenGui`]
-  - `main` [`CanvasGroup`]
-    - `mainframe` [`Frame`]
-      - `LocalScript` [`LocalScript`]
-      - `itemframe` [`ScrollingFrame`]
-        - 8 food item buttons (`bloxiade`, `burger`, `cake`, `chockymilk`, `cola`, `pizza`, `smore`, `taco`) — each with `setup` LocalScript, `itemname`, `itemprice`, `UICorner`
-        - `UICorner` [`UICorner`]
-        - `UIListLayout` [`UIGridLayout`]
-      - `close` [`TextButton`]
-      - `header` [`TextLabel`]
-      - `sub-header` [`TextLabel`]
-      - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-      - `UICorner` [`UICorner`]
-    - `UIAspectRatioConstraint` [`UIAspectRatioConstraint`]
-  - `close` [`Sound`]
-  - `open` [`Sound`]
-
-## 22. `notificationUI` [`ScreenGui`]
-
-- `notificationUI` [`ScreenGui`]
-  - `Interface` [`Folder`]
-    - `Notifications` [`Frame`]
-      - `UIListLayout` [`UIListLayout`]
-  - `Scripting` [`Folder`]
-    - `UIHandler` [`LocalScript`]
-    - `NotificationsHandler` [`ModuleScript`]
-      - `NotificationFrame` [`Frame`]
-
-## 23. `settingui` [`ScreenGui`]
-
-> Canonical settings UI per AGENTS.md. Live, but blocked from exact export — see audit.
-
-- `settingui` [`ScreenGui`]
-  - `mainui2` [`CanvasGroup`]
-    - `ScrollingFrame` [`ScrollingFrame`] (8 setting frames + spacers + misc)
-    - `title` [`TextLabel`]
-  - `mainui2_ShadowPng` [`Frame`]
-
-## 24. `tipui` [`ScreenGui`]
-
-- `tipui` [`ScreenGui`]
-  - `mainui` [`CanvasGroup`]
-    - `LocalScript` [`LocalScript`]
-    - `TipPurchase` [`LocalScript`]
-    - `ScrollingFrame` [`ScrollingFrame`]
-      - 5 tip frames (`tipframe5`, `tipframe10`, `tipframe100`, `tipframe1000`, `tipframe10000`)
-    - `title` [`TextLabel`] (×2 — duplicate per audit)
-  - `mainui_ShadowPng` [`Frame`]
-  - `LocalScript` [`LocalScript`]
-
-> *Full UI subtrees (especially `bruh` and `currencyui.maincanvas`) were collapsed here for readability. The original full-detail dump lives in `docs/live-repo-audit.md` and the ranges are referenced for export work there.*
+When new UI is added:
+- New ScreenGuis go into the repo at `src/StarterGui/<Name>/` with an `init.meta.json` declaring the ScreenGui properties (typically `ResetOnSpawn = false`).
+- Client scripts inside the UI go in the same folder as `<Name>.client.lua` or `init.client.lua`.
+- Update this doc with the new ScreenGui's name and a one-paragraph description in the next integration pass.

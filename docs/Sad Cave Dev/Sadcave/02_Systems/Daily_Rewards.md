@@ -1,6 +1,12 @@
 # Daily Rewards
 
-**Status:** 🟢 Shipped — review for tone fit
+**Status:** ⚫ Removed — deleted from testing place 2026-04-27 during cleanup pass. No replacement currently planned.
+
+> **Why removed:** the Tone & Rules audit flagged daily rewards systems as a classic retention mechanic that clashes with Sad Cave's design rules (no excessive currencies, no "streak broken" pressure). Tyler removed `DailyRewardsServer` and the `DailyRewardsRemotes` during the 2026-04-27 cleanup. The `DailyRewards_LastClaim_v1` DataStore is no longer read from or written to by any live script.
+>
+> **If a return-acknowledgement experience is wanted later** (the tone-aligned alternative this doc previously sketched — a quiet visual cue when a returning player enters, no streak counter), that's a fresh design conversation, not a revival of this system. Reach for the parking lot first.
+>
+> Kept as historical record because the change log and `_Cleanup_Backlog` reference daily rewards by this doc's name.
 
 ---
 
