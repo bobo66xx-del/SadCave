@@ -1,5 +1,7 @@
 # Live-to-Repo Audit (Final Form)
 
+> ⚠️ FROZEN AS HISTORICAL — reflects pre-2026-04-27 cleanup state. Do not extend. The 2026-04-27 cleanup invalidated most of the live-side classifications below; a fresh audit can be requested when actually needed.
+
 Source of truth: the currently connected live Roblox Studio session on 2026-04-20.
 
 Rules used in this audit:
