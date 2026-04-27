@@ -9,10 +9,15 @@ local LocalPlayer = Players.LocalPlayer
 
 local YourPlaceID = 5895908271 -- your place id obv
 local FavDelay = 600 -- seconds till it prompts after joining
+local RemoteWaitTimeout = 10
 local EligibilityWaitTimeout = 15
 local DataReadyAttribute = "FavoritePromptDataReady"
 local EligibleAttribute = "CanShowFavoritePrompt"
-local PromptShownRemote = ReplicatedStorage:WaitForChild("FavoritePromptShown")
+local PromptShownRemote = ReplicatedStorage:WaitForChild("FavoritePromptShown", RemoteWaitTimeout)
+if not PromptShownRemote then
+	warn("[FavoritePrompt] FavoritePromptShown remote missing in ReplicatedStorage; favorite prompt disabled this session")
+	return
+end
 
 local hasPromptBeenHandled = false
 
