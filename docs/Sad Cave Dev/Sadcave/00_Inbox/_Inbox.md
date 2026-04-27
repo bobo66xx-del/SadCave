@@ -70,6 +70,14 @@
 
 ## 2026-04-27
 
+- [C] 07:08 — Starting Restore DialogueDirector brief on branch `codex/restore-dialogue-server`; using isolated worktree `C:\Projects\SadCave-restore-dialogue-server` so the dirty `main` worktree stays untouched.
+- [C] 07:08 — Confirmed testing place gap: `ServerScriptService` has no dialogue server script; only `NpcDialogueClient` and `PlayerDialogueClient` reference `DialogueData` / `RequestCharacterConversation`.
+- [C] 07:08 — Restored `DialogueDirector` as `src/ServerScriptService/DialogueDirector.server.lua` from the 2026-04-24 Studio-captured hardened source (`game.Workspace.DialogueSystemPackage.ServerScriptService.DialogueDirector`), 679 lines; readable `SadCave-before-rojo.rbxlx` had no dialogue package strings.
+- [C] 07:09 — ? Source provenance differs from brief: binary `.rbxl` backups were not inspected because only the testing place is open in Studio; this restore uses the prior Studio-captured source from the approved/hardened 2026-04-24 dialogue checkpoint.
+- [C] 07:08 — Compatibility check: restored source binds `RequestCharacterConversation`, `PlayCharacterDialogue`, `PlayPlayerDialogue`, `PlayerDialogueChoiceSelected`; reads `DialogueData.Characters.*.conversations`; uses no DataStore; no `LevelLeaderstats` / `TitleService` / `CashLeaderstats` / `ShopService` references found.
+- [C] 07:09 — Live data check passed without Rojo/playtest: `DialogueData` requires successfully, `Characters.QuietKeeper.conversations` has `start` and `returning`, `defaultConversation = "start"`, and all four `DialogueRemotes` exist as `RemoteEvent`s.
+- [C] 07:09 — ? Rojo sync/playtest paused per user instruction: wait for user confirmation that Rojo is running and connected before verifying the script appears in Studio or starting a focused dialogue playtest.
+- [C] 08:28 — Rojo/playtest skipped at user request; branch will push with static validation only, for post-merge testing per Opus review.
 - [C] 00:36 — Starting XP Progression MVP. Phase 0 setup complete: read AGENTS, XP brief, linked specs/context, no-touch and cleanup notes; created branch `codex/xp-progression-mvp`; using existing RemoteEvent folder + `init.meta.json` convention.
 - [C] 00:42 — Phase 1 complete: `ReplicatedStorage.Progression` now has `LevelCurve`, `SourceConfig`, `XPUpdated`, and `LevelUp`; `SourceConfig.ENABLED` remains false.
 - [C] 00:42 — Phase 2 complete: `ProgressionService.lua` written with ProgressionData load/save, legacy migration reads, cached gamepass check, level/XP state, and remotes.
