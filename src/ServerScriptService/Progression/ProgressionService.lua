@@ -250,7 +250,7 @@ end
 
 local function migratePlayer(player)
 	local key = getKey(player)
-	local legacyLevel = readNumber(legacyLevelStore, key, "LevelSave")
+	local legacyLevel, legacyOk = readNumber(legacyLevelStore, key, "LevelSave")
 	local totalTimePlayed = readNumber(legacyTimeStore, key, "TotalTimePlayedSave")
 	local revisits = readNumber(legacyRevisitsStore, key, "RevisitsSave")
 
@@ -260,6 +260,10 @@ local function migratePlayer(player)
 		totalTimePlayed = totalTimePlayed,
 		revisits = revisits,
 		migratedFromLegacy = true,
+		-- Safety: if the legacy LevelSave read failed we cannot trust
+		-- the seeded totalXP. Mark loadFailed so we don't overwrite
+		-- ProgressionData with a 0-XP record on this session.
+		loadFailed = not legacyOk,
 	}
 end
 
