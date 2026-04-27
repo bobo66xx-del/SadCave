@@ -5,10 +5,10 @@
     "BackgroundColor3": [0.639216, 0.635294, 0.647059],
     "BackgroundTransparency": 1,
     "Position": {
-      "UDim2": [[[0, 14]], [[0, 10]]]
+      "UDim2": [[0, 14], [0, 10]]
     },
     "Size": {
-      "UDim2": [[[1, -28]], [[0.0625, 16]]]
+      "UDim2": [[1, -28], [0.0625, 16]]
     },
     "Text": "music",
     "TextColor3": [1, 1, 1],

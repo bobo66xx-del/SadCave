@@ -18,6 +18,12 @@
 - [C] 09:15 — first observation
 -->
 
+## 2026-04-26
+
+- [O] — Fixed Rojo project parse error blocking `rojo serve`. Removed redundant `"className": "Script"` from 4 `init.meta.json` files in `ServerScriptService` (`AntiExploit`, `Custom Chat Script`, `Shop`, `TextChatServiceHandler`). Each conflicted with its sibling `init.server.lua` (newer Rojo rejects the redundant declaration). No behavior change — config hygiene only. Unblocked the first XP session.
+- [O] — Fixed second wave of Rojo errors. Triple-bracket UDim2 bug (`[[[a, b]], [[c, d]]]` instead of `[[a, b], [c, d]]`) in 25 init.meta.json files across `SadCaveMusicGui` (13 files) and `ShopMenu` (12 files). Caused by an older Studio exporter; newer one used by `TitleMenu` is fine. Also emptied `notificationUI/Scripting/NotificationsHandler/init.meta.json` (contained only `className: ModuleScript` which conflicted with sibling `init.lua`). All cosmetic/structural — no logic changes.
+- [O] — Third wave: removed redundant `"className": "LocalScript"` from 4 init.meta.json files in `StarterPlayer/StarterPlayerScripts` (`ChatBubbleDarkTheme`, `OldChatBubbleTheme`, `RainScript`, `Theme`). Same pattern as the ServerScriptService fix — each had an `init.client.lua` already determining the class. ReplicatedStorage scanned, no className conflicts there.
+
 ## YYYY-MM-DD (template — do not write here, this is just a format example)
 
 - [O] HH:MM — example: noticed `CashLeaderstats` still referenced in three places, see `_Cleanup_Backlog`

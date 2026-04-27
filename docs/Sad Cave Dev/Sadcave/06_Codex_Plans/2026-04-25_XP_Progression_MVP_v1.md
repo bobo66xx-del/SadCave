@@ -99,10 +99,9 @@ src/
 > **Note on Rojo file conventions:** Codex picks the right `.meta.json` / `.model.json` / Lua file shape for instances based on existing repo conventions. For RemoteEvents in `ReplicatedStorage.Progression/`, follow whatever pattern the repo already uses (look at `ReplicatedStorage.Remotes` if any are already in `src/`, otherwise use `XPUpdated.meta.json` containing `{"className": "RemoteEvent"}`).
 
 ### Files modified
-- This plan's `Status` field (🔵 → 🟡 → 🟢)
-- `00_Inbox/_Inbox.md` — `[C]` captures during work
+- `00_Inbox/_Inbox.md` — `[C]` captures during work (this is the only file Codex writes — plan files are read-only for Codex per `AGENTS.md`)
 
-### Files to **disable** in Studio (Phase 3 — production cutover)
+### Files to **disable** in Studio (disabled during the post-merge cutover, NOT during Codex's build)
 - `ServerScriptService.LevelLeaderstats` — set `Disabled = true`. Don't delete; rollback safety.
 - `StarterPlayerScripts.Levelup` — set `Disabled = true`. Don't delete; rollback safety.
 
@@ -113,9 +112,8 @@ src/
 1. Read [[../02_Systems/XP_Progression]] in full. The pacing table, curve formula, and three-state tick logic are all there.
 2. Read [[../02_Systems/_Live_Systems_Reference]] for the relevant section: `Level Progression` and the `AFK` / `OverheadTagsToggleServer` / `Theme` notes for context on what's already live.
 3. Check the repo for existing Rojo conventions on RemoteEvent files (search `*.meta.json` containing `RemoteEvent`).
-4. Create branch `xp-progression-mvp` from current main.
-5. Update this plan's Status: 🔵 Planned → 🟡 In Progress.
-6. `[C]` log: `[C] HH:MM — Starting XP Progression MVP. Phase 0 setup complete.`
+4. Create branch `codex/xp-progression-mvp` from current main (per `AGENTS.md` Git Workflow — branch name must include the `codex/` prefix).
+5. `[C]` log: `[C] HH:MM — Starting XP Progression MVP. Phase 0 setup complete.`
 
 ### Phase 1 — Shared foundation (`ReplicatedStorage.Progression`)
 
@@ -358,30 +356,63 @@ return LevelCurve
 24. **Disable `LevelLeaderstats` for the test:** in Studio, set `ServerScriptService.LevelLeaderstats.Disabled = true`. This is a Studio-only change for the test — do NOT save the place. Same for `StarterPlayerScripts.Levelup`.
 25. Temporarily edit `SourceConfig.lua` locally (don't commit): set `SourceConfig.ENABLED = true`.
 26. Run the Studio Test Checklist (Section 9 below). Capture results in inbox per test.
-27. **If any test fails:** `[C] ?` flag in inbox, fix in code, re-run. Don't proceed to Phase 7 until all tests green.
+27. **If any test fails:** `[C] ?` flag in inbox, fix in code, re-run. Don't proceed to push (Phase 7) until all tests green.
 28. After all tests pass: revert the local `SourceConfig.ENABLED` change (commit goes out with `false`). Re-enable `LevelLeaderstats.Disabled = false` and `Levelup.Disabled = false` in Studio (don't save).
 29. `[C]` log: `[C] HH:MM — Phase 6 complete: all Studio tests passed. Code committed with ENABLED=false.`
 
-### Phase 7 — Production cutover
+### Phase 7 — Push and hand off for review
 
-> **Only run this phase if Phase 6 passed clean. If anything is uncertain, STOP with a `[C] ?` flag and let Opus / the user review.**
+> **Only run this phase if Phase 6 passed clean. If anything is uncertain, STOP with a `[C] ?` flag and hand back unshipped — let Opus / the user review.**
 
-30. Commit and push branch: `git commit -m "XP Progression MVP: ProgressionService, PresenceTick, XPBar (flag off)"` then `git push`.
-31. Open the live Studio place (the production `.rbxl`).
-32. Sync branch via Rojo (this writes the new files into Studio under the right services).
-33. **Carefully**, in production Studio:
+30. Commit any final changes on the branch with a plain descriptive message, e.g.: `XP Progression MVP: ProgressionService, PresenceTick, XPBar (flag off)`.
+31. Push the branch: `git push -u origin codex/xp-progression-mvp`.
+32. Tell the user the branch is pushed and ready for Opus review. State clearly:
+    - What was built (ProgressionService, PresenceTick, XPBar)
+    - What Studio tests passed in Phase 6
+    - Any `[C] ?` flags raised during the build
+    - That `SourceConfig.ENABLED` is committed as `false`, so the system is inert in any environment until manually flipped on
+33. **Stop here.** Do NOT merge to `main`. Do NOT touch any place (testing or production). The cutover is a post-merge step driven by the user and Opus together — see "Post-merge cutover" section below. It is not part of Codex's scope.
+34. Final inbox capture summarizing what shipped: `[C] HH:MM — XP Progression MVP branch pushed and ready for Opus review. Built: <list>. Tested in Studio: <list>. Flagged: <list>.`
+
+---
+
+## Post-merge cutover (user + Opus, NOT Codex's job)
+
+> This section is **not for Codex**. It documents what the user and Opus do together AFTER Codex has finished (Phase 7 step 34), AFTER Opus reviews the pushed branch, AFTER the user merges to `main`. Codex's responsibility ends at the push.
+
+**Where this happens:** In the **testing place**, not production. The testing place has real player data on it (the user's own old level, time-played, revisits), which is exactly what we need to verify migration on real values. After the testing place validates clean, the production cutover is a separate later runbook.
+
+**Steps (user drives, Opus walks through it in chat):**
+
+1. Open the testing place in Roblox Studio.
+2. Sync the merged `main` branch via Rojo (the new files appear in `ServerScriptService.Progression`, `ReplicatedStorage.Progression`, `StarterGui.XPBar`).
+3. In the testing place:
     - Set `ServerScriptService.LevelLeaderstats.Disabled = true`.
     - Set `StarterPlayerScripts.Levelup.Disabled = true`.
-    - Edit the live `SourceConfig` ModuleScript: set `ENABLED = true`. (This is the live ModuleScript that Rojo just created. The repo file stays `ENABLED = false` so future syncs don't accidentally re-enable a broken state. The live edit is the production switch.)
+    - Open the live `SourceConfig` ModuleScript and set `ENABLED = true`. (The repo file stays `false` — the live edit is the runtime switch. Future syncs won't accidentally re-enable a broken state, and rollback is just flipping that one value back.)
     - Save the place.
-34. Publish the place.
-35. Verify with the user: join the live game, confirm XP bar appears, confirm level matches what it was before, confirm bar fills over time, confirm a level-up animation plays (cheat by setting `totalXP` to one below a threshold via server console if needed, or just wait).
-36. `[C]` log: `[C] HH:MM — Phase 7 complete: cutover live. <observations>.`
+4. Publish to the testing place (NOT production).
+5. Join the testing place. Verify with Opus:
+    - XP bar appears at the bottom of the screen.
+    - The user's level matches what it was under the old system (this validates migration against real data).
+    - Bar fills with active rate (~15 XP/min) when walking around.
+    - Sitting at a `SeatMarker` for 30+ seconds boosts the rate (~20 XP/min).
+    - Going AFK drops the rate to ~3 XP/min.
+    - Level-up animation plays cleanly when crossing a threshold (Opus can provide a server console snippet to bump XP to just below a threshold if natural play hasn't hit one yet).
+    - No chat notifications from the old `Levelup` script.
 
-### Phase 8 — Wrap
+**Rollback in the testing place (if anything looks wrong):**
 
-37. Update this plan's Status: 🟡 In Progress → 🟢 Shipped.
-38. Final inbox capture summarizing what shipped.
+1. Set `SourceConfig.ENABLED = false` on the live ModuleScript.
+2. Set `LevelLeaderstats.Disabled = false`.
+3. Set `Levelup.Disabled = false`.
+4. Save and publish.
+
+The old system is back online. Legacy `LevelSave` is never overwritten by the new system, so no progress is lost — re-enabling later picks up where it left off.
+
+**After testing-place validation passes:** Opus appends a `_Change_Log.md` entry and the brief is considered shipped from this session's perspective. The production cutover is a separate runbook on a separate day, walked through the same way on the live place when the user is ready.
+
+---
 
 ## 6. Roblox Services Involved
 
@@ -401,7 +432,7 @@ return LevelCurve
 
 Per `AGENTS.md`:
 
-- **Do not modify `LevelLeaderstats` script contents.** Only set `Disabled = true` in Phase 7.
+- **Do not modify `LevelLeaderstats` script contents.** The only modification ever made to it is setting `Disabled = true` during the post-merge cutover (or temporarily during the Phase 6 Studio test).
 - **Do not modify `CashLeaderstats`.** It still owns `Shards`, `TimePlayed`, `TotalTimePlayed`, `Revisits`. ProgressionService READS from `TotalTimePlayedSave` and `RevisitsSave` for migration only — it does not WRITE to those keys, and does not edit the `CashLeaderstats` script. `CashLeaderstats` will continue to manage its own counters in parallel; that's fine. Cleanup is a follow-up brief.
 - **Do not modify `TitleService`, `TitleConfig`, or `NameTagScript Owner`.** Title v2 is a separate brief.
 - **Do not modify the `AFK` script** or `AfkEvent`. Read state from it; don't mutate it.
@@ -468,9 +499,9 @@ Per `AGENTS.md`:
 
 ## 10. Rollback Notes
 
-### If Phase 7 cutover causes problems
+### If the post-merge cutover causes problems
 
-**Quick rollback (in production Studio):**
+**Quick rollback (in the testing place where cutover happened):**
 1. Set `SourceConfig.ENABLED = false` on the live ModuleScript.
 2. Set `LevelLeaderstats.Disabled = false`.
 3. Set `Levelup.Disabled = false`.

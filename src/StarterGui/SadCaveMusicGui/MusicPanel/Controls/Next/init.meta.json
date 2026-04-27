@@ -6,10 +6,10 @@
     "BackgroundTransparency": 0.7200000286102295,
     "BorderSizePixel": 0,
     "Position": {
-      "UDim2": [[[0, 94]], [[0, -16]]]
+      "UDim2": [[0, 94], [0, -16]]
     },
     "Size": {
-      "UDim2": [[[0, 76]], [[0, 28]]]
+      "UDim2": [[0, 76], [0, 28]]
     },
     "Text": "Next",
     "TextColor3": [1, 1, 1],
