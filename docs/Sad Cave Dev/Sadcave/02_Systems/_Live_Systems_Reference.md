@@ -1,472 +1,163 @@
 # Live Systems Reference
 
-> **Role of this doc:** snapshot of *what currently exists* in Studio, not *what should exist* (that's the spec — see individual `02_Systems/` notes). This is reference material for Codex and Opus when working on or near a live system.
+> **Role of this doc:** snapshot of *what currently exists* in the testing-place Studio, not *what should exist* (the per-system specs in `02_Systems/` cover that). Reference material for Codex and Opus when working on or near a live system.
 >
-> **Source:** live Roblox Studio inspection of `ReplicatedStorage`, `ServerScriptService`, `StarterPlayer`, and `StarterGui`, plus the local Rojo `TitleMenu` source in `src/StarterGui/TitleMenu`, on 2026-04-19.
+> **Last refreshed:** 2026-04-27 — after Tyler's heavy testing-place cleanup pass that deleted most of the legacy systems.
 >
 > **Update cadence:** refresh after major resync work, or when a live system's structure materially changes. Not updated during normal design work.
 >
-> **Relationship to the audit:** [the live-repo-audit](../../../../live-repo-audit.md) (in `docs/live-repo-audit.md` at repo root) tracks each live object's *export status* (exact / structurally mapped / blocker / manual). This doc is about *what each system does*. The two are complementary.
+> **Production note:** this doc reflects the *testing place*. If the live production place still runs the older systems, that's a separate reality. Several systems below note "production may differ."
 >
-> **Cleanup awareness:** entries marked 🔴 are slated for removal per [[_Cleanup_Backlog]]. Don't extend them.
+> **Cleanup awareness:** entries listed below are the *kept* systems. Anything previously documented here that's not below was deleted in the 2026-04-27 cleanup; see the "Removed in 2026-04-27 Cleanup" section near the bottom for the audit trail.
+
+---
 
 ## How To Read This
 
-- Confirmed facts: directly observed from the connected Studio hierarchy or script contents.
-- Assumptions / likely responsibilities: reasonable inferences from names, code usage, remotes, and hierarchy, but not fully proven by every dependency in the place.
+- Confirmed facts: directly observed from the connected Studio hierarchy or script contents on 2026-04-27.
+- Repo-backed: file in the Rojo source tree under `src/`. These survive cleanup automatically and are the canonical source.
+- Studio-only: lives only in the testing place (typically Workspace state or stub instances). Not currently in the repo.
+
+---
 
 ## Service Snapshots
 
-### `ReplicatedStorage`
+### `ServerScriptService` (kept set)
 
-Confirmed facts:
-- Contains shared remotes, config modules, GUI templates, tools, and value templates.
-- Notable exact objects:
-  - `ReplicatedStorage.Admin`
-  - `ReplicatedStorage.Global_Events`
-  - `ReplicatedStorage.NoteSystem`
-  - `ReplicatedStorage.Remotes`
-  - `ReplicatedStorage.ReportRemotes`
-  - 🔴 `ReplicatedStorage.ShopItems` — legacy combat-tool shop, see [[_Cleanup_Backlog]]
-  - 🔴 `ReplicatedStorage.ShopRemotes` — paired with legacy Shop, see [[_Cleanup_Backlog]]
-  - `ReplicatedStorage.TitleRemotes`
-  - 🔴 `ReplicatedStorage.ShopCatalog` — legacy Shop catalog, see [[_Cleanup_Backlog]]
-  - `ReplicatedStorage.TipProductConfig`
-  - `ReplicatedStorage.TitleConfig`
-  - `ReplicatedStorage.TitleEffectPreview`
-  - `ReplicatedStorage.NameTag`
-  - `ReplicatedStorage.EButton`
-  - `ReplicatedStorage.RunValue`
-  - `ReplicatedStorage.NameValue`
+Repo-backed:
+- `NameTagScript.server.lua` — robust nametag, attaches BillboardGui to `HumanoidRootPart` with `AncestryChanged` watchdog (Avalog-safe). Built in Studio 2026-04-27, in repo via Rojo. See [[NameTag_Status]].
+- `NoteSystemServer.server.lua` — server authority for the writable-notes feature. Saved player data — no-touch.
+- `FavoritePromptPersistence.server.lua` — Avalog-tied favorite-prompt persistence. No-touch.
+- `ReportHandler.server.lua` — top-level moderation report handler. No-touch.
+- `report/reportHandler.server.lua` — secondary report handler under the `report/` folder.
+- `ToolPickupService.server.lua` — pickup logic; expects `Workspace.ToolPickups` (an empty Folder Tyler created post-cleanup so the service stops yielding).
+- `RemoveFF.server.lua` — disables ForceField on player spawn.
+- `Reset.server.lua` — `/re` chat command reapplies the player's avatar description.
+- `SoftShutdown.server.lua` — graceful shutdown teleport flow. Only one canonical `SoftShutdown` existed in Studio when exported.
+- `Progression/Driver.server.lua` — runs the 60-second XP tick loop; hooks Players events. No-touch.
+- `Progression/ProgressionService.lua` — XP grant API + level computation + DataStore + migration. No-touch.
+- `Progression/Sources/PresenceTick.lua` — three-state tick (sitting/active/AFK). No-touch.
 
-### `ServerScriptService`
+Studio-only / kept-in-place but not in repo:
+- `DiscordLogs` — webhook/log integration. Left Studio-only because live `LogsSettings` contains a Discord webhook credential; export needs a secret-rotation/config plan.
+- Dialogue scripts — `DialogueDirector` and the dialogue server-side runtime (verify exact name in Studio before next dialogue work).
 
-Confirmed facts:
-- Contains the main authoritative server systems.
-- Notable exact scripts / folders:
-  - 🔴 `ServerScriptService.CashLeaderstats` — legacy currency, see [[_Cleanup_Backlog]] (off-tone, slated for removal once XP_Progression ships)
-  - `ServerScriptService.LevelLeaderstats`
-  - `ServerScriptService.TitleService`
-  - 🔴 `ServerScriptService.ShopService` — legacy Shop authority, see [[_Cleanup_Backlog]]
-  - `ServerScriptService.NoteSystemServer`
-  - `ServerScriptService.DailyRewardsServer`
-  - `ServerScriptService.NameTagScript Owner`
-  - `ServerScriptService.TextChatServiceHandler`
-  - `ServerScriptService.AdminServerManager`
-  - `ServerScriptService.ReportHandler`
-  - `ServerScriptService.FavoritePromptPersistence`
-  - `ServerScriptService.AFK`
-  - `ServerScriptService.Theme`
-  - `ServerScriptService.Custom Chat Script`
-  - `ServerScriptService.AvItems`
+### `ReplicatedStorage` (kept set)
 
-### `StarterPlayer`
+Repo-backed:
+- `Progression/` — folder containing `LevelCurve.lua`, `SourceConfig.lua`, `XPUpdated` (RemoteEvent), `LevelUp` (RemoteEvent). Shared XP plumbing.
+- `AfkEvent/init.meta.json` — RemoteEvent fired by `AfkDetector` on window focus changes.
+- `DialogueData.lua` — dialogue content/config module exported from Studio.
+- `DialogueRemotes/` — dialogue wire-contract RemoteEvents: `PlayPlayerDialogue`, `PlayCharacterDialogue`, `PlayerDialogueChoiceSelected`, `RequestCharacterConversation`.
+- `NoteSystem/` — note system remotes (`SubmitNote`, `NoteUpdated`, `NoteResult`).
+- `ReportRemotes/` — report remotes (`CheckUserAdmin`, `ClearReports`, `FilterReport`, `SendUserReport`, `ViewAllReports`).
+- `Global_Events/Notification_Event/` — generic notification event. Used by remaining notification scripts.
+- `report/Settings.lua` — report config module.
 
-Confirmed facts:
-- `StarterPlayer.StarterCharacterScripts` contains `Sprint`.
-- `StarterPlayer.StarterPlayerScripts` contains:
-  - `AFKLS`
-  - `AutomaticPrompt`
-  - `ChatBubbleDarkTheme`
-  - `CoreGuiBackpackDisabler`
-  - `DisableCoreUI`
-  - `Levelup`
-  - `LocalScript`
-  - `MessageMaker`
-  - `MobileLightingCompensation`
-  - `OldChatBubbleTheme`
-  - `PromptFavorite`
-  - `RainScript`
-  - `SunRayRemove`
-  - `Theme`
-  - `camera`
-  - `environment change ` (trailing space — see audit's duplicate-name/path blockers)
+Studio-only:
+- Whatever else exists for Notes / Reports / Prompts that's still wired through the kept set. When a new task touches these, verify with Studio MCP before assuming.
 
-## Major Systems
+### `StarterPlayer.StarterPlayerScripts` (kept set)
 
-### Titles
+Repo-backed:
+- `AfkDetector.client.lua` — fires `AfkEvent` on `WindowFocused` / `WindowFocusReleased`. Built in Studio 2026-04-27, in repo via Rojo.
+- `MobileLightingCompensation.client.lua` — adjusts lighting for mobile clients.
+- `SunRayRemove.client.lua` — removes/manages sun rays.
+- `PromptGroup.client.lua` — prompts the local player to join the group if they are not already a member.
+- `PromptFavorite.client.lua` — client favorite prompt partner to server-side `FavoritePromptPersistence`. Exported from a live `Script` object as `.client.lua` because the source uses `Players.LocalPlayer` and client-only prompt APIs.
+- `NpcDialogueClient.client.lua` — NPC dialogue client UI/bubble handling.
+- `PlayerDialogueClient.client.lua` — player dialogue subtitle/client handling.
 
-Confirmed facts:
-- `StarterGui.TitleMenu` is now locally managed through Rojo from `src/StarterGui/TitleMenu`.
-- Shared config is in `ReplicatedStorage.TitleConfig`.
-- Client/server title networking is in `ReplicatedStorage.TitleRemotes`.
-- Exact title remotes:
-  - `ReplicatedStorage.TitleRemotes.GetTitleData`
-  - `ReplicatedStorage.TitleRemotes.EquipTitle`
-  - `ReplicatedStorage.TitleRemotes.TitleDataUpdated`
-- Main server authority is `ServerScriptService.TitleService`.
-- `TitleService` uses `MarketplaceService`, `DataStoreService`, and `ReplicatedStorage.TitleConfig`.
-- `TitleService` persists equipped titles in DataStore `EquippedTitleV1`.
-- `TitleConfig` defines:
-  - `DEFAULT_TITLE_ID = "newcomer"`
-  - `TITLE_PACK_GAMEPASS_ID = 1797105034`
-  - title categories `level`, `shop`, `gamepass`, and `special`
-  - ordered title definitions
-  - visual effect definitions for titles
-  - special assignments such as `developer_plus` and `builder_plus`
-- `TitleService` checks level-based ownership, gamepass ownership, shop-owned title flags, and special attribute access.
-- `TitleService` waits on `LevelLoaded` and `ShopOwnershipLoaded` before building title payloads.
-- `ServerScriptService.NameTagScript Owner` requires `ReplicatedStorage.TitleConfig` and renders equipped titles into nametags.
-- The shared title pipeline still remains live in Studio under `ReplicatedStorage` and `ServerScriptService`.
-- The local `TitleMenu` client still depends on live `TitleConfig`, `TitleEffectPreview`, and `TitleRemotes`.
-- The local `TitleMenu` no longer reads `ShopMenu` row metrics; row sizing is self-contained in the local `TitleMenu` slice.
-- The local `TitleMenu` mobile filter row now uses a safer self-contained fit path to avoid button overlap on narrow touch widths.
+Studio-only:
+- `environment change ` — trailing-space Folder, not a script. No source to export; left in Studio pending lighting/environment audit.
 
-Assumptions / likely responsibilities:
-- This is the canonical title ownership/equip pipeline for the game.
-- `ReplicatedStorage.TitleEffectPreview` likely exists to preview the same title visual effect definitions in UI, but I did not inspect that module directly.
+### `StarterGui` (kept set)
 
-### 🔴 Shop Titles / Shards Shop *(legacy — see [[_Cleanup_Backlog]])*
+Repo-backed:
+- `XPBar/` — ScreenGui + `XPBarController.client.lua`. The bottom-of-screen ambient bar. No-touch (just shipped).
 
-Confirmed facts:
-- Shared catalog is `ReplicatedStorage.ShopCatalog`.
-- Server authority is `ServerScriptService.ShopService`.
-- Exact shop remotes:
-  - `ReplicatedStorage.ShopRemotes.GetShopData`
-  - `ReplicatedStorage.ShopRemotes.BuyShopItem`
-  - `ReplicatedStorage.ShopRemotes.ShopDataUpdated`
-- `ShopCatalog` currently contains ordered items in category `title` with `priceShards`, `displayName`, and `linkedTitleId`.
-- `ShopService` persists ownership in DataStore `ShopInventory_v1`.
-- `ShopService` creates per-player folders:
-  - `player.ShopOwnedItems`
-  - `player.ShopOwnedTitles`
-- `ShopService` reads and writes the player's `Shards` `IntValue`.
-- `ShopService` fires `TitleRemotes.TitleDataUpdated` after shop changes so title UI/state refreshes.
-- `ReplicatedStorage.ShopItems` also exists and contains tools:
-  - `Book`
-  - `Gun`
-  - `Rocket Launcher`
-  - `Saber`
-  - `Scythe`
-- Each listed shop tool has a `Price` value under it.
+### `Workspace` (kept set, partial inventory)
 
-Assumptions / likely responsibilities:
-- The current shard shop logic in `ShopCatalog` and `ShopService` is focused on title purchases, while `ReplicatedStorage.ShopItems` looks like a separate or older physical-item shop path.
-- `ServerScriptService.Shop` may be a legacy or supplemental shop script, but I did not inspect it.
+Studio-only:
+- `ToolPickups` — empty Folder placeholder created 2026-04-27 so `ToolPickupService` stops yielding.
+- `SeatMarkers` — read by `PresenceTick` for the sitting boost. **Note:** as of 2026-04-27 evening, this folder existed but had 0 children. The sitting boost can't be validated end-to-end until at least one `SeatMarker` is placed in the world.
+- `QuietKeeperNPC` — the QuietKeeper rig (BlackKnight wings + skeletal horns). See [[../05_NPCs/QuietKeeper]].
+- Cave entrance props — `FirePit`, `Fireflies`, `fast Fireflies`, `Specks`, `SunRayParts`, `Lantern`, `ReadabilityLighting`, foliage and flower variants, `Waterfall`, `Crate`, `Fence`, `NoteInteraction`, `CameraScenes`. See [[../03_Map_Locations/Cave_Entrance]].
 
-### 🔴 Currency / Shards / Session Rewards *(CashLeaderstats slated for removal — see [[_Cleanup_Backlog]])*
+---
 
-Confirmed facts:
-- Main economy persistence script is `ServerScriptService.CashLeaderstats`. **This is the legacy "Cash" currency system; off-tone and slated for removal once XP_Progression ships and the level-up trigger dependency is cut.**
-- `CashLeaderstats` creates:
-  - `player.Shards`
-  - `player.TimePlayed`
-  - `player.TotalTimePlayed`
-  - `player.Revisits`
-- It uses DataStores:
-  - `ShardsSave`
-  - `CashSave`
-  - `ShardsMigration_v1`
-  - `TotalTimePlayedSave`
-  - `RevisitsSave`
-- It migrates old cash data into shard data if shard data is missing.
-- It autosaves `Shards` and `TotalTimePlayed`.
-- It grants passive shard income every 60 seconds.
-- It grants session milestone shard rewards at:
-  - 10 minutes
-  - 20 minutes
-  - 30 minutes
-- `ServerScriptService.DailyRewardsServer` also grants `Shards`, with:
-  - cooldown `24 * 60 * 60`
-  - reward amount `150`
-  - DataStore `DailyRewards_LastClaim_v1`
+## Major Systems (post-cleanup)
 
-Assumptions / likely responsibilities:
-- `Shards` is the primary current soft currency across the title shop and daily rewards systems.
-- `DonationAmount` and `DonationLeaderstats` likely feed parallel donation/tip counters, but I did not inspect those scripts.
+### XP Progression
 
-### Level Progression
+The single source of truth for level/XP. Server: `ServerScriptService.Progression.{Driver, ProgressionService, Sources.PresenceTick}`. Shared: `ReplicatedStorage.Progression.{LevelCurve, SourceConfig, XPUpdated, LevelUp}`. Client: `StarterGui.XPBar.XPBarController`. DataStore: `ProgressionData` (combined key). See [[XP_Progression]] for the full spec; see [[../06_Codex_Plans/2026-04-25_XP_Progression_MVP_v1]] for the build brief.
 
-Confirmed facts:
-- Main level progression script is `ServerScriptService.LevelLeaderstats`.
-- `LevelLeaderstats` creates `player.Level` if missing and sets attribute `LevelLoaded`.
-- It persists levels in DataStore `LevelSave`.
-- It increments level every 60 seconds.
-- It checks gamepass `2110249546` and awards:
-  - `+2` level per minute if owned
-  - `+1` level per minute otherwise
-- `TitleService` uses level values to determine title ownership.
-- `StarterPlayer.StarterPlayerScripts.Levelup` listens to `ReplicatedStorage.Remotes.LevelUp` and posts a system chat message when level-up events fire.
+### Nametags (minimal)
 
-Assumptions / likely responsibilities:
-- Level is used both as progression and as a title unlock gate.
-- Another server script may fire `ReplicatedStorage.Remotes.LevelUp`; `LevelLeaderstats` itself does not appear to fire that remote in the portion inspected.
-
-### Nametags / Overhead Tags / Title Effects
-
-Confirmed facts:
-- Nametag template is `ReplicatedStorage.NameTag` (`BillboardGui`).
-- `ServerScriptService.NameTagScript Owner` clones `ReplicatedStorage.NameTag` onto character heads.
-- It creates or ensures:
-  - `workspace.NameTags`
-  - `ReplicatedStorage.RebuildOverheadTags` (`BindableEvent`)
-  - `ReplicatedStorage.OverheadTagsEnabled` (`BoolValue`)
-- It syncs:
-  - display name
-  - level
-  - equipped title
-  - premium icon visibility
-- It ensures player-level copies of:
-  - `RunValue`
-  - `NameValue`
-- It uses title effect data from `TitleConfig` and applies shimmer / pulse / glow / flicker / tint behavior to title text.
-- `ServerScriptService.AFK` creates `ReplicatedStorage.AfkEvent` and appends `[AFK]` to nametag text in `workspace.NameTags`.
-- `StarterPlayer.StarterPlayerScripts.AFKLS` fires `AfkEvent` when the game window loses or gains focus.
-- `ServerScriptService.OverheadTagsToggleServer` creates `ReplicatedStorage.OverheadTagsToggle` (RemoteEvent), `ReplicatedStorage.OverheadTagsEnabled` (BoolValue, default `true`), and `ReplicatedStorage.RebuildOverheadTags` (BindableEvent). However, its `OnServerEvent` handler is a **no-op** — the server does not toggle global state. Overhead tag visibility is a **client-side preference only**. The server remote exists solely for backward compatibility with older clients that may still fire it. This is the intended design — the original implementation incorrectly made it a global server toggle, and it was later corrected to client-only.
-
-Assumptions / likely responsibilities:
-- This is the canonical nametag/overhead-tag pipeline for the game.
-- `ReplicatedStorage.TitleEffectPreview` likely exists to preview the same title visual effect definitions in UI, but I did not inspect that module directly.
+Single server script `NameTagScript.server.lua` builds a name-only BillboardGui. Plus `AfkEvent` + `AfkDetector` for AFK state, consumed by the XP Driver. See [[NameTag_Status]] for what's intentionally absent post-cleanup (titles, level row, distance fade, dialogue-hide, per-player toggle).
 
 ### Notes / Writable Notes
 
-Confirmed facts:
-- Shared remotes are in `ReplicatedStorage.NoteSystem`.
-- Exact note remotes:
-  - `ReplicatedStorage.NoteSystem.SubmitNote`
-  - `ReplicatedStorage.NoteSystem.NoteUpdated`
-  - `ReplicatedStorage.NoteSystem.NoteResult`
-- Main server script is `ServerScriptService.NoteSystemServer`.
-- `NoteSystemServer` uses:
-  - DataStore `NoteSystem`
-  - key `CurrentNotes`
-  - `Workspace.NoteInteraction`
-  - `TextService` filtering
-- Important note rules enforced on the server:
-  - `COOLDOWN_SECONDS = 60`
-  - `MAX_NOTE_LENGTH = 120`
-  - `MIN_LEVEL_TO_EDIT_NOTE = 5`
-  - player must be near the note spot's `ProximityPrompt`
-- Notes are keyed by `SpotId` attributes on workspace parts.
+`NoteSystemServer` + `ReplicatedStorage.NoteSystem.*` + `StarterGui.NoteUI` (UI) + `Workspace.NoteInteraction` (world). DataStore: `NoteSystem` / `CurrentNotes`. Rules: 60s cooldown, 120 char max, level 5+ to edit, must be near the prompt. **Note:** the level gate currently relies on the leaderstats `Level` value populated by `ProgressionService`. Confirm during next playtest.
 
-Assumptions / likely responsibilities:
-- This is a world-note posting system tied to interactable note spots in the map.
+### Reports / Moderation
 
-### Daily Rewards
+`ReportHandler` + `report/reportHandler` + `ReplicatedStorage.ReportRemotes`. DataStore: `Game__OFFICIAL__Reports` / `Reports97`. Hardcoded admin: `vesbus`. No-touch.
 
-Confirmed facts:
-- Main server script is `ServerScriptService.DailyRewardsServer`.
-- It creates or maintains `ReplicatedStorage.DailyRewardsRemotes`.
-- Exact newer remotes:
-  - `ReplicatedStorage.DailyRewardsRemotes.GetStatus`
-  - `ReplicatedStorage.DailyRewardsRemotes.Claim`
-- Exact legacy aliases also maintained directly under `ReplicatedStorage`:
-  - `ReplicatedStorage.DailyRewardStatus`
-  - `ReplicatedStorage.ClaimDailyReward`
-- Claiming is server-authoritative and awards shards immediately after validation.
+### Favorite Prompt
 
-Assumptions / likely responsibilities:
-- The script is intentionally preserving backwards compatibility for an older daily rewards UI.
+Pair: `FavoritePromptPersistence` (server, ties into Avalog `PlayerDataStore`) + `PromptFavorite` (client). RemoteEvent: `ReplicatedStorage.FavoritePromptShown`. Settings: `YourPlaceID = 5895908271`, `FavDelay = 600`. No-touch.
 
-### Reports / Moderation Reports
+### Dialogue (kept; verify next session)
 
-Confirmed facts:
-- Shared report remotes live in `ReplicatedStorage.ReportRemotes`.
-- Exact report remotes:
-  - `CheckUserAdmin`
-  - `ClearReports`
-  - `FilterReport`
-  - `SendUserReport`
-  - `ViewAllReports`
-- Main server script is `ServerScriptService.ReportHandler`.
-- `ReportHandler` uses DataStore `Game__OFFICIAL__Reports` with key `Reports97`.
-- `ReportHandler` stores reports as JSON using `HttpService`.
-- `ReportHandler` hardcodes admin name access via `admins = {"vesbus"}`.
-- `ReplicatedStorage.report.Settings` also exists as a `ModuleScript`.
-- `ServerScriptService.report.reportHandler` also exists as a second report-related script path.
+Server: `DialogueDirector` (verify exact name). Shared: `ReplicatedStorage.DialogueData` (single source of truth for all dialogue), `ReplicatedStorage.DialogueRemotes.*` (`PlayPlayerDialogue`, `PlayCharacterDialogue`, `PlayerDialogueChoiceSelected`, `RequestCharacterConversation`). Client: `StarterPlayerScripts.NpcDialogueClient` + `PlayerDialogueClient`. See [[Dialogue_System]].
 
-Assumptions / likely responsibilities:
-- There may be two report implementations or an older/newer split between `ReportHandler` and `report.reportHandler`.
-- `ReplicatedStorage.report.Settings` likely feeds report UI or moderation options, but I did not inspect it directly.
+### Tool Pickups
 
-### Admin Tools / Ban / Kick Panel
+`ToolPickupService.server.lua` + `Workspace.ToolPickups` (empty Folder). Verify the service's behavior with the empty folder in the next playtest.
 
-Confirmed facts:
-- Shared admin folder is `ReplicatedStorage.Admin`.
-- Exact shared admin objects:
-  - `ReplicatedStorage.Admin.Admin` (`RemoteEvent`)
-  - `ReplicatedStorage.Admin.ThemeColor` (`Color3Value`)
-  - `ReplicatedStorage.Admin.Template` (`TextButton`)
-- Main server script is `ServerScriptService.AdminServerManager`.
-- `AdminServerManager`:
-  - requires `WebhookService`
-  - uses DataStore `bans`
-  - clones `script.Admin` into `PlayerGui` for admins
-  - listens to `ReplicatedStorage.Admin.Admin.OnServerEvent`
-  - supports actions including `Kick`, `Ban`, `Tp`, `Bring`, `Freeze`, `UnFreeze`, and `Stats`
-- Hardcoded admin user IDs in `AdminServerManager` are:
-  - `1132193781`
-  - `2764931356`
-- The embedded admin GUI under the script contains:
-  - `Admin` (`ScreenGui`)
-  - `AdminClientManager` (`LocalScript`)
-  - `OpenClose.Open` (`LocalScript`)
+---
 
-Assumptions / likely responsibilities:
-- `AdminGamePass` is probably a separate unlock or entitlement path for admin-related access, but I did not inspect it.
+## Removed in 2026-04-27 Cleanup
 
-### Chat Styling
+For audit-trail purposes. None of these exist in the testing place anymore. Re-introducing any of them is a fresh design conversation, not a restoration.
 
-Confirmed facts:
-- Main modern chat handler is `ServerScriptService.TextChatServiceHandler`.
-- It reads config from `ServerScriptService.Custom Chat Script`.
-- Exact config folders under `Custom Chat Script`:
-  - `AllUserFriends`
-  - `Gamepasses`
-  - `Users`
-- `TextChatServiceHandler` applies:
-  - name color
-  - chat color
-  - tag prefixes
-- It uses gamepass ownership checks through `MarketplaceService`.
+**Server scripts deleted:**
+- `LevelLeaderstats` — replaced by `ProgressionService`.
+- `TitleService` (and the entire title-pipeline rendering inside `NameTagScript Owner`).
+- `ShopService` — combat-shop authority.
+- `AdminServerManager` — admin tool with hardcoded admin user IDs.
+- `AreaDiscoveryBadge` — badge-on-zone-entry.
+- `DailyRewardsServer` — daily shard claim.
+- `Theme` (server) — admin-driven `AfterPulseColor` override.
+- `OverheadTagsToggleServer` — no-op handler tied to a client-only preference.
+- `AFK` — replaced by `AfkEvent` + `AfkDetector` plus the XP Driver listener.
+- `AnimToggle`, `AntiExploit`, `Custom Chat Script`, `TextChatServiceHandler`, `CashLeaderstats`, `DonationLeaderstats`, `DonationAmount`, `Purchase` (×2 duplicates), `Shop`, multiple `SoftShutdown` duplicates, `NameTagScript Owner` (the old title-rendering nametag).
 
-Assumptions / likely responsibilities:
-- `ServerScriptService.ChatTag` and `ServerScriptService.Custom Chat Script` likely represent older or supplemental chat-tag implementations around the same domain.
+**Client scripts deleted:**
+- `Levelup` — replaced by `XPBar` level-up animation.
+- `AFKLS` — replaced by `AfkDetector`.
+- `Theme` (client) — paired with the deleted server Theme.
+- `Sprint` — left-shift walk-speed adjustment (not consistent with hangout pacing).
+- `BackpackCoreGuiController` — backpack UI tweak.
 
-### Favorite Prompt / Place Favorite Tracking
+**Shared (`ReplicatedStorage`) objects deleted:**
+- `TitleConfig`, `TitleEffectPreview`, `TitleRemotes`, `ShopCatalog`, `ShopRemotes`, `ShopItems`, `Admin`, `RebuildOverheadTags`, `OverheadTagsEnabled`, `OverheadTagsToggle`, `DailyRewardsRemotes`, `DailyRewardStatus`, `ClaimDailyReward`, `Remotes.Shop`, `Remotes.LevelUp` (legacy chat-fed level remote).
 
-Confirmed facts:
-- Client script is `StarterPlayer.StarterPlayerScripts.PromptFavorite`.
-- Server script is `ServerScriptService.FavoritePromptPersistence`.
-- They communicate using `ReplicatedStorage.FavoritePromptShown` (`RemoteEvent`), which the server creates if missing.
-- Client prompt settings include:
-  - `YourPlaceID = 5895908271`
-  - `FavDelay = 600`
-  - attributes `FavoritePromptDataReady` and `CanShowFavoritePrompt`
-- `FavoritePromptPersistence` integrates with:
-  - `Workspace.Avalog.Avalog.Packages.Avalog`
-  - `PlayerDataStore`
-  - `PlayerDataStore.Actions.SetFavoritePromptShown`
-- The server marks prompt eligibility on player attributes and patches persistent profile state after the prompt is shown.
+**StarterGui (UI) deleted:**
+- `TitleMenu`, `ShopMenu`, `Menu` (×2 duplicates), `Settings` (legacy), `IntroScreen`, `Custom Inventory`, `ComputerUI`, `fridge-ui`, `SadCaveMusicGui`, `bruh` (debug/analytics overlay), `TTTUI` (template leftover), `NotificationTHingie`, two generic `ScreenGui` orphans.
 
-Assumptions / likely responsibilities:
-- Avalog is the primary profile/data framework for at least some persistent profile fields, separate from the direct DataStore scripts used elsewhere.
+**Workspace deleted:**
+- `NameTags` folder (was scaffolding for the old pipeline).
 
-### Theme / Lighting Color
-
-Confirmed facts:
-- `ReplicatedStorage.Remotes.Theme` exists as a `RemoteEvent`.
-- `ServerScriptService.Theme` listens to that remote and only allows user IDs `1132193781` or `1` to update `game.Lighting.AfterPulseColor.Value`.
-- `StarterPlayer.StarterPlayerScripts.Theme` updates parts under `Workspace.Theme` every render step based on `Lighting.AfterPulseColor.Value`.
-
-Assumptions / likely responsibilities:
-- This is a live color-theme override system for the environment, probably intended for owner/admin control.
-
-### Weather / Rain
-
-Confirmed facts:
-- `StarterPlayer.StarterPlayerScripts.RainScript` requires `RainScript.Rain` (`ModuleScript`).
-- `RainScript` manages a generated rain system through local values stored under the script:
-  - `Color`
-  - `Direction`
-  - `Transparency`
-  - `SpeedRatio`
-  - `IntensityRatio`
-  - `LightInfluence`
-  - `LightEmission`
-  - `Volume`
-  - `SoundId`
-  - texture values
-  - collision constraint values
-- It creates:
-  - `RainEnabledState` (`BoolValue`)
-  - `SetRainEnabled` (`BindableFunction`)
-- It enables rain by default.
-
-Assumptions / likely responsibilities:
-- Weather is client-rendered rather than server-simulated.
-
-### Movement / Camera / Core Client Setup
-
-Confirmed facts:
-- `StarterPlayer.StarterCharacterScripts.Sprint` tween-adjusts humanoid `WalkSpeed` on left shift.
-- `Sprint` reads `plr.RunValue.Value`.
-- `ServerScriptService.NameTagScript Owner` ensures a per-player `RunValue` by cloning the template from `ReplicatedStorage.RunValue`.
-- `StarterPlayer.StarterPlayerScripts.camera` forces `CurrentCamera.CameraType = Custom` and sets the camera subject to the humanoid on spawn.
-- `StarterPlayer.StarterPlayerScripts.AutomaticPrompt` waits 10 seconds, then prompts non-members to join group `8106647`.
-- `StarterPlayer.StarterPlayerScripts.CoreGuiBackpackDisabler` and `DisableCoreUI` exist in hierarchy.
-
-Assumptions / likely responsibilities:
-- `CoreGuiBackpackDisabler`, `DisableCoreUI`, and `MobileLightingCompensation` are startup quality-of-life / presentation scripts for the player client, but I did not inspect their code directly.
-
-## Notable Exact Objects By Domain
-
-### Shared remotes
-
-Confirmed facts:
-- `ReplicatedStorage.Remotes.LevelUp`
-- `ReplicatedStorage.Remotes.Players`
-- `ReplicatedStorage.Remotes.Prompt`
-- `ReplicatedStorage.Remotes.Random`
-- 🔴 `ReplicatedStorage.Remotes.Shop` — paired with legacy Shop, see [[_Cleanup_Backlog]]
-- `ReplicatedStorage.Remotes.SongID`
-- `ReplicatedStorage.Remotes.Theme`
-- `ReplicatedStorage.Remotes.TimeSync`
-- `ReplicatedStorage.Global_Events.Notification_Event`
-
-Assumptions / likely responsibilities:
-- `Players`, `Prompt`, `Random`, `SongID`, and `TimeSync` are real networking entry points, but their exact gameplay contracts were not inspected in this pass.
-
-### Shared GUI templates / replicated assets
-
-Confirmed facts:
-- `ReplicatedStorage.NameTag` is the overhead nametag template.
-- `ReplicatedStorage.EButton` is a `BillboardGui`.
-- `ReplicatedStorage.Rose` is a `Tool`.
-- `ReplicatedStorage.UIGradient.Script` exists under a replicated `UIGradient` object.
-
-Assumptions / likely responsibilities:
-- `EButton` is probably a shared world-interaction prompt billboard.
-- `Rose` and some `ShopItems` tools may be starter items, purchasables, or map pickups depending on other scripts not inspected here.
-
-## Unreviewed Or Partially Reviewed Scripts
-
-Confirmed facts:
-- The following exact scripts exist in `ServerScriptService` but were not read in this documentation pass:
-  - `AnimToggle`
-  - `AntiExploit`
-  - `AreaDiscoveryBadge`
-  - `ChatTag`
-  - `Colide off`
-  - `Commands`
-  - `DelayedStarterTools`
-  - `DiscordLogs`
-  - 🔴 `DonationAmount` — see [[_Cleanup_Backlog]]
-  - 🔴 `DonationLeaderstats` — see [[_Cleanup_Backlog]]
-  - `GenerateSeatMarkers`
-  - `HealthChanger`
-  - `InviteFriends`
-  - `NoticeNew`
-  - `OverheadTagsToggleServer`
-  - 🔴 two `Purchase` scripts — duplicates, see [[_Cleanup_Backlog]]
-  - `RefreshCommand`
-  - `RemoveFF`
-  - `Reset`
-  - `SadCaveMusicPauseData`
-  - `Script` (generic name — likely orphan)
-  - 🔴 `Shop` — see [[_Cleanup_Backlog]]
-  - 🔴 three `SoftShutdown` scripts — duplicates, see [[_Cleanup_Backlog]]
-  - `ToolPickupService`
-- The following exact client scripts exist in `StarterPlayerScripts` but were not read in this pass:
-  - `ChatBubbleDarkTheme`
-  - `CoreGuiBackpackDisabler`
-  - `DisableCoreUI`
-  - `LocalScript`
-  - `MessageMaker`
-  - `MobileLightingCompensation`
-  - `OldChatBubbleTheme`
-  - `SunRayRemove`
-
-Assumptions / likely responsibilities:
-- There are still important systems here that could materially change the architecture map after a second inspection pass, especially around monetization, shutdown flow, pickups, and client presentation.
+---
 
 ## Validation
 
-Confirmed facts:
-- This document was updated from live Roblox Studio hierarchy inspection plus direct script reads from:
-  - `ReplicatedStorage`
-  - `ServerScriptService`
-  - `StarterPlayer`
+Confirmed facts in this document come from:
+- `00_Inbox/_Inbox.md` (2026-04-27 evening section — Tyler's cleanup log)
+- Repo `src/` directory tree (verified 2026-04-27)
+- Studio MCP `inspect_instance` checks for `NameTagScript`, `AfkEvent`, `AfkDetector`, `Workspace.ToolPickups` (all four confirmed present in the live testing place)
+- Cross-referencing with `default.project.json` to confirm Rojo coverage of the kept repo set
 
-Assumptions / likely responsibilities:
-- None in this section.
+Anything not confirmed by one of the above is marked "verify" in the relevant entry. Tyler or Codex should resolve those during the next session that touches that area.
