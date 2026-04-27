@@ -10,7 +10,7 @@
 
 <!-- Format: bullet with the question + context + which system it affects -->
 
-- _(none yet)_
+- XP_Progression testing-place cutover checks still to exercise: sitting boost, level-up animation, gamepass +22 tick, mobile bar height, second-join migration variants, and DataStore failure simulation. Context: XP MVP branch live test validated XPBar, migration to level 557, leaderstats, active tick, and boundary safety, but these cases still need a formal pass with Opus during the post-merge testing-place walkthrough.
 
 ---
 

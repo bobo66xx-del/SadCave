@@ -15,7 +15,7 @@ Rules used in this audit:
 | `StarterPlayer` live scripts | `15 / 17` (`88.2%`) | `1 / 17` (`5.9%`) | `environment change ` is a path blocker |
 | `ReplicatedStorage` top-level children | `18 / 22` (`81.8%`) | `0 / 22` | Remaining 4 are proven blockers |
 | `StarterGui` top-level `ScreenGui` instances | `4 / 24` (`16.7%`) | `2 / 24` (`8.3%`) | Remaining 18 are blockers or manual export still required |
-| `ServerScriptService` top-level children | `5 / 44` (`11.4%`) | `12 / 44` (`27.3%`) | Remaining 27 are blockers or manual export still required |
+| `ServerScriptService` top-level children | `5 / 44` (`11.4%`) | `14 / 44` (`31.8%`) | Remaining 25 are blockers or manual export still required |
 
 ## Completed Exact Exports
 
@@ -92,6 +92,8 @@ These files are live-verified for class, parent, name, and overall source covera
 | `game.ServerScriptService.FavoritePromptPersistence` | `src/ServerScriptService/FavoritePromptPersistence.server.lua` | `77` | `94` | Transcribed live source still needs a final exact-format re-diff |
 | `game.ServerScriptService.TextChatServiceHandler` | `src/ServerScriptService/TextChatServiceHandler/init.server.lua` | `150` | `175` | Disabled-state metadata is exact, but the script source still fails the final exact-format re-diff |
 | `game.ServerScriptService.NameTagScript Owner` | `src/ServerScriptService/NameTagScript Owner.server.lua` | `766` | `915` | Transcribed live source still needs a final exact-format re-diff |
+| `game.ServerScriptService.Theme` | `src/ServerScriptService/Theme.server.lua` | `9` | `9` | Live line counts match, but the current connector only exposes numbered conversational output, so a byte-exact raw-source diff is unavailable |
+| `game.ServerScriptService.OverheadTagsToggleServer` | `src/ServerScriptService/OverheadTagsToggleServer.server.lua` | `35` | `35` | Live line counts match, but the current connector only exposes numbered conversational output, so a byte-exact raw-source diff is unavailable |
 | `game.StarterGui.ShopMenu` | `src/StarterGui/ShopMenu` | `108` | `133` | The live subtree and launcher script are now represented locally, but `main.LocalScript` still fails the final exact re-diff |
 | `game.StarterGui.SadCaveMusicGui` | `src/StarterGui/SadCaveMusicGui` | `649 / 65` | `645 / 78` | The repo tree now matches the live structure much more closely, but both controller scripts still fail the final exact re-diff |
 | `game.StarterGui.currencyui.LocalScript` | `src/StarterGui/currencyui/LocalScript.client.lua` | `68` | `68` | Live line counts match, but the current connector only exposes numbered conversational output, so a byte-exact raw-source diff is unavailable |
@@ -117,6 +119,7 @@ These gaps are blocked by missing or unusable data from current live/session-acc
 | `game.StarterGui.settingui` | The current `get_instance_properties` payload omits `AnchorPoint` for multiple centered nodes, including `game.StarterGui.settingui.mainui2`, `game.StarterGui.settingui.mainui2.title`, `game.StarterGui.settingui.mainui2.ScrollingFrame`, `game.StarterGui.settingui.mainui2_ShadowPng`, `game.StarterGui.settingui.mainui2_ShadowPng.ShadowImage`, `game.StarterGui.settingui.mainui2.ScrollingFrame.Spacer.label`, `game.StarterGui.settingui.mainui2.ScrollingFrame.Spacer1.label`, and `game.StarterGui.settingui.mainui2.ScrollingFrame.misc.label` | These nodes all use centered `Position` values such as `0.5`, so without the corresponding `AnchorPoint` the local UI would be shifted and no longer be a faithful repo export; current tooling also omits `AnchorPoint` on the same centered `TitleMenu` control nodes, so inference is not safe |
 | `game.StarterGui.currencyui.maincanvas` | The current `get_instance_properties` payload omits `AnchorPoint` on the shared panel root even though `game.StarterGui.currencyui.maincanvas` uses `Position = UDim2.new(0.5, 0, 0.5, 0)` with `Size = UDim2.new(1, 0, 1, 0)` | `maincanvas` is the ancestor for the shards HUD, launcher rail, pose panel, and music panel, so without its exact layout anchor the whole UI subtree would shift and no longer be a faithful repo export |
 | `game.StarterGui.currencyui.maincanvas.mainframe.poseui.emotescrip` | `get_script_source` exposes the `1030`-line live script only as numbered conversational output; no raw source payload is available from the current connector | Even if the `maincanvas` layout blocker were resolved, this script still cannot be safely promoted to a byte-exact repo export from current tooling alone |
+| `game.StarterGui.fridge-ui` | `AnchorPoint` returns `null` for centered nodes `game.StarterGui.fridge-ui.main`, `game.StarterGui.fridge-ui.main.mainframe`, and `game.StarterGui.fridge-ui.main.mainframe.itemframe` | These centered containers define the fridge panel and item-grid placement, so exporting the subtree without their exact anchors would shift the UI away from live |
 | `game.StarterGui.Custom Inventory.Inventory` | The current `get_instance_properties` payload omits `AnchorPoint` for the centered inventory panel even though `game.StarterGui.Custom Inventory.Inventory` uses `Position.X.Scale = 0.5` and the inner `Frame` also uses centered `Position` values (`X = 0.501055181`, `Y = 0.54903686`) | The inventory panel and its scrolling contents cannot be exported faithfully without their exact layout anchors, so syncing this subtree would shift the whole panel |
 | `game.StarterGui.Custom Inventory.hotBar` | The current `get_instance_properties` payload omits `AnchorPoint` even though `game.StarterGui.Custom Inventory.hotBar` uses a centered `Position.X.Scale = 0.5` bottom bar placement | The hotbar is a load-bearing runtime container; without its exact anchor the entire slot row would shift and no longer match live |
 | `game.StarterGui.Custom Inventory.InventoryController.toolButton` | The `toolButton` template contains centered visual children such as `toolIcon` with `Position = UDim2.new(0.5, 0, 0.5, 0)`, but the connector does not expose the corresponding `AnchorPoint` | This template is cloned at runtime for every slot, so exporting it without exact centered-child layout data would misplace slot visuals across the whole inventory system |
@@ -151,15 +154,10 @@ These items are not proven tooling blockers. They remain outside the repo becaus
 
 ### Highest-priority load-bearing systems still outside repo
 
-- `game.StarterGui.fridge-ui`
-- `game.ServerScriptService.Theme`
-- `game.ServerScriptService.OverheadTagsToggleServer`
+- None currently assigned; the 2026-04-25 trio was reclassified into structural export or tooling-blocker buckets.
 
 ### Likely exportable next
 
-- `game.ServerScriptService.Theme`
-- `game.ServerScriptService.OverheadTagsToggleServer`
-- `game.StarterGui.fridge-ui`
 - `game.ServerScriptService.Commands`
 - ~~`game.ServerScriptService.DonationLeaderstats`~~ — **decision pending in cleanup backlog; do NOT export until Donations decision resolves. If Donations stay, export then; if Donations go, never export.**
 - ~~`game.ServerScriptService.DonationAmount`~~ — **same as above; tied to the Donations decision.**
@@ -196,6 +194,7 @@ These items are not proven tooling blockers. They remain outside the repo becaus
 
 - The repo does not yet contain everything that can be faithfully represented with current tooling.
 - Important gameplay, config, UI, and server systems are still outside repo, especially the blocked `currencyui.maincanvas` subtree, the blocked `Custom Inventory` visual subtrees (`Inventory`, `hotBar`, and `toolButton`), `ShopMenu`, `tipui`, `SadCaveMusicGui`, `Settings`, `settingui`, `Shop`, and `AntiExploit`.
+- `Theme` and `OverheadTagsToggleServer` are now represented locally, but both remain structurally mapped rather than byte-exact because the current connector still exposes numbered conversational source output instead of a raw-source payload.
 - The remaining gaps are now fully classified. Every audited gap is one of:
   - `exact and in repo`
   - `structurally mapped but not byte-exact`

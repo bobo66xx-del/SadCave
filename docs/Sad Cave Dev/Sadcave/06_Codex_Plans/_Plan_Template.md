@@ -7,7 +7,6 @@
 # [System Name] — Codex Plan
 
 **Date:** YYYY-MM-DD
-**Status:** 🔵 Planned / 🟡 In Progress / 🟢 Shipped
 **Related Systems:** [[../02_Systems/...]]
 
 ---

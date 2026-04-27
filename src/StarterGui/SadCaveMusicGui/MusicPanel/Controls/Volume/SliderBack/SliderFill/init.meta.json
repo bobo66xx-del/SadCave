@@ -6,10 +6,10 @@
     "BackgroundTransparency": 0,
     "BorderSizePixel": 0,
     "Position": {
-      "UDim2": [[[0.04237288236618042, 0]], [[0, 0]]]
+      "UDim2": [[0.04237288236618042, 0], [0, 0]]
     },
     "Size": {
-      "UDim2": [[[0.5, 0]], [[1, 0]]]
+      "UDim2": [[0.5, 0], [1, 0]]
     },
     "Transparency": 0,
     "Visible": true,

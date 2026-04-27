@@ -7,10 +7,14 @@
 
 ## 🎯 Current Priority
 
-**Expand the map with more places to chill/explore, then build a smooth XP/progression system that rewards presence, exploration, and light interaction.**
+**Build the new XP progression system, then redesign the title system on top of it.** Replaces the legacy time-only level system with one that rewards presence, exploration, and light interaction.
 
-Active focus this week:
-- [ ] Continue live-only reconciliation — next priority items per [the audit](../../live-repo-audit.md): `fridge-ui`, `Theme`, `OverheadTagsToggleServer`. See [[06_Codex_Plans/2026-04-25_Live_Reconciliation_Continuation_v1]].
+Active focus:
+- [ ] Ship XP Progression MVP — `ProgressionService` + `PresenceTick` + `XPBar`. See [[06_Codex_Plans/2026-04-25_XP_Progression_MVP_v1]].
+- [ ] Then: follow-up briefs for Discovery/Conversation sources, AchievementTracker, and Title System v2.
+
+Recently completed:
+- ✅ Live reconciliation top-priority queue cleared (session 3, 2026-04-25). See [[06_Codex_Plans/2026-04-25_Live_Reconciliation_Continuation_v1]].
 
 ---
 
@@ -18,8 +22,9 @@ Active focus this week:
 
 Legacy systems to remove (do NOT extend these):
 - Shop with Saber/Scythe/Gun/Rocket Launcher → see [[02_Systems/_Cleanup_Backlog]]
-- `CashLeaderstats` and `DonationLeaderstats` → see [[02_Systems/_Cleanup_Backlog]]
+- `CashLeaderstats` and `DonationLeaderstats` → see [[02_Systems/_Cleanup_Backlog]] (Cash removal blocked until XP Progression ships)
 - Duplicate SoftShutdown scripts, duplicate Menu ScreenGuis
+- Old `LevelLeaderstats` and `Levelup` chat notification — retired by XP Progression MVP
 
 ---
 
@@ -31,9 +36,9 @@ Legacy systems to remove (do NOT extend these):
 
 ### Active Systems
 - [[02_Systems/Dialogue_System]] — 🟢 Shipped
-- [[02_Systems/Title_System]] — 🟢 Shipped (cosmetic identity layer)
-- [[02_Systems/Level_System]] — 🟡 Shipped, needs redesign
-- [[02_Systems/XP_Progression]] — 🔵 Planned (current priority)
+- [[02_Systems/Title_System]] — 🔵 Planned (v2 redesign; v1 still live until v2 ships)
+- [[02_Systems/Level_System]] — 🟡 Shipped, being replaced by [[02_Systems/XP_Progression]]
+- [[02_Systems/XP_Progression]] — 🟡 Building (MVP plan written, ready for Codex)
 - [[02_Systems/NameTag_Status]] — 🟢 Shipped
 - [[02_Systems/Area_Discovery]] — 🟢 Shipped (badges only, ready to extend)
 - [[02_Systems/Daily_Rewards]] — 🟢 Shipped (review for tone fit)
@@ -50,8 +55,8 @@ Legacy systems to remove (do NOT extend these):
 - [[05_NPCs/QuietKeeper]]
 
 ### Workflow & Capture
-- [[_Workflow]] — how Opus + Codex + vault fit together (read this first on a fresh session)
-- `AGENTS.md` (at repo root, `C:\Projects\SadCave\AGENTS.md`) — rules Codex follows when reading/writing the vault and the codebase
+- **`AGENTS.md`** (at repo root, `C:\Projects\SadCave\AGENTS.md`) — the workflow doc + Codex rules. Read this first on a fresh session.
+- [[_Workflow]] — stub pointing at AGENTS.md (kept so the vault still finds it).
 - `PLANS.md` (at repo root) — 🧊 historical context only; running history of repo-vs-Studio export passes from 2026-04-19 to 2026-04-20. Do not append.
 - `docs/live-repo-audit.md` (at repo root) — authoritative export-status queue
 - [[00_Inbox/_Inbox]] — unsorted captures, this session
@@ -93,4 +98,4 @@ Legacy systems to remove (do NOT extend these):
 - Park stray ideas in [[08_Ideas_Parking_Lot/_Parking_Lot]] instead of expanding scope mid-task.
 - Drop in-session captures into [[00_Inbox/_Inbox]] — Opus integrates at session end.
 - Log every working session briefly in `07_Sessions/`.
-- For **how the whole stack works** (Opus + Codex + vault), see [[_Workflow]].
+- For **how the whole stack works** (Opus + Codex + vault), see `AGENTS.md` at the repo root.
