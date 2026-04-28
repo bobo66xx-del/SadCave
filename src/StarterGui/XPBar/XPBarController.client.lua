@@ -21,6 +21,18 @@ if not XPUpdated or not LevelUp then
 	return
 end
 
+local titleRemotes = ReplicatedStorage:WaitForChild("TitleRemotes", 5)
+local TitleDataUpdated = nil
+if titleRemotes then
+	TitleDataUpdated = titleRemotes:WaitForChild("TitleDataUpdated", 5)
+else
+	warn("[XPBar] ReplicatedStorage.TitleRemotes was not found; title unlock fades disabled")
+end
+
+if titleRemotes and not TitleDataUpdated then
+	warn("[XPBar] TitleRemotes.TitleDataUpdated was not found; title unlock fades disabled")
+end
+
 local background = Instance.new("Frame")
 background.Name = "Background"
 background.AnchorPoint = Vector2.new(0, 1)
@@ -88,6 +100,11 @@ local currentFillFraction = 0
 local pendingFillFraction = nil
 local levelUpAnimating = false
 local revealToken = 0
+local levelUpRenderToken = 0
+local titleOnlyRenderToken = 0
+local pendingLevelUpPayload = nil
+local pendingNewTitle = nil
+local pendingTitleOnlyPayload = nil
 
 local fillTween = nil
 local labelTween = nil
@@ -173,12 +190,30 @@ local function extractNewLevel(payload)
 	return cachedLevel
 end
 
-local function playLevelUp(payload)
+local function getTitleDisplay(payload)
+	if typeof(payload) == "table" and typeof(payload.equippedDisplay) == "string" then
+		return payload.equippedDisplay
+	end
+
+	return nil
+end
+
+local function titleSeparator()
+	return " " .. utf8.char(0x2014) .. " "
+end
+
+local function playLevelUp(payload, titlePayload)
 	levelUpAnimating = true
 	revealToken += 1
 
 	local newLevel = extractNewLevel(payload)
-	levelLabel.Text = "level " .. tostring(newLevel)
+	local titleDisplay = getTitleDisplay(titlePayload)
+	if titleDisplay then
+		levelLabel.Text = "level " .. tostring(newLevel) .. titleSeparator() .. "new title: " .. titleDisplay
+	else
+		levelLabel.Text = "level " .. tostring(newLevel)
+	end
+
 	tweenLabel(0, 0.4)
 	tweenFill(1, 0.35)
 
@@ -200,7 +235,7 @@ local function playLevelUp(payload)
 		Size = UDim2.new(1, 0, 1, 0),
 	})
 
-	task.wait(2)
+	task.wait(5)
 	tweenLabel(1, 0.6)
 	task.wait(0.6)
 
@@ -209,12 +244,84 @@ local function playLevelUp(payload)
 	pendingFillFraction = nil
 end
 
+local function playNewTitleOnly(titlePayload)
+	local titleDisplay = getTitleDisplay(titlePayload)
+	if not titleDisplay then
+		return
+	end
+
+	levelUpAnimating = true
+	revealToken += 1
+
+	levelLabel.Text = "new title: " .. titleDisplay
+	tweenLabel(0, 0.4)
+
+	task.wait(5)
+	tweenLabel(1, 0.6)
+	task.wait(0.6)
+
+	levelUpAnimating = false
+	if pendingFillFraction then
+		tweenFill(pendingFillFraction, 0.3)
+		pendingFillFraction = nil
+	end
+end
+
+local function scheduleLevelUp(payload)
+	levelUpRenderToken += 1
+	titleOnlyRenderToken += 1
+	local token = levelUpRenderToken
+	pendingLevelUpPayload = payload
+	pendingNewTitle = pendingTitleOnlyPayload
+	pendingTitleOnlyPayload = nil
+
+	task.delay(0.1, function()
+		if token ~= levelUpRenderToken or pendingLevelUpPayload ~= payload then
+			return
+		end
+
+		local titlePayload = pendingNewTitle
+		pendingLevelUpPayload = nil
+		pendingNewTitle = nil
+
+		task.spawn(playLevelUp, payload, titlePayload)
+	end)
+end
+
+local function scheduleNewTitleOnly(payload)
+	titleOnlyRenderToken += 1
+	local token = titleOnlyRenderToken
+	pendingTitleOnlyPayload = payload
+
+	task.delay(0.1, function()
+		if token ~= titleOnlyRenderToken or pendingTitleOnlyPayload ~= payload then
+			return
+		end
+
+		pendingTitleOnlyPayload = nil
+		task.spawn(playNewTitleOnly, payload)
+	end)
+end
+
 XPUpdated.OnClientEvent:Connect(updateFromPayload)
 LevelUp.OnClientEvent:Connect(function(payload)
-	task.spawn(playLevelUp, payload)
+	scheduleLevelUp(payload)
 end)
+
+if TitleDataUpdated then
+	TitleDataUpdated.OnClientEvent:Connect(function(payload)
+		if typeof(payload) ~= "table" or payload.newlyUnlocked ~= true then
+			return
+		end
+
+		if pendingLevelUpPayload then
+			pendingNewTitle = payload
+			return
+		end
+
+		scheduleNewTitleOnly(payload)
+	end)
+end
 
 hoverDetector.MouseEnter:Connect(showProgressText)
 hoverDetector.Activated:Connect(showProgressText)
-
--- TODO: Listen to TitleRemotes.TitleDataUpdated for new-title fades when TitleService v2 ships.
