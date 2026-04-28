@@ -7,32 +7,27 @@
 
 ## 🎯 Current Priority
 
-**Title v2 MVP-1 brief queued — awaiting Codex.** Cowork session 7 (2026-04-28) walked the full v2 spec with Tyler, locked in design decisions (title-on-nametag confirmed, combined fade `level N — new title: X` at 5s hold, `fell_asleep_here` AFK threshold dropped 30→19 min for Roblox's auto-disconnect, MVP brief split into MVP-1 / MVP-2, polished TitleMenu deferred to a separate Tyler-led design session), and drafted the MVP-1 build brief at `06_Codex_Plans/2026-04-28_Title_v2_MVP1_v1.md`. Vault is in sync with main; eleven PRs shipped 2026-04-27 → 2026-04-28 (XP MVP, two repo-strip passes, housekeeping export, DialogueDirector restore, audit refresh, session-2 vault wrap-up, PromptFavorite bugs cleanup, NameTag level-row strip, XP testing-place bug sweep, XP follow-up fixes).
+**Title v2 player-facing surface is feature-complete except for the polished menu pass.** PR #12 (06:10 UTC) shipped the data + display layer — `TitleConfig` with all 56 titles, `TitleService` with auto-equip-highest, `TitleRemotes.TitleDataUpdated`, NameTag v2 with title row + effect rendering, XPBar combined-fade `level N — new title: X` at 5s hold. PR #13 (07:22 UTC) cleaned up the architecture — TitleService is a ModuleScript, NameTagScript requires it directly (no more `_G.SadCaveTitleService`), level watcher self-heals on respawn (probe confirmed `leaderstatsSame=true`). PR #14 (08:31 UTC) added the manual-equip surface — `EquipTitle` / `UnequipTitle` RemoteEvents with server-side ownership validation + 1s rate limit, placeholder TitleMenu with two `owned` / `locked` tabs, small `titles` toggle button in the top-right, production-cutover migration code reading `EquippedTitleV1`, manual choice respects the player forever (auto-equip-highest is now first-time-only fallback). Fourteen PRs shipped 2026-04-27 → 2026-04-28.
 
 Active focus:
-- [ ] **Title v2 MVP-1** — brief queued in `06_Codex_Plans/2026-04-28_Title_v2_MVP1_v1.md`, ready for Tyler to hand to Codex. Covers `TitleConfig v2`, `TitleService v2` (level + gamepass with auto-equip-highest), `TitleRemotes.TitleDataUpdated`, NameTag v2 (BillboardGui height 30→~50 + lowercase title row + tintColor + effect rendering via new client-side `NameTagEffectController`), XPBar update (combined fade format + 5s hold for unlock notifications, hover stays at 2s).
-- [ ] **Title v2 MVP-2** — second brief to write after MVP-1 ships. Adds equip/unequip handlers + remotes, placeholder TitleMenu, production-cutover migration code from `EquippedTitleV1`. Polished TitleMenu remains a separate later brief (Tyler-led design session, drops in over the placeholder).
+- [ ] **Polished TitleMenu** — Tyler-led design session, drops in over the placeholder. Placeholder is logged in `_Cleanup_Backlog.md` as the swap target. Three carry-forwards from the placeholder review for the polished pass: (a) hint-copy voice-pass on locked rows (e.g. `fell_asleep_here` currently shows "rest for a long while" — Tyler may want subtler/different voice); (b) refactor the toggle button to fire a BindableEvent instead of directly poking `playerGui.TitleMenu.Root.Visible`; (c) row diffing on `TitleDataUpdated` instead of full rebuild every event (placeholder rebuilds all 56 rows per fire — fine for now, target-of-opportunity for polish).
+- [ ] **AchievementTracker brief** — first follow-up for activating a new title category. Adds `ServerScriptService.Progression.AchievementTracker` ModuleScript, hooks into existing systems (dialogue completion, sit detection, note submission, return-visit counter, group join, idle detection), fires a BindableEvent that TitleService listens to. Resolves the open `fell_asleep_here` focus-vs-idle implementation question (probably wants `Player.Idled` rather than the focus-based `AfkDetector`). 12 achievement titles activate when this ships.
+- [ ] **Production cutover brief for Title v2** — write later, after the testing place soaks for a while. Will exercise the migration code path live, plus need a rollback plan, soak-period monitoring, and Tyler's "okay, push to prod" signal per `01_Vision/Environments.md`.
 - [ ] Remaining XP testing-place checks deferred (low priority): second-join migration variants 1+2 (need alt account or DataStore manipulation; variant 3 implicitly verified by Tyler's normal rejoins) and DataStore failure simulation (steps walked through with Tyler in plain English in case he wants to run them). Bar polish + level-up animation refinement parked in `08_Ideas_Parking_Lot/_Parking_Lot.md`.
 - [ ] When Tyler greenlights the secret-handling approach, execute the DiscordLogs refactor (currently ⏸ Waiting — see [[06_Codex_Plans/2026-04-27_DiscordLogs_Secret_Refactor_v1]]).
-- [ ] Watch `FavoritePromptPersistence` line-4 SourceCode error across future playtests — did NOT reproduce in PR #8's run; if it stays gone for several sessions, move it from `_Known_Bugs.md` Active to Resolved with a "did not reproduce after PR #8" note. Investigation still blocked by no-touch + Avalog deferral.
+- [ ] Watch `FavoritePromptPersistence` line-4 SourceCode error across future playtests — did NOT reproduce in PRs #8 → #14 playtests (seven quiet sessions). If it stays gone for one or two more, move from `_Known_Bugs.md` Active to Resolved.
+- [ ] Watch flag carried forward: `StarterPlayerScripts` 9-vs-8 instance count puzzle — needs a session with working enumerate to resolve.
 
-Recently completed (all 2026-04-27):
-- ✅ PR #1 — XP Progression MVP merged (08:45 UTC).
-- ✅ PR #2 — Repo strip to Studio state merged (10:13 UTC).
-- ✅ PR #3 — Repo strip follow-up merged (11:33 UTC).
-- ✅ PR #4 — Housekeeping utility export merged (11:58 UTC). 10 of 11 flagged Studio-only kept-list objects exported.
-- ✅ PR #5 — DialogueDirector restored (13:32 UTC). 679-line server script back from the 2026-04-24 Studio capture; Tyler verified dialogue works post-merge.
-- ✅ PR #6 — Live-repo-audit refresh shipped (20:51 UTC). 49 rows reclassified post-cleanup; surfaced three vault drift items (Studio id, IntroScreen/Menu, SeatMarkers child) that got reconciled.
-- ✅ PR #7 — Session-2 vault wrap-up shipped to main (21:54 UTC). 18 vault files: AGENTS.md sync-hardening, plan-file Status convention, _Decisions.md introduced, change-log reordered, Open Questions / UI Hierarchy / Live Systems Reference / Index reconciled.
-- ✅ PR #8 — PromptFavorite bugs cleanup shipped (22:00 UTC). Bounded WaitForChild on `FavoritePromptShown` with graceful exit; deleted duplicate `PromptFavorite` Script in StarterPlayerScripts. Resolved two `_Known_Bugs.md` entries and the audit's PromptFavorite tooling blocker.
-- ✅ PR #9 — NameTag level-row strip shipped (23:20 UTC). Removed `LevelLabel`, `updateLevel`, and leaderstats hooks from `NameTagScript.server.lua`; `NameLabel` now fills the full BillboardGui (resized to `0, 30`); Avalog watchdog preserved. Closed the spec-vs-build gap caught in the Cowork-session-4 Reality Check.
-- ✅ PR #10 — XP testing-place bug sweep shipped (2026-04-28 01:25 UTC). `PresenceTick.GetTickAmount` now checks seated state before AFK (Branch A); XPBar `barHeight` unified at 6px desktop+mobile; per-tick `[Progression] tick: source=... amount=... player=...` debug log added in `Driver.server.lua`. All three rate states verified live in Codex's playtest. Closed the two `_Known_Bugs.md` Active entries from session 5.
-- ✅ PR #11 — XP follow-up fixes shipped (2026-04-28 03:12 UTC). `SourceConfig.GAMEPASS_ID` corrected `2110249546` → `1790063497` (the actual `2X Levels` gamepass Tyler owns); `XPBar.Background.BackgroundTransparency` dropped `0.85` → `0.55` so the bar's full-width footprint reads against the dark cave at low fill; tick log format expanded to `source=... base=... granted=...` so the gamepass multiplier is visible at a glance. All three multiplied rates verified: active 22, sitting 30, AFK 4.
+Recently completed:
+- ✅ PR #14 — Title v2 MVP-2 shipped (2026-04-28 08:31 UTC). `EquipTitle` / `UnequipTitle` RemoteEvents with server-side ownership validation + 1s rate limit; new `equippedManually` and `migratedFromV1` fields in `TitleData`; `refreshAutoEquip` rewritten to split unlock detection from auto-equip application (notification-only payload pattern lets manually-equipped players still get unlock fades while keeping their choice on the nametag); placeholder TitleMenu (two-tab list, click-to-equip on owned, hints on locked) + small `titles` toggle button top-right; production-cutover migration code reading `EquippedTitleV1` once per player and mapping via `TitleConfig.MIGRATION`. Codex playtest confirmed manual `slow_steps` survived a level 49 → 50 boundary, invalid ownership rejected, spam rate-limited. Migration was static-reviewed only — production cutover PR will need a runtime test.
+- ✅ PR #13 — Title v2 MVP-1 follow-up shipped (2026-04-28 07:22 UTC). TitleService converted to ModuleScript (`TitleService.lua`) + thin runtime starter (`TitleServiceInit.server.lua`); NameTagScript switched to direct `require`; `_G.SadCaveTitleService` deleted; `attachLevelWatcher` re-attaches on `CharacterAdded`. Probe confirmed `leaderstatsSame=true` across respawns.
+- ✅ PR #12 — Title v2 MVP-1 shipped (2026-04-28 06:10 UTC). 56 titles defined in `TitleConfig`; auto-equip-highest with gamepass priority over level; `TitleRemotes.TitleDataUpdated`; NameTag BillboardGui 30→50 with TitleLabel below NameLabel; client-side `NameTagEffectController` for tint/shimmer/pulse/glow; XPBar combined-fade format with 5s hold + 100ms client-side coalescing.
+- ✅ PR #11 — XP follow-up fixes shipped (2026-04-28 03:12 UTC). Gamepass ID corrected to `1790063497`; XPBar Background opacity 0.85→0.55; tick log format expanded to `source=... base=... granted=...`. All three multiplied rates verified.
+- ✅ PR #10 — XP testing-place bug sweep shipped (2026-04-28 01:25 UTC). Seated SeatMarker overrides AFK (Branch A); XPBar `barHeight` unified at 6px; per-tick log added.
+- ✅ PR #9 — NameTag level-row strip shipped (2026-04-27 23:20 UTC). Closed the spec-vs-build gap from Cowork session 4. Note: superseded by PR #12's title-row addition — the level row stays gone, but the BillboardGui is back at height 50 with NameLabel + TitleLabel.
+- ✅ PRs #1 → #8 (all 2026-04-27): XP Progression MVP, two repo-strip passes, housekeeping export, DialogueDirector restore, audit refresh, session-2 vault wrap-up, PromptFavorite bugs cleanup. Tyler's heavy testing-place cleanup deleted most legacy systems; vault refreshed to match. Migration to Cowork.
 - ✅ Three drift-found ScreenGuis (`IntroScreen`, `Menu`, `Game Version`) — Tyler decided keep all three Studio-only.
 - ✅ Manual Export queue from PR #6 (`Rose`, `Avalog`, `Leader2`, `playerBugReportSystem`, `ReportGUI`, `Truss`, `WelcomeBadge`) — Tyler decided skip; `Workspace` isn't Rojo-mapped so they don't affect sync.
-- ✅ Tyler's heavy testing-place cleanup deleted most legacy systems.
-- ✅ Vault refreshed to match post-cleanup reality (Cowork session 1).
-- ✅ Migration to Cowork — same MCPs wired up, no capability lost.
 
 ---
 
@@ -44,9 +39,9 @@ Recently completed (all 2026-04-27):
 
 ### Active Systems
 - [[02_Systems/XP_Progression]] — 🟡 Building (MVP shipped, follow-ups pending)
-- [[02_Systems/NameTag_Status]] — 🟢 Shipped (rebuilt 2026-04-27, name-only after PR #9 stripped the level row at 23:20 UTC)
+- [[02_Systems/NameTag_Status]] — 🟢 Shipped (PR #12 added the title row back at BillboardGui height 50; PR #13 cleaned up the TitleService require path)
 - [[02_Systems/Dialogue_System]] — 🟢 Shipped (early version live; verify scope next session)
-- [[02_Systems/Title_System]] — 🔵 Planned (v2 redesign; v1 deleted in cleanup)
+- [[02_Systems/Title_System]] — 🟡 Building (v2 MVP-1 + MVP-1 Followup + MVP-2 all shipped — title surface feature-complete except polished menu pass; AchievementTracker / Discovery / Presence / Seasonal categories defined-but-inactive, each their own follow-up brief)
 - [[02_Systems/Area_Discovery]] — 🔵 Planned (legacy badge script deleted; will be rebuilt as part of XP Discovery source)
 - [[02_Systems/Cave_Outside_Lighting]] — 🔵 Planned
 - [[02_Systems/Group_Member_Perks]] — ⚪ Idea
@@ -94,7 +89,8 @@ Recently completed (all 2026-04-27):
 - [[06_Codex_Plans/2026-04-28_XP_Followup_Fixes_v1]] — 🟢 Shipped (PR #11, merged 2026-04-28 03:12 UTC).
 - [[06_Codex_Plans/2026-04-28_Title_v2_MVP1_v1]] — 🟢 Shipped (PR #12, merged 2026-04-28 06:10 UTC).
 - [[06_Codex_Plans/2026-04-28_Title_v2_MVP1_Followup_v1]] — 🟢 Shipped (PR #13, merged 2026-04-28 07:22 UTC).
-- [[06_Codex_Plans/2026-04-28_Title_v2_MVP2_v1]] — 🔵 Queued (placeholder TitleMenu + manual equip via `EquipTitle` / `UnequipTitle` RemoteEvents + production-cutover migration code reading `EquippedTitleV1`; manual choice respects player forever, auto-equip-highest becomes first-time-only fallback).
+- [[06_Codex_Plans/2026-04-28_Title_v2_MVP2_v1]] — 🟢 Shipped (PR #14, merged 2026-04-28 08:31 UTC).
+- [[06_Codex_Plans/2026-04-28_Title_v2_Migration_Verification_v1]] — 🔵 Queued (one-shot runtime verification of PR #14's `EquippedTitleV1` migration code path; synthetic UserIds, temporary probe pattern; output is one Studio playtest log confirming the v1→v2 mapping fires correctly before the production-cutover brief ships).
 - [[07_Sessions/_Session_Template]]
 - [[08_Ideas_Parking_Lot/_Parking_Lot]]
 - [[09_Open_Questions/_Open_Questions]] — unresolved design decisions
