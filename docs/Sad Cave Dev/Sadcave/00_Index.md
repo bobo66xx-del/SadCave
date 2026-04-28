@@ -93,7 +93,8 @@ Recently completed (all 2026-04-27):
 - [[06_Codex_Plans/2026-04-27_XP_Testing_Place_Bug_Sweep_v1]] — 🟢 Shipped (PR #10, merged 2026-04-28 01:25 UTC).
 - [[06_Codex_Plans/2026-04-28_XP_Followup_Fixes_v1]] — 🟢 Shipped (PR #11, merged 2026-04-28 03:12 UTC).
 - [[06_Codex_Plans/2026-04-28_Title_v2_MVP1_v1]] — 🟢 Shipped (PR #12, merged 2026-04-28 06:10 UTC).
-- [[06_Codex_Plans/2026-04-28_Title_v2_MVP1_Followup_v1]] — 🔵 Queued (post-merge cleanups from Claude review of PR #12: convert TitleService to ModuleScript pattern; re-attach leaderstats Level watcher on CharacterAdded for respawn resilience).
+- [[06_Codex_Plans/2026-04-28_Title_v2_MVP1_Followup_v1]] — 🟢 Shipped (PR #13, merged 2026-04-28 07:22 UTC).
+- [[06_Codex_Plans/2026-04-28_Title_v2_MVP2_v1]] — 🔵 Queued (placeholder TitleMenu + manual equip via `EquipTitle` / `UnequipTitle` RemoteEvents + production-cutover migration code reading `EquippedTitleV1`; manual choice respects player forever, auto-equip-highest becomes first-time-only fallback).
 - [[07_Sessions/_Session_Template]]
 - [[08_Ideas_Parking_Lot/_Parking_Lot]]
 - [[09_Open_Questions/_Open_Questions]] — unresolved design decisions
