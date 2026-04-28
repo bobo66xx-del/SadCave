@@ -1,18 +1,53 @@
 -- Robust nametag: attaches to HumanoidRootPart (Avalog-safe) and re-applies if destroyed.
 local Players = game:GetService("Players")
 
-local function buildBillboard(adornee, displayName)
-	local bb = Instance.new("BillboardGui")
-	bb.Name = "NameTag"
-	bb.Adornee = adornee
-	bb.AlwaysOnTop = true
-	bb.Size = UDim2.new(0, 200, 0, 30)
-	bb.StudsOffset = Vector3.new(0, 3, 0)
-	bb.MaxDistance = 100
+local DEFAULT_TITLE_PAYLOAD = {
+	equippedDisplay = "",
+	equippedEffect = "none",
+	equippedTintColor = Color3.fromRGB(225, 215, 200),
+}
 
-	local nameLabel = Instance.new("TextLabel")
-	nameLabel.Name = "NameLabel"
-	nameLabel.Size = UDim2.new(1, 0, 1, 0)
+local function getTitlePayload(player)
+	local titleService = _G.SadCaveTitleService
+	if titleService and typeof(titleService.GetPlayerTitlePayload) == "function" then
+		return titleService.GetPlayerTitlePayload(player)
+	end
+
+	return DEFAULT_TITLE_PAYLOAD
+end
+
+local function applyTitlePayload(bb, payload)
+	local titleService = _G.SadCaveTitleService
+	if titleService and typeof(titleService.ApplyTitlePayloadToBillboard) == "function" then
+		titleService.ApplyTitlePayloadToBillboard(bb, payload)
+		return
+	end
+
+	bb:SetAttribute("TitleEffect", payload.equippedEffect or "none")
+	bb:SetAttribute("TitleTintColor", payload.equippedTintColor or Color3.fromRGB(225, 215, 200))
+	bb:SetAttribute("TitleDisplay", payload.equippedDisplay or "")
+
+	local titleLabel = bb:FindFirstChild("TitleLabel")
+	if titleLabel and titleLabel:IsA("TextLabel") then
+		titleLabel.Text = payload.equippedDisplay or ""
+	end
+end
+
+local function ensureBillboardLayout(bb, displayName)
+	bb.Size = UDim2.new(0, 200, 0, 50)
+
+	local nameLabel = bb:FindFirstChild("NameLabel")
+	if not nameLabel or not nameLabel:IsA("TextLabel") then
+		if nameLabel then
+			nameLabel:Destroy()
+		end
+
+		nameLabel = Instance.new("TextLabel")
+		nameLabel.Name = "NameLabel"
+		nameLabel.Parent = bb
+	end
+
+	nameLabel.Size = UDim2.new(1, 0, 0, 28)
 	nameLabel.Position = UDim2.new(0, 0, 0, 0)
 	nameLabel.BackgroundTransparency = 1
 	nameLabel.Font = Enum.Font.Gotham
@@ -20,10 +55,43 @@ local function buildBillboard(adornee, displayName)
 	nameLabel.TextColor3 = Color3.fromRGB(225, 215, 200)
 	nameLabel.TextStrokeTransparency = 0.6
 	nameLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+	nameLabel.TextYAlignment = Enum.TextYAlignment.Bottom
 	nameLabel.Text = displayName
-	nameLabel.Parent = bb
+
+	local titleLabel = bb:FindFirstChild("TitleLabel")
+	if not titleLabel or not titleLabel:IsA("TextLabel") then
+		if titleLabel then
+			titleLabel:Destroy()
+		end
+
+		titleLabel = Instance.new("TextLabel")
+		titleLabel.Name = "TitleLabel"
+		titleLabel.Parent = bb
+	end
+
+	titleLabel.Size = UDim2.new(1, 0, 0, 18)
+	titleLabel.Position = UDim2.new(0, 0, 0, 30)
+	titleLabel.BackgroundTransparency = 1
+	titleLabel.Font = Enum.Font.Gotham
+	titleLabel.TextSize = 12
+	titleLabel.TextColor3 = Color3.fromRGB(225, 215, 200)
+	titleLabel.TextStrokeTransparency = 0.7
+	titleLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+	titleLabel.TextYAlignment = Enum.TextYAlignment.Top
 
 	return bb
+end
+
+local function buildBillboard(adornee, displayName)
+	local bb = Instance.new("BillboardGui")
+	bb.Name = "NameTag"
+	bb.Adornee = adornee
+	bb.AlwaysOnTop = true
+	bb.Size = UDim2.new(0, 200, 0, 50)
+	bb.StudsOffset = Vector3.new(0, 3, 0)
+	bb.MaxDistance = 100
+
+	return ensureBillboardLayout(bb, displayName)
 end
 
 local function applyNameTag(player, character)
@@ -37,10 +105,16 @@ local function applyNameTag(player, character)
 
 	local function ensureBillboard()
 		local existing = hrp:FindFirstChild("NameTag")
-		if existing and existing:IsA("BillboardGui") then return existing end
-		local bb = buildBillboard(hrp, player.DisplayName)
-		bb.Parent = hrp
-		return bb
+		if existing and existing:IsA("BillboardGui") then
+			ensureBillboardLayout(existing, player.DisplayName)
+			applyTitlePayload(existing, getTitlePayload(player))
+			return existing
+		end
+
+		local newBillboard = buildBillboard(hrp, player.DisplayName)
+		applyTitlePayload(newBillboard, getTitlePayload(player))
+		newBillboard.Parent = hrp
+		return newBillboard
 	end
 
 	local bb = ensureBillboard()
@@ -74,4 +148,3 @@ for _, p in ipairs(Players:GetPlayers()) do
 end
 
 print("[NameTag] script ready")
-
