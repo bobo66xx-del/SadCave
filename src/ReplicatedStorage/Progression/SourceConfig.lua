@@ -28,7 +28,7 @@ SourceConfig.SITTING_THRESHOLD_SECONDS = 30
 SourceConfig.TICK_INTERVAL_SECONDS = 60
 
 -- Gamepass multiplier (applied to all XP grants)
-SourceConfig.GAMEPASS_ID = 2110249546
+SourceConfig.GAMEPASS_ID = 1790063497
 SourceConfig.GAMEPASS_MULTIPLIER = 1.5
 
 -- DataStore name

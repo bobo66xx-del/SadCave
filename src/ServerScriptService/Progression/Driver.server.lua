@@ -94,10 +94,14 @@ local function tickPlayer(player)
 
 	local ok = ProgressionService.Tick(player, PresenceTick)
 	if ok and amount and sourceName then
+		-- granted math mirrors ProgressionService.GrantXP; keep in sync if the multiplier handling ever changes.
+		local multiplier = (state and state.gamepassOwned) and SourceConfig.GAMEPASS_MULTIPLIER or 1
+		local granted = math.floor(amount * multiplier)
 		print(string.format(
-			"[Progression] tick: source=%s amount=%d player=%s(%d)",
+			"[Progression] tick: source=%s base=%d granted=%d player=%s(%d)",
 			sourceName,
 			amount,
+			granted,
 			player.Name,
 			player.UserId
 		))
