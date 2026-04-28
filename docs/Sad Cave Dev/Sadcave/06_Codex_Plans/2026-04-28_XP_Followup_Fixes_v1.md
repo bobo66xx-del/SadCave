@@ -1,7 +1,7 @@
 # XP Follow-up Fixes — Codex Plan
 
 **Date:** 2026-04-28
-**Status:** 🔵 Queued
+**Status:** 🟢 Shipped — PR #11 (merged 2026-04-28 03:12:50 UTC, branch `codex/xp-followup-fixes`, head commit `d06753a`)
 *(legend: 🔵 Queued — written, awaiting Codex · 🟡 Building — Codex on branch · 🟢 Shipped — merged, include PR # and date · ⏸ Waiting — written but deliberately on hold · ⚫ Superseded — replaced or invalidated)*
 **Branch:** `codex/xp-followup-fixes`
 **Related Systems:** [[../02_Systems/XP_Progression]]

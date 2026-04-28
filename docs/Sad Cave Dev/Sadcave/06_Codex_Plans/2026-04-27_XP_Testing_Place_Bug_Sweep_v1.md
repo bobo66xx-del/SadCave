@@ -1,7 +1,7 @@
 # XP Testing-Place Bug Sweep — Codex Plan
 
 **Date:** 2026-04-27
-**Status:** 🔵 Queued
+**Status:** 🟢 Shipped — PR #10 (merged 2026-04-28 01:25 UTC, branch `codex/xp-testing-bug-sweep`, merge commit `6a9c26b`)
 *(legend: 🔵 Queued — written, awaiting Codex · 🟡 Building — Codex on branch · 🟢 Shipped — merged, include PR # and date · ⏸ Waiting — written but deliberately on hold · ⚫ Superseded — replaced or invalidated)*
 **Branch:** `codex/xp-testing-bug-sweep`
 **Related Systems:** [[../02_Systems/XP_Progression]]

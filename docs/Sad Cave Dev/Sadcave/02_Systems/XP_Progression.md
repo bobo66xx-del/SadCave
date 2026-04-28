@@ -119,7 +119,7 @@ The presence tick fires every 60 seconds per player. The amount depends on what 
 - **Sitting is the best XP rate.** Intentional — this is a hangout game, and chilling at a bench should be the most rewarded behavior.
 - **30-second threshold:** Player must be seated at a `SeatMarker` child for at least 30 continuous seconds before the boosted rate kicks in. If they just sat down, they get the active rate until the threshold is met.
 - **AFK detection:** hook into existing `ServerScriptService.AFK` script — it already tracks AFK state via `AfkEvent`
-- **Gamepass boost:** multiply tick amount by `1.5x` (gamepass ID `2110249546`). A gamepass player sitting gets 30 XP/tick.
+- **Gamepass boost:** multiply tick amount by `1.5x` (gamepass ID `1790063497`, "2X Levels"). A gamepass player sitting gets 30 XP/tick. (Note: ID was originally `2110249546` in the MVP, which turned out to be a nonexistent asset — corrected to `1790063497` in PR #11 after live testing showed the multiplier never applied.)
 
 ### 2. Area Discovery (one-time per area)
 - **Amount:** `+50 XP` per new zone discovered
@@ -150,7 +150,7 @@ The presence tick fires every 60 seconds per player. The amount depends on what 
 
 ## Gamepass Boost
 
-- **Gamepass ID:** `2110249546` (existing)
+- **Gamepass ID:** `1790063497` ("2X Levels")
 - **Effect:** `1.5x` multiplier on ALL XP sources (presence, discovery, conversation)
 - **Applied inside `ProgressionService.GrantXP`** — single multiplication point, not per-source
 - **Display:** no special UI for boost status. Gamepass owners just progress ~50% faster. Subtle, not advertised in-game beyond the gamepass purchase screen.
@@ -166,7 +166,7 @@ The presence tick fires every 60 seconds per player. The amount depends on what 
 
 ### Visual Design
 - **Height:** ~4px on desktop, **~6px on mobile** (larger touch target, easier to see on small screens)
-- **Background:** very dark, near-transparent (`0.85` transparency)
+- **Background:** dark, semi-transparent (`0.55` transparency, post-PR #11 — was `0.85` originally but the bar visually disappeared against dark cave at low fill levels). Color `(15, 15, 15)`.
 - **Fill color:** soft warm tone, low saturation — e.g. muted gold or warm white at ~40% opacity
 - **No text by default** — just the bar filling
 - **On hover / tap:** briefly shows `level N — 234 / 500 xp` in small lowercase text above the bar, then fades after 2s
@@ -214,9 +214,11 @@ The presence tick fires every 60 seconds per player. The amount depends on what 
 - Updates `player.leaderstats.Level` and `player.leaderstats.XP` values (server-authoritative)
 
 **`ServerScriptService.Progression.Sources.PresenceTick`** (ModuleScript)
-- Called by ProgressionService every 60s per player
-- Checks three states in priority order: AFK → Sitting → Active
-- Sitting check: `Humanoid.Sit == true` AND seat's parent is a child of `Workspace.SeatMarkers` AND player has been seated 30+ seconds
+- Called by `Driver.server.lua`'s `tickPlayer` wrapper every 60s per player. The wrapper captures `(amount, sourceName)` for the per-tick debug log, then routes through `ProgressionService.Tick` for the actual grant.
+- Checks three states in priority order: **Sitting → AFK → Active** (post-PR #10 — was AFK → Sitting → Active before; reorder shipped in PR #10 implements the "seated SeatMarker overrides AFK" decision; see `_Decisions.md` 2026-04-27)
+- Sitting check: `state.seatedAt` is set (registered by `Driver.hookCharacter` when `Humanoid.Seated` fires with a seat that's a descendant of `Workspace.SeatMarkers`) AND `os.time() - state.seatedAt >= SITTING_THRESHOLD_SECONDS`
+- Returns the appropriate XP amount (20 sitting, 15 active, 3 AFK) and source name string for the debug log
+- Per-tick `[Progression] tick: source=... base=... granted=... player=...` print fires from `Driver.tickPlayer` after each successful grant (post-PR #11 — earlier format was `amount=...`; new format shows both pre-multiplier `base` and post-multiplier `granted` so gamepass ownership is visible at a glance)
 - Returns the appropriate XP amount (20 sitting, 15 active, 3 AFK)
 
 **`ServerScriptService.Progression.Sources.Discovery`** (ModuleScript)

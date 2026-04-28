@@ -7,11 +7,11 @@
 
 ## 🎯 Current Priority
 
-**Walk the post-merge XP testing-place checks, then start Title v2 design when Tyler kicks it off.** Ten PRs shipped 2026-04-27 → 2026-04-28 (XP MVP, two repo-strip passes, housekeeping export, DialogueDirector restore, audit refresh, session-2 vault wrap-up, PromptFavorite bugs cleanup, NameTag level-row strip, XP testing-place bug sweep). Vault is in sync with main. Next priority is resuming the open XP testing-place items now that the bar is visible and AFK no longer dominates seated ticks.
+**Title v2 design is next — Tyler kicks off the thread when ready.** Eleven PRs shipped 2026-04-27 → 2026-04-28 (XP MVP, two repo-strip passes, housekeeping export, DialogueDirector restore, audit refresh, session-2 vault wrap-up, PromptFavorite bugs cleanup, NameTag level-row strip, XP testing-place bug sweep, XP follow-up fixes). XP testing-place walkthrough is substantially complete — gamepass +22 verified, sitting boost verified, level-up animation reads, both desktop and mobile XPBar visible. Vault is in sync with main.
 
 Active focus:
-- [ ] Hand the XP follow-up fixes brief to Codex — corrects the wrong `SourceConfig.GAMEPASS_ID` (`2110249546` → `1790063497`, the actual Sad Cave gamepass) and investigates why the desktop XPBar is still invisible after the PR #10 height bump (Tyler's read: placement / occlusion, not transparency, since the LevelLabel reveals fine on hover but the Background+Fill don't show; mobile renders the same code correctly). See [[06_Codex_Plans/2026-04-28_XP_Followup_Fixes_v1]]. **Next up.** Walkthrough of the remaining XP checks (level-up animation already confirmed by Tyler, gamepass +22 tick — depends on this brief, mobile bar height — sanity-check post-fix, second-join migration, DataStore failure simulation) resumes after this lands.
-- [ ] Title v2 — full v2 spec exists in `02_Systems/Title_System`, ready for build planning when Tyler kicks off the thread (decided 2026-04-27, see `_Decisions.md`). Don't auto-design.
+- [ ] **Title v2** — full v2 spec exists in `02_Systems/Title_System`, ready for build planning when Tyler kicks off the thread (decided 2026-04-27, see `_Decisions.md`). Don't auto-design — wait for Tyler. **Next up.**
+- [ ] Remaining XP testing-place checks deferred (low priority): second-join migration variants 1+2 (need alt account or DataStore manipulation; variant 3 implicitly verified by Tyler's normal rejoins) and DataStore failure simulation (steps walked through with Tyler in plain English in case he wants to run them). Bar polish + level-up animation refinement parked in `08_Ideas_Parking_Lot/_Parking_Lot.md`.
 - [ ] When Tyler greenlights the secret-handling approach, execute the DiscordLogs refactor (currently ⏸ Waiting — see [[06_Codex_Plans/2026-04-27_DiscordLogs_Secret_Refactor_v1]]).
 - [ ] Watch `FavoritePromptPersistence` line-4 SourceCode error across future playtests — did NOT reproduce in PR #8's run; if it stays gone for several sessions, move it from `_Known_Bugs.md` Active to Resolved with a "did not reproduce after PR #8" note. Investigation still blocked by no-touch + Avalog deferral.
 
@@ -26,6 +26,7 @@ Recently completed (all 2026-04-27):
 - ✅ PR #8 — PromptFavorite bugs cleanup shipped (22:00 UTC). Bounded WaitForChild on `FavoritePromptShown` with graceful exit; deleted duplicate `PromptFavorite` Script in StarterPlayerScripts. Resolved two `_Known_Bugs.md` entries and the audit's PromptFavorite tooling blocker.
 - ✅ PR #9 — NameTag level-row strip shipped (23:20 UTC). Removed `LevelLabel`, `updateLevel`, and leaderstats hooks from `NameTagScript.server.lua`; `NameLabel` now fills the full BillboardGui (resized to `0, 30`); Avalog watchdog preserved. Closed the spec-vs-build gap caught in the Cowork-session-4 Reality Check.
 - ✅ PR #10 — XP testing-place bug sweep shipped (2026-04-28 01:25 UTC). `PresenceTick.GetTickAmount` now checks seated state before AFK (Branch A); XPBar `barHeight` unified at 6px desktop+mobile; per-tick `[Progression] tick: source=... amount=... player=...` debug log added in `Driver.server.lua`. All three rate states verified live in Codex's playtest. Closed the two `_Known_Bugs.md` Active entries from session 5.
+- ✅ PR #11 — XP follow-up fixes shipped (2026-04-28 03:12 UTC). `SourceConfig.GAMEPASS_ID` corrected `2110249546` → `1790063497` (the actual `2X Levels` gamepass Tyler owns); `XPBar.Background.BackgroundTransparency` dropped `0.85` → `0.55` so the bar's full-width footprint reads against the dark cave at low fill; tick log format expanded to `source=... base=... granted=...` so the gamepass multiplier is visible at a glance. All three multiplied rates verified: active 22, sitting 30, AFK 4.
 - ✅ Three drift-found ScreenGuis (`IntroScreen`, `Menu`, `Game Version`) — Tyler decided keep all three Studio-only.
 - ✅ Manual Export queue from PR #6 (`Rose`, `Avalog`, `Leader2`, `playerBugReportSystem`, `ReportGUI`, `Truss`, `WelcomeBadge`) — Tyler decided skip; `Workspace` isn't Rojo-mapped so they don't affect sync.
 - ✅ Tyler's heavy testing-place cleanup deleted most legacy systems.
@@ -89,7 +90,7 @@ Recently completed (all 2026-04-27):
 - [[06_Codex_Plans/2026-04-27_PromptFavorite_Bugs_Cleanup_v1]] — 🟢 Shipped (PR #8).
 - [[06_Codex_Plans/2026-04-27_NameTag_Strip_Level_Row_v1]] — 🟢 Shipped (PR #9, merged 2026-04-27 23:20 UTC).
 - [[06_Codex_Plans/2026-04-27_XP_Testing_Place_Bug_Sweep_v1]] — 🟢 Shipped (PR #10, merged 2026-04-28 01:25 UTC).
-- [[06_Codex_Plans/2026-04-28_XP_Followup_Fixes_v1]] — 🔵 Queued (Cowork session 6; corrects gamepass ID + diagnoses desktop XPBar placement issue).
+- [[06_Codex_Plans/2026-04-28_XP_Followup_Fixes_v1]] — 🟢 Shipped (PR #11, merged 2026-04-28 03:12 UTC).
 - [[07_Sessions/_Session_Template]]
 - [[08_Ideas_Parking_Lot/_Parking_Lot]]
 - [[09_Open_Questions/_Open_Questions]] — unresolved design decisions
