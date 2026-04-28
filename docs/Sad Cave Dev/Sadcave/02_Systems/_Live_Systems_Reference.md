@@ -2,7 +2,7 @@
 
 > **Role of this doc:** snapshot of *what currently exists* in the testing-place Studio, not *what should exist* (the per-system specs in `02_Systems/` cover that). Reference material for Codex and Opus when working on or near a live system.
 >
-> **Last refreshed:** 2026-04-27 — after Tyler's heavy testing-place cleanup pass that deleted most of the legacy systems. Reality-checked again 2026-04-27 (Cowork session 4): one drift caught and reconciled — the nametag actually renders `name + level`, not `name-only` (see Nametags entry below).
+> **Last refreshed:** 2026-04-27 — after Tyler's heavy testing-place cleanup pass that deleted most of the legacy systems. Reality-checked again 2026-04-27 (Cowork session 4): the nametag was building `name + level` against a spec that read `name-only`; Tyler decided "remove the level row" and PR #9 (merged 2026-04-27 23:20 UTC) closed the gap so the live build is now actually name-only.
 >
 > **Update cadence:** refresh after major resync work, or when a live system's structure materially changes. Not updated during normal design work.
 >
@@ -25,7 +25,7 @@
 ### `ServerScriptService` (kept set)
 
 Repo-backed:
-- `NameTagScript.server.lua` — robust nametag, attaches BillboardGui to `HumanoidRootPart` with `AncestryChanged` watchdog (Avalog-safe). Built in Studio 2026-04-27, in repo via Rojo. **Renders two labels: `NameLabel` (player's display name, top 60%) and `LevelLabel` (`"level N"` from leaderstats `Level`, bottom 40%).** Hooks `leaderstats.Level.Changed` to update the level row live. See [[NameTag_Status]].
+- `NameTagScript.server.lua` — robust nametag, attaches BillboardGui to `HumanoidRootPart` with `AncestryChanged` watchdog (Avalog-safe). Built in Studio 2026-04-27, in repo via Rojo, name-only after PR #9 (2026-04-27 23:20 UTC). **Renders one label: `NameLabel` filling the full BillboardGui (`Size UDim2.new(0, 200, 0, 30)`) — the player's `DisplayName`, no level row, no leaderstats hook.** See [[NameTag_Status]].
 - `NoteSystemServer.server.lua` — server authority for the writable-notes feature. Saved player data — no-touch.
 - `FavoritePromptPersistence.server.lua` — Avalog-tied favorite-prompt persistence. No-touch.
 - `ReportHandler.server.lua` — top-level moderation report handler. No-touch.
@@ -92,9 +92,9 @@ Studio-only:
 
 The single source of truth for level/XP. Server: `ServerScriptService.Progression.{Driver, ProgressionService, Sources.PresenceTick}`. Shared: `ReplicatedStorage.Progression.{LevelCurve, SourceConfig, XPUpdated, LevelUp}`. Client: `StarterGui.XPBar.XPBarController`. DataStore: `ProgressionData` (combined key). See [[XP_Progression]] for the full spec; see [[../06_Codex_Plans/2026-04-25_XP_Progression_MVP_v1]] for the build brief.
 
-### Nametags (name + level)
+### Nametags (name-only)
 
-Single server script `NameTagScript.server.lua` builds a BillboardGui with two TextLabels: a name row (display name) and a level row (`"level N"` pulled from leaderstats `Level`, updates live via `:GetPropertyChangedSignal("Value")`). Plus `AfkEvent` + `AfkDetector` for AFK state, consumed by the XP Driver. See [[NameTag_Status]] for what's intentionally absent post-cleanup (titles, distance fade, dialogue-hide, per-player toggle). **Note:** the level row renders the same level the XPBar displays — this is a duplicated surface flagged for Tyler's review (see inbox 2026-04-27 session 4).
+Single server script `NameTagScript.server.lua` builds a BillboardGui with one TextLabel — the player's display name, filling the full BillboardGui (`Size UDim2.new(0, 200, 0, 30)`). No level row, no title row, no leaderstats hook. Plus `AfkEvent` + `AfkDetector` for AFK state, consumed by the XP Driver. See [[NameTag_Status]] for what's intentionally absent post-cleanup (titles, distance fade, dialogue-hide, per-player toggle). The level row was stripped by PR #9 (2026-04-27 23:20 UTC) because the XPBar already carries level visibility — doubling it overhead was louder than the tone allows.
 
 ### Notes / Writable Notes
 

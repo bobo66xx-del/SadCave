@@ -26,6 +26,41 @@
 
 ## Active bugs
 
+### XPBar invisible to player despite GUI hierarchy reporting it as rendered
+
+- Status: open
+- Priority: medium
+- Client or server: client
+- Where it happens: testing place, every Studio playtest (reported 2026-04-27 Cowork session 5 walkthrough)
+- Exact object/script path: `Players.<player>.PlayerGui.XPBar` (`StarterGui.XPBar` in repo: `src/StarterGui/XPBar/`)
+- Repro steps:
+  1. Start a Studio playtest in `Testing cave`.
+  2. Spawn into the world, observe the screen.
+  3. Look for the XPBar at the bottom of the screen.
+- Expected result: a thin warm-tinted bar visible at the bottom of the screen, partially filled to indicate progress within the current level.
+- Actual result: Tyler reports "the xp bar vanished a long while back" — he can't see it in Play.
+- Roblox output / error message: none captured. Console output is quiet.
+- Suspected cause: probe via `execute_luau` shows `XPBar` ScreenGui is `Enabled=true`, `Background` Frame is at the bottom-screen anchor with `Size=(1,0,0,4)` and `Visible=true`, `Fill` Frame is at scale-X 0.786 (78.6% filled) with `Visible=true`, `LevelLabel` and `HoverDetector` are also present. So the bar is technically rendering. Two leading hypotheses: (a) the bar is so subtle (`Background.BackgroundTransparency=0.85`, `Fill.BackgroundTransparency=0.6`, only 4 pixels tall) that Tyler stopped seeing it; (b) another ScreenGui covers it — `Menu` ScreenGui is also enabled with 5 children, plausible candidate for overlay; or (c) a runtime path is hiding/destroying parts of the bar that the probe didn't catch (e.g. a tween path failing during one of the `XPUpdated` payloads).
+- Notes: needs a screenshot during Play to ground-truth what Tyler is actually seeing, and a comparison to what the GUI hierarchy reports. Probe-vs-render mismatch is the puzzle.
+
+### XP system grants AFK rate (3) while player is physically seated at a SeatMarker
+
+- Status: open (design question + possible bug)
+- Priority: medium
+- Client or server: cross-cutting (client AfkDetector + server ProgressionService/PresenceTick)
+- Where it happens: testing place, observed 2026-04-27 Cowork session 5 walkthrough
+- Exact object/script path: client `StarterPlayer.StarterPlayerScripts.AfkDetector` (`src/StarterPlayer/StarterPlayerScripts/AfkDetector.client.lua`); server `ServerScriptService.Progression.Driver` + `ProgressionService` + `Sources.PresenceTick`
+- Repro steps:
+  1. Start a Studio playtest in `Testing cave`.
+  2. Walk to `Workspace.SeatMarkers.Seat` and sit (`Humanoid.Sit=true`).
+  3. Tab away from Studio (e.g. into another window like a chat or browser) for the full 60-second tick interval.
+  4. Watch the leaderstats `XP` value for the next tick.
+- Expected result: after `SITTING_THRESHOLD_SECONDS=30` of seated time, ticks should grant `PRESENCE_SITTING_XP=20` per 60-second interval (×1.5 = 30 if gamepass owned).
+- Actual result: tick grants `PRESENCE_AFK_XP=3` instead. Captured live: `delta=+3, level=557, total=230,727 → 230,730` while `Humanoid.Sit=true` and `SeatPart=Workspace.SeatMarkers.Seat`.
+- Roblox output / error message: none — system has no per-tick logging.
+- Suspected cause: `PresenceTick.GetTickAmount` checks `state.isAFK` first and returns AFK rate without considering `state.seatedAt`. The client `AfkDetector` fires `AfkEvent:FireServer(true)` on `WindowFocusReleased` and `false` on `WindowFocused`; if Studio loses focus (e.g. Tyler in Cowork chat) the server sets `state.isAFK=true` and stays there until `WindowFocused` fires. While AFK, sitting is ignored.
+- Notes: open design question for Tyler — should "seated at a SeatMarker" override window-focus AFK? In Sad Cave's tone (presence-rewarding, quiet exploration), a player physically seated who briefly switches windows is arguably not "AFK" in the meaningful sense. Resolution path: either (a) make `PresenceTick.GetTickAmount` prefer `seatedAt` over `isAFK` when both are set; (b) tighten AFK detection (require focus-loss + idle for some duration); (c) leave as-is and accept that focus-loss demotes you. Captured for design call rather than auto-fixed.
+
 ### FavoritePromptPersistence runtime error on `SourceCode` line 4
 
 - Status: open

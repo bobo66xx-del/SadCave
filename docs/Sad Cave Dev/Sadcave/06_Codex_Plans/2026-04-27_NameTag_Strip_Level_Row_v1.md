@@ -1,7 +1,7 @@
 # NameTag — Strip Level Row — Codex Plan
 
 **Date:** 2026-04-27
-**Status:** 🔵 Queued
+**Status:** 🟢 Shipped — PR #9 (merged 2026-04-27 23:20 UTC, branch `codex/nametag-strip-level-row`)
 *(legend: 🔵 Queued — written, awaiting Codex · 🟡 Building — Codex on branch · 🟢 Shipped — merged, include PR # and date · ⏸ Waiting — written but deliberately on hold · ⚫ Superseded — replaced or invalidated)*
 **Branch:** `codex/nametag-strip-level-row`
 **Related Systems:** [[../02_Systems/NameTag_Status]], [[../02_Systems/XP_Progression]]
