@@ -21,7 +21,9 @@ Titles are the **cosmetic identity layer** of Sad Cave. They appear under the pl
 - Some titles have subtle visual flair (a slow color shift, a gentle glow) — never flashy
 - You choose which title to wear from a menu. Your collection grows as you play.
 - Seeing someone with a rare title should feel like noticing something — not like seeing a leaderboard flex
-- When you unlock a new title: brief text fades above the XP bar — `new title: still here` — holds 2s, then gone
+- When you unlock a new title: brief text fades above the XP bar — `new title: still here` — holds 5s, then gone
+- When a level-up coincides with a title unlock at the same milestone (e.g. reaching level 10 unlocks `still here`), the two messages merge into a single combined fade reading `level 10 — new title: still here`. Same 5s hold. One moment for the milestone, not two stacked notifications.
+- The XPBar's hover-show behavior (level/XP reveal on hover via `HoverDetector`) stays at the current 2s — only the level-up + title-unlock fade duration moves to 5s
 
 ---
 
@@ -132,7 +134,7 @@ Unlock by purchasing the cosmetic title gamepass. Cosmetic only — never gates 
 | 10 return visits | `keeps_coming_back` | keeps coming back | tint | warm amber `(225, 210, 180)` |
 | 50 return visits | `part_of_the_walls` | part of the walls | shimmer | deep stone `(195, 190, 185)` |
 | Played at 3am local time | `up_too_late` | up too late | shimmer | pale midnight `(180, 185, 210)` |
-| AFK for 30+ minutes | `fell_asleep_here` | fell asleep here | tint | sleep blue `(190, 200, 215)` |
+| AFK for 19 continuous minutes | `fell_asleep_here` | fell asleep here | tint | sleep blue `(190, 200, 215)` |
 | Joined the group | `one_of_us` | one of us | tint | warm belonging `(220, 210, 195)` |
 | Played during first week of v2 launch | `day_one` | day one | pulse | ember `(215, 185, 155)` |
 
@@ -271,7 +273,7 @@ Combined key for all title-related persistence:
   - `keeps_coming_back` → `ProgressionData.revisits >= 10`
   - `part_of_the_walls` → `ProgressionData.revisits >= 50`
   - `up_too_late` → client sends UTC offset on join, server checks if player's local time is 3am–5am
-  - `fell_asleep_here` → AFK duration tracked by existing AFK system (30+ continuous minutes)
+  - `fell_asleep_here` → AFK duration ≥ 19 continuous minutes (sits just inside Roblox's 20-min idle auto-disconnect, so the title is reachable). Implementation note: the existing `AfkDetector` is focus-based (window focus loss); for "fell asleep at the keyboard" semantics, AchievementTracker likely wants idle detection (`Player.Idled` event or input-timestamp tracking) rather than the focus-based `AfkDetector`. Decide at AchievementTracker brief time.
   - `one_of_us` → `GroupService:GetGroupsAsync` check on join (group `8106647`)
   - `knows_every_chair` → count of unique `SeatMarker` seats sat in (tracked in memory per session, checked against threshold of 5)
   - `heard_them_all` → count of unique NPCs conversed with (checked against total NPC count)
@@ -287,6 +289,8 @@ Combined key for all title-related persistence:
 - **Locked tab:** shows all titles the player hasn't earned yet, each with a short hint of how to unlock ("reach level 50", "discover the deep cave", "play for 24 hours", "complete your first conversation")
 - **Newly unlocked:** subtle highlight on titles earned this session
 - **Style:** same dark/clean/premium aesthetic, lowercase display names, tintColor shown as a small color dot or subtle border accent per title
+
+**Build approach (decided 2026-04-28):** the MVP slice ships a *placeholder* TitleMenu — functional but visually minimal — so the earn → equip → display data pipeline can be tested end-to-end without UI polish on the critical path. The polished v2 TitleMenu is a separate brief and a separate focused design session Tyler runs later, once real titles are flowing through real data. Placeholder gets logged in `_Cleanup_Backlog.md` when built so it doesn't quietly become permanent. The two-tab `owned` | `locked` simplification, lowercase display, and tintColor-as-subtle-accent principles are the design constraints the polished pass should respect.
 
 ### NameTag Integration
 
@@ -373,23 +377,38 @@ Title System v2 **depends on** XP_Progression being built first (or simultaneous
 - Achievement titles share hooks with XP sources (conversation, sitting, discovery)
 - Discovery titles need `ProgressionData.discoveredZones`
 
-**Combined build order (MVP first):**
+**Build order (post-XP-MVP, as of 2026-04-28):**
 
-**MVP (first Codex brief):**
-1. ProgressionService core + LevelCurve + SourceConfig + migration + save/load
-2. PresenceTick source (three-state: sitting/active/AFK)
-3. XP Bar UI (with level-up and title unlock notification support)
+XP Progression MVP shipped in PR #1 (2026-04-27) and was tuned in PR #10 + PR #11 (2026-04-28). All XP infrastructure (`ProgressionService`, `LevelCurve`, `SourceConfig`, `PresenceTick`, XPBar) is live; level/XP/leaderstats work end-to-end with sitting boost, gamepass multiplier, and AFK rate. Title v2 builds onto that. Build order below assumes XP is shipped — the original spec's MVP steps 1–3 are no longer relevant to plan against.
 
-**Follow-up briefs:**
-4. Discovery source
-5. Conversation source
-6. AchievementTracker
-7. TitleConfig v2 + TitleService v2 (level titles only at first, then add other categories)
-8. TitleMenu v2 (owned/locked tabs)
-9. NameTag update (v2 TitleConfig format + per-title tintColor)
-10. Migrate + retire v1
+**Title v2 MVP-1 (first Codex brief — data + display, no manual equip):**
 
-Each step is independently shippable. MVP replaces the old level system. Follow-ups layer on the new title system piece by piece.
+1. `TitleConfig v2` — data module with all 60 title definitions baked in (every category's metadata in the file). Active categories on first ship: **level + gamepass only**. Other categories defined but not yet checked.
+2. `TitleService v2` — server ownership resolution (level + gamepass), auto-equip the player's highest-tier earned title on join, write `TitleData.equippedTitle` to DataStore. No manual equip/unequip yet.
+3. `TitleRemotes/` — `TitleDataUpdated` RemoteEvent only.
+4. NameTag v2 — BillboardGui height bump 30 → ~50, add lowercase title `TextLabel` row beneath the name, render with `tintColor` + effect (effect logic re-pointed at v2 `TitleConfig` shape).
+5. XPBar update — combined-fade format (`level N — new title: X`), 5s hold for unlock notifications, retime existing level-up animation hold to 5s for consistency, wire up `TitleDataUpdated` listener (the TODO at line 220 of `XPBarController.client.lua` is the integration point).
+
+What MVP-1 ships visibly: a player joining the testing place sees a lowercase title under their name (auto-equipped to their highest-earned level title). When they level up to a milestone (e.g. level 10 → `still here`), the combined fade reads `level 10 — new title: still here` for 5 seconds above the XPBar.
+
+**Title v2 MVP-2 (second Codex brief — placeholder menu + manual equip + migration):**
+
+6. `TitleService` extension — equip/unequip handlers; `EquipTitle` / `UnequipTitle` RemoteEvents in `TitleRemotes/`.
+7. Placeholder TitleMenu — `ScrollingFrame` with two `TextButton` tabs (owned / locked), `TextLabel` rows for each title, small color dot for `tintColor`, dark background. Functional, ugly-but-not-embarrassing. Logged in `_Cleanup_Backlog.md` as swap target for the polished menu later.
+8. Migration — read `EquippedTitleV1` once per player on join, map via the migration table below, write to `TitleData.equippedTitle`. Testing-place-irrelevant (no v1 data exists there post-cleanup) but lands in MVP-2 alongside the manual-equip surface so production cutover is one config flip away.
+
+What MVP-2 ships visibly: players can open the (placeholder) menu, see what they own and what's locked, and manually equip any owned title. Manual choice replaces auto-equip-highest from MVP-1.
+
+**Follow-up briefs (post-MVP-2, recommended order):**
+
+9. **Polished TitleMenu** — Tyler-led design session, drops in over the placeholder. No new game logic, just UI.
+10. **AchievementTracker + achievement category** — ~12 titles. Hooks into dialogue completion, sit detection, note submission, return-visit counter, group join, idle detection. Resolves the `fell_asleep_here` focus-vs-idle implementation question.
+11. **Presence category** — ~8 titles. Needs `ProgressionData.totalTimePlayed` reliably tracked (verify in current `ProgressionService` before brief; small augment first if missing).
+12. **Exploration category + Discovery source** — couples with `Area_Discovery` system (currently 🔵 Planned) and depends on `Workspace.InsideZones` existing in Studio (verify before brief). May land jointly with `Area_Discovery`.
+13. **Seasonal infrastructure + day-one launch date** — server-time window check + launch date locked in. Gates `day_one`, `hollow_night`, `cold_quiet`, `been_a_year`, `soft_spot`.
+14. **v1 retirement** — once v2 has been stable for some time, drop the `EquippedTitleV1` DataStore reads from migration code. Low priority.
+
+Each brief is independently shippable. Each ships either a complete UI moment (MVP-1, MVP-2, polished menu) or activates a new title category (achievements, presence, exploration, seasonal).
 
 ---
 
@@ -406,7 +425,7 @@ Each step is independently shippable. MVP replaces the old level system. Follow-
 
 ## Open Questions (resolved)
 
-- ~~Title unlock notification~~ → Brief text fade above XP bar: `new title: still here`, holds 2s, same style as level-up text.
+- ~~Title unlock notification~~ → Brief text fade above XP bar: `new title: still here`, holds **5s** (bumped from 2s during 2026-04-28 walkthrough — 2s was too short to land). Same style as level-up text. **Collision with level-up at the same milestone:** merges into a single combined fade `level N — new title: X`, also 5s. Hover-show on XPBar stays 2s; only the unlock notification moves to 5s.
 - ~~Time-of-day achievements (up_too_late)~~ → Client sends UTC offset on join, server computes local time. 3am–5am local time window.
 - ~~How many gamepass IDs?~~ → One gamepass (`1797105034`), unlocks all six gamepass titles.
 - ~~Filter tabs in TitleMenu~~ → `owned` + `locked` only for v2 launch. Category filters can come later.

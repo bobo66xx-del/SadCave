@@ -7,10 +7,11 @@
 
 ## 🎯 Current Priority
 
-**Title v2 design is next — Tyler kicks off the thread when ready.** Eleven PRs shipped 2026-04-27 → 2026-04-28 (XP MVP, two repo-strip passes, housekeeping export, DialogueDirector restore, audit refresh, session-2 vault wrap-up, PromptFavorite bugs cleanup, NameTag level-row strip, XP testing-place bug sweep, XP follow-up fixes). XP testing-place walkthrough is substantially complete — gamepass +22 verified, sitting boost verified, level-up animation reads, both desktop and mobile XPBar visible. Vault is in sync with main.
+**Title v2 MVP-1 brief queued — awaiting Codex.** Cowork session 7 (2026-04-28) walked the full v2 spec with Tyler, locked in design decisions (title-on-nametag confirmed, combined fade `level N — new title: X` at 5s hold, `fell_asleep_here` AFK threshold dropped 30→19 min for Roblox's auto-disconnect, MVP brief split into MVP-1 / MVP-2, polished TitleMenu deferred to a separate Tyler-led design session), and drafted the MVP-1 build brief at `06_Codex_Plans/2026-04-28_Title_v2_MVP1_v1.md`. Vault is in sync with main; eleven PRs shipped 2026-04-27 → 2026-04-28 (XP MVP, two repo-strip passes, housekeeping export, DialogueDirector restore, audit refresh, session-2 vault wrap-up, PromptFavorite bugs cleanup, NameTag level-row strip, XP testing-place bug sweep, XP follow-up fixes).
 
 Active focus:
-- [ ] **Title v2** — full v2 spec exists in `02_Systems/Title_System`, ready for build planning when Tyler kicks off the thread (decided 2026-04-27, see `_Decisions.md`). Don't auto-design — wait for Tyler. **Next up.**
+- [ ] **Title v2 MVP-1** — brief queued in `06_Codex_Plans/2026-04-28_Title_v2_MVP1_v1.md`, ready for Tyler to hand to Codex. Covers `TitleConfig v2`, `TitleService v2` (level + gamepass with auto-equip-highest), `TitleRemotes.TitleDataUpdated`, NameTag v2 (BillboardGui height 30→~50 + lowercase title row + tintColor + effect rendering via new client-side `NameTagEffectController`), XPBar update (combined fade format + 5s hold for unlock notifications, hover stays at 2s).
+- [ ] **Title v2 MVP-2** — second brief to write after MVP-1 ships. Adds equip/unequip handlers + remotes, placeholder TitleMenu, production-cutover migration code from `EquippedTitleV1`. Polished TitleMenu remains a separate later brief (Tyler-led design session, drops in over the placeholder).
 - [ ] Remaining XP testing-place checks deferred (low priority): second-join migration variants 1+2 (need alt account or DataStore manipulation; variant 3 implicitly verified by Tyler's normal rejoins) and DataStore failure simulation (steps walked through with Tyler in plain English in case he wants to run them). Bar polish + level-up animation refinement parked in `08_Ideas_Parking_Lot/_Parking_Lot.md`.
 - [ ] When Tyler greenlights the secret-handling approach, execute the DiscordLogs refactor (currently ⏸ Waiting — see [[06_Codex_Plans/2026-04-27_DiscordLogs_Secret_Refactor_v1]]).
 - [ ] Watch `FavoritePromptPersistence` line-4 SourceCode error across future playtests — did NOT reproduce in PR #8's run; if it stays gone for several sessions, move it from `_Known_Bugs.md` Active to Resolved with a "did not reproduce after PR #8" note. Investigation still blocked by no-touch + Avalog deferral.
@@ -91,6 +92,7 @@ Recently completed (all 2026-04-27):
 - [[06_Codex_Plans/2026-04-27_NameTag_Strip_Level_Row_v1]] — 🟢 Shipped (PR #9, merged 2026-04-27 23:20 UTC).
 - [[06_Codex_Plans/2026-04-27_XP_Testing_Place_Bug_Sweep_v1]] — 🟢 Shipped (PR #10, merged 2026-04-28 01:25 UTC).
 - [[06_Codex_Plans/2026-04-28_XP_Followup_Fixes_v1]] — 🟢 Shipped (PR #11, merged 2026-04-28 03:12 UTC).
+- [[06_Codex_Plans/2026-04-28_Title_v2_MVP1_v1]] — 🔵 Queued (data + display layer of Title v2; level + gamepass categories, auto-equip-highest, no manual equip yet; placeholder menu + manual equip + migration follow in MVP-2).
 - [[07_Sessions/_Session_Template]]
 - [[08_Ideas_Parking_Lot/_Parking_Lot]]
 - [[09_Open_Questions/_Open_Questions]] — unresolved design decisions
