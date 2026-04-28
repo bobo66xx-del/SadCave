@@ -11,22 +11,34 @@ local RETRY_DELAY_SECONDS = 1
 
 local titleStore = DataStoreService:GetDataStore(TITLE_DATASTORE_NAME)
 
-local titleRemotes = ReplicatedStorage:FindFirstChild("TitleRemotes")
-if not titleRemotes then
-	titleRemotes = Instance.new("Folder")
-	titleRemotes.Name = "TitleRemotes"
-	titleRemotes.Parent = ReplicatedStorage
-end
-
-local TitleDataUpdated = titleRemotes:FindFirstChild("TitleDataUpdated")
-if not TitleDataUpdated then
-	TitleDataUpdated = Instance.new("RemoteEvent")
-	TitleDataUpdated.Name = "TitleDataUpdated"
-	TitleDataUpdated.Parent = titleRemotes
-end
-
 local playerStates = {}
 local levelConnections = {}
+local titleDataUpdated = nil
+local started = false
+
+local TitleService = {}
+
+local function getTitleDataUpdated()
+	if titleDataUpdated then
+		return titleDataUpdated
+	end
+
+	local titleRemotes = ReplicatedStorage:FindFirstChild("TitleRemotes")
+	if not titleRemotes then
+		titleRemotes = Instance.new("Folder")
+		titleRemotes.Name = "TitleRemotes"
+		titleRemotes.Parent = ReplicatedStorage
+	end
+
+	titleDataUpdated = titleRemotes:FindFirstChild("TitleDataUpdated")
+	if not titleDataUpdated then
+		titleDataUpdated = Instance.new("RemoteEvent")
+		titleDataUpdated.Name = "TitleDataUpdated"
+		titleDataUpdated.Parent = titleRemotes
+	end
+
+	return titleDataUpdated
+end
 
 local function getStoreKey(player)
 	return tostring(player.UserId)
@@ -250,7 +262,7 @@ local function applyEquip(player, titleId, newlyUnlocked)
 	state.equippedTitle = title.id
 
 	local payload = TitleConfig.BuildPayload(title.id, newlyUnlocked)
-	TitleDataUpdated:FireClient(player, payload)
+	getTitleDataUpdated():FireClient(player, payload)
 	updateNameTag(player, payload)
 	saveTitleData(player)
 
@@ -296,6 +308,7 @@ local function onPlayerAdded(player)
 	refreshAutoEquip(player, false)
 
 	player.CharacterAdded:Connect(function()
+		attachLevelWatcher(player)
 		task.defer(function()
 			updateNameTag(player, getPlayerTitlePayload(player))
 		end)
@@ -314,7 +327,7 @@ local function onPlayerRemoving(player)
 	playerStates[player.UserId] = nil
 end
 
-MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(player, gamepassId, wasPurchased)
+local function onGamepassPurchaseFinished(player, gamepassId, wasPurchased)
 	if gamepassId ~= TitleConfig.TITLE_PACK_GAMEPASS_ID or not wasPurchased then
 		return
 	end
@@ -322,18 +335,31 @@ MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(player, gamep
 	local state = ensureState(player)
 	state.gamepassOwned = true
 	refreshAutoEquip(player, true)
-end)
-
-_G.SadCaveTitleService = {
-	GetPlayerTitlePayload = getPlayerTitlePayload,
-	ApplyTitlePayloadToBillboard = applyTitlePayloadToBillboard,
-}
-
-Players.PlayerAdded:Connect(onPlayerAdded)
-Players.PlayerRemoving:Connect(onPlayerRemoving)
-
-for _, player in ipairs(Players:GetPlayers()) do
-	task.spawn(onPlayerAdded, player)
 end
 
-print("[TitleService] script ready")
+function TitleService.Start()
+	if started then
+		return
+	end
+
+	started = true
+	getTitleDataUpdated()
+
+	Players.PlayerAdded:Connect(onPlayerAdded)
+	Players.PlayerRemoving:Connect(onPlayerRemoving)
+	MarketplaceService.PromptGamePassPurchaseFinished:Connect(onGamepassPurchaseFinished)
+
+	for _, player in ipairs(Players:GetPlayers()) do
+		task.spawn(onPlayerAdded, player)
+	end
+end
+
+function TitleService.GetPlayerTitlePayload(player)
+	return getPlayerTitlePayload(player)
+end
+
+function TitleService.ApplyTitlePayloadToBillboard(billboard, payload)
+	applyTitlePayloadToBillboard(billboard, payload)
+end
+
+return TitleService

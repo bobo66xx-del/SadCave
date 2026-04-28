@@ -1,36 +1,15 @@
 -- Robust nametag: attaches to HumanoidRootPart (Avalog-safe) and re-applies if destroyed.
 local Players = game:GetService("Players")
+local ServerScriptService = game:GetService("ServerScriptService")
 
-local DEFAULT_TITLE_PAYLOAD = {
-	equippedDisplay = "",
-	equippedEffect = "none",
-	equippedTintColor = Color3.fromRGB(225, 215, 200),
-}
+local TitleService = require(ServerScriptService:WaitForChild("TitleService"))
 
 local function getTitlePayload(player)
-	local titleService = _G.SadCaveTitleService
-	if titleService and typeof(titleService.GetPlayerTitlePayload) == "function" then
-		return titleService.GetPlayerTitlePayload(player)
-	end
-
-	return DEFAULT_TITLE_PAYLOAD
+	return TitleService.GetPlayerTitlePayload(player)
 end
 
 local function applyTitlePayload(bb, payload)
-	local titleService = _G.SadCaveTitleService
-	if titleService and typeof(titleService.ApplyTitlePayloadToBillboard) == "function" then
-		titleService.ApplyTitlePayloadToBillboard(bb, payload)
-		return
-	end
-
-	bb:SetAttribute("TitleEffect", payload.equippedEffect or "none")
-	bb:SetAttribute("TitleTintColor", payload.equippedTintColor or Color3.fromRGB(225, 215, 200))
-	bb:SetAttribute("TitleDisplay", payload.equippedDisplay or "")
-
-	local titleLabel = bb:FindFirstChild("TitleLabel")
-	if titleLabel and titleLabel:IsA("TextLabel") then
-		titleLabel.Text = payload.equippedDisplay or ""
-	end
+	TitleService.ApplyTitlePayloadToBillboard(bb, payload)
 end
 
 local function ensureBillboardLayout(bb, displayName)
