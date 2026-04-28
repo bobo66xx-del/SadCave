@@ -92,7 +92,8 @@ Recently completed (all 2026-04-27):
 - [[06_Codex_Plans/2026-04-27_NameTag_Strip_Level_Row_v1]] — 🟢 Shipped (PR #9, merged 2026-04-27 23:20 UTC).
 - [[06_Codex_Plans/2026-04-27_XP_Testing_Place_Bug_Sweep_v1]] — 🟢 Shipped (PR #10, merged 2026-04-28 01:25 UTC).
 - [[06_Codex_Plans/2026-04-28_XP_Followup_Fixes_v1]] — 🟢 Shipped (PR #11, merged 2026-04-28 03:12 UTC).
-- [[06_Codex_Plans/2026-04-28_Title_v2_MVP1_v1]] — 🔵 Queued (data + display layer of Title v2; level + gamepass categories, auto-equip-highest, no manual equip yet; placeholder menu + manual equip + migration follow in MVP-2).
+- [[06_Codex_Plans/2026-04-28_Title_v2_MVP1_v1]] — 🟢 Shipped (PR #12, merged 2026-04-28 06:10 UTC).
+- [[06_Codex_Plans/2026-04-28_Title_v2_MVP1_Followup_v1]] — 🔵 Queued (post-merge cleanups from Claude review of PR #12: convert TitleService to ModuleScript pattern; re-attach leaderstats Level watcher on CharacterAdded for respawn resilience).
 - [[07_Sessions/_Session_Template]]
 - [[08_Ideas_Parking_Lot/_Parking_Lot]]
 - [[09_Open_Questions/_Open_Questions]] — unresolved design decisions
