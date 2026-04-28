@@ -83,6 +83,27 @@ local function hookPlayer(player)
 	ProgressionService.SendSnapshot(player)
 end
 
+local function tickPlayer(player)
+	local state = ProgressionService.GetState(player)
+	local amount = nil
+	local sourceName = nil
+
+	if state then
+		amount, sourceName = PresenceTick.GetTickAmount(player, state, SourceConfig)
+	end
+
+	local ok = ProgressionService.Tick(player, PresenceTick)
+	if ok and amount and sourceName then
+		print(string.format(
+			"[Progression] tick: source=%s amount=%d player=%s(%d)",
+			sourceName,
+			amount,
+			player.Name,
+			player.UserId
+		))
+	end
+end
+
 local afkEvent = ReplicatedStorage:WaitForChild("AfkEvent", 10)
 if afkEvent and afkEvent:IsA("RemoteEvent") then
 	afkEvent.OnServerEvent:Connect(function(player, isAFK)
@@ -111,7 +132,7 @@ if SourceConfig.ENABLED then
 
 			for _, player in ipairs(Players:GetPlayers()) do
 				task.spawn(function()
-					ProgressionService.Tick(player, PresenceTick)
+					tickPlayer(player)
 				end)
 			end
 		end

@@ -9,6 +9,45 @@
 
 ---
 
+## 0. Decisions made (read this before resuming)
+
+Codex paused mid-flow at two `?` flags after Phase 1 and Phase 2 of the brief; Tyler delegated both calls to Claude. Both are now answered. Codex can proceed straight through the remaining work without further design checkpoints — implement what's specified here. See `_Decisions.md` (2026-04-27 entries) for the full reasoning if needed.
+
+**Decision A — AFK-vs-sitting: pick Branch A (seated SeatMarker overrides AFK).**
+
+- Edit `src/ServerScriptService/Progression/Sources/PresenceTick.lua`.
+- In `PresenceTick.GetTickAmount`, **check `state.seatedAt` first** (with elapsed ≥ `sourceConfig.SITTING_THRESHOLD_SECONDS`) and return `PRESENCE_SITTING_XP, "sitting"` when seated. Only fall through to `state.isAFK` → `PRESENCE_AFK_XP, "afk"` when not seated. Active rate stays the final fallback.
+- The 30-second sitting threshold is preserved — instant-boost on sit-down is NOT desired.
+- Net behavior change: a player physically seated at a SeatMarker keeps earning sitting rate even when their Roblox window doesn't have focus. A player NOT seated falls through to AFK rate as before when window focus is lost.
+- Suggested function body shape (verify against the actual file before you write):
+  ```lua
+  function PresenceTick.GetTickAmount(_player, state, sourceConfig)
+      if state.seatedAt then
+          local elapsed = os.time() - state.seatedAt
+          if elapsed >= sourceConfig.SITTING_THRESHOLD_SECONDS then
+              return sourceConfig.PRESENCE_SITTING_XP, "sitting"
+          end
+      end
+
+      if state.isAFK then
+          return sourceConfig.PRESENCE_AFK_XP, "afk"
+      end
+
+      return sourceConfig.PRESENCE_ACTIVE_XP, "active"
+  end
+  ```
+
+**Decision B — XPBar visibility: bump desktop `barHeight` from 4 to 6.**
+
+- Edit `src/StarterGui/XPBar/XPBarController.client.lua`.
+- Change `local barHeight = if isMobile then 6 else 4` to `local barHeight = if isMobile then 6 else 6` (or just `local barHeight = 6` — equivalent, slightly cleaner).
+- Do NOT change `Background.BackgroundTransparency` (stays 0.85), `Fill.BackgroundTransparency` (stays 0.6), `bumpHeight` (stays 8 desktop / 10 mobile), the warm-tint Fill color, or anything else in the controller. The decision is height only — single-axis bump.
+- Net behavior change: the resting bar is 6px tall at the bottom of the screen instead of 4px. Level-up animation still bumps to 8px desktop. The fill color, transparency, and tween behavior all unchanged.
+
+These two changes plus the per-tick debug log Codex already added in `Driver.server.lua` (line 86 area) complete the brief. Nothing else needs to ship in this PR.
+
+---
+
 ## 1. Purpose
 
 Three findings from the 2026-04-27 testing-place walkthrough need investigation and fixes before the rest of the XP testing-place checks (level-up animation, gamepass +22 tick, mobile bar height, second-join migration variants, DataStore failure simulation) can be exercised meaningfully:
@@ -62,25 +101,26 @@ Branch from clean main: `git checkout main && git pull && git checkout -b codex/
 2. Read [[../02_Systems/XP_Progression]] for the spec — what was supposed to ship.
 3. Read the two `_Known_Bugs.md` entries this brief addresses for the symptom evidence.
 
-### Phase 1 — Investigate XPBar invisibility (prong 1)
+### Phase 1 — XPBar visibility (prong 1)
 
-1. Start a Studio playtest in `Testing cave`. Spawn into the world.
-2. Take a screenshot of the bottom of the screen via Studio MCP `screen_capture` (note: per the tool description it's edit-time only — capture from edit mode after stopping Play if needed; or use OS screenshot if you have access).
-3. Probe `Players.LocalPlayer.PlayerGui.XPBar` and its descendants via `inspect_instance` / `execute_luau`. Cross-check against what the screenshot actually shows.
-4. If the bar is rendering but not where Tyler expects, identify why (off-screen position, covered by another GUI, transparent style too subtle, etc.).
-5. Capture finding in inbox with `[C]` line and a `?` if the fix isn't obvious.
-6. **Stop and flag** if the fix is anything beyond a small bugfix — visual style changes need a Tyler call first. Examples that need flagging: bumping `Background.BackgroundTransparency` below 0.85, increasing `barHeight`, recoloring the bar.
-7. If the fix is purely "the bar is being covered by `Menu` ScreenGui because Menu has wrong z-index / wrong size / a fullscreen child," fix it on the Menu side and note in inbox.
-8. If the fix is "the controller errored mid-run leaving the bar in a degenerate state," fix the error in `XPBarController.client.lua` and note in inbox.
+**Already done by Codex in the first pass:** playtest probe confirmed `PlayerGui.XPBar` is `Enabled=true`, `Background` is `2439×4` at the bottom edge, `Fill` at scale-X 0.829 with `Visible=true`. Screenshot showed a "very thin warm strip at the bottom"; no controller bug. Tyler's "vanished" perception is purely the visual being too subtle.
 
-### Phase 2 — Confirm AFK-overrides-sitting diagnosis (prong 2)
+**What to do now:**
+1. Apply Decision B from Section 0 — change `local barHeight = if isMobile then 6 else 4` to `local barHeight = 6` (or `if isMobile then 6 else 6`) in `src/StarterGui/XPBar/XPBarController.client.lua`. Single-axis change. No other property edits.
+2. Playtest after the change: confirm the bar reads as a perceptible 6px strip rather than 4px. Capture in inbox.
+3. Confirm the level-up animation still bumps cleanly (`bumpHeight=8` desktop is unchanged, so the bump:resting ratio goes from 2x to 1.33x — verify it still reads as a level-up beat, not a no-op). If the bump feels too small post-change, flag in inbox with `?` — but do NOT change `bumpHeight` without a separate Tyler call.
 
-1. In a fresh Play, sit on `Workspace.SeatMarkers.Seat` for 35 seconds (clears the 30s threshold). Confirm via `execute_luau` that `Humanoid.Sit=true` and `SeatPart=Workspace.SeatMarkers.Seat`.
-2. Tab away from the Roblox window for the next 60-second tick. Capture the XP delta in inbox.
-3. Confirm via probe that the server saw `state.isAFK=true` (this needs server-side `print` from prong 3 OR a temporary `warn()` you remove before pushing — note in inbox if you add a temporary probe).
-4. Verify `PresenceTick.GetTickAmount` reads the way the diagnosis says — check `state.isAFK` first, return AFK rate, never reach the seated branch.
-5. **Stop. Do not implement a fix yet.** Add an `[C] ?` inbox line summarizing the confirmed diagnosis and asking Tyler to pick Branch A / B / C. Wait for the design call.
-6. Once Tyler picks, implement the corresponding branch (see section 4 for which file). For Branch A, the change is roughly: in `PresenceTick.GetTickAmount`, check `state.seatedAt` first (with elapsed ≥ threshold), and only fall through to AFK if not seated. Make sure both states still read correctly in tests.
+### Phase 2 — AFK-vs-sitting fix (prong 2)
+
+**Already done by Codex in the first pass:** diagnosis confirmed live — seated player on `Workspace.SeatMarkers.Seat` with `state.isAFK=true` produced `[Progression] tick: source=afk amount=3`; XP went `230839 → 230842`. No further verification needed.
+
+**What to do now:**
+1. Apply Decision A from Section 0 — reorder `PresenceTick.GetTickAmount` in `src/ServerScriptService/Progression/Sources/PresenceTick.lua` so seated state is checked first. See Section 0 for the exact function shape.
+2. Playtest:
+   - Sit at `Workspace.SeatMarkers.Seat` for 35 seconds, force the same AFK signal that previously demoted the tick to AFK rate, wait for the next tick. Expect `[Progression] tick: source=sitting amount=20 ...` (or `30` if gamepass owned). Capture in inbox.
+   - Stand up, force AFK signal, wait for the next tick. Expect `[Progression] tick: source=afk amount=3 ...`. Capture in inbox.
+   - Stand up, focus active. Expect `[Progression] tick: source=active amount=15 ...`. Capture in inbox.
+3. If any of the three states grants the wrong rate, flag in inbox with `?` and stop. Otherwise proceed to push.
 
 ### Phase 3 — Add per-tick debug logging (prong 3)
 

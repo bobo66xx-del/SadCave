@@ -4,7 +4,7 @@ local UserInputService = game:GetService("UserInputService")
 
 local screenGui = script.Parent
 local isMobile = UserInputService.TouchEnabled and not UserInputService.MouseEnabled
-local barHeight = if isMobile then 6 else 4
+local barHeight = 6
 local bumpHeight = if isMobile then 10 else 8
 
 local progressionFolder = ReplicatedStorage:WaitForChild("Progression", 5)
