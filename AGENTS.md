@@ -421,6 +421,7 @@ This is the same routine The Loop step 6 describes, formalized here as a checkli
 7. Clear the inbox today's section.
 8. Write the session recap in `07_Sessions/YYYY-MM-DD_session_N.md` using `_Session_Template.md`. Keep it short — 3 bullets per heading is plenty.
 9. If the workflow itself changed (a routine added or modified), update this file.
+10. **Push integration edits to a `claude/integration-YYYY-MM-DD-session-N` branch.** Once the integration sweep + inbox clear + session recap are done, commit all dirty vault files and push to a branch named `claude/integration-YYYY-MM-DD-session-N`. The user does a light review (vault is docs, low risk — checking for tone, accuracy, and obvious mistakes is enough; no playtest needed) and merges into `main`. This guarantees integration edits land in git history and survive any subsequent local Rojo activity, Codex branch checkouts, or working-tree resets — closing the same drift gap the session-6 lesson named ("uncommitted integration edits don't survive a Codex branch checkout"). The branch name follows the same `<author>/<purpose>` shape as Codex's `codex/<task>` branches; vault-only edits never touch `src/` and so never collide with code work. If git auth isn't available in the current Cowork session, write the commit + push as plain-English steps the user can run themselves before kicking off the next Codex task.
 
 ---
 
@@ -433,6 +434,7 @@ When Codex pushes a branch and hands back, Claude follows the routine in `docs/S
 # Anti-patterns (things that will break the workflow)
 
 - **Inbox never gets integrated** → vault drifts, becomes useless. Mitigation: integration at end of every session by default.
+- **Integration edits sit uncommitted in the working tree** → Codex branch checkouts, local Rojo sync, or other git operations overwrite them, forcing re-do work next session. First named in session 6 (PR #10 → PR #11 transition lost session 5's integration edits) and recurred three times in session 8 (inbox / index / change log / decisions / two system specs all reverted between integration sweeps). Mitigation: End-of-Session bookend step 10 — Claude pushes integration to a `claude/integration-YYYY-MM-DD-session-N` branch, user reviews lightly and merges. Vault edits land in git history immediately, can't be reverted by subsequent local activity.
 - **System notes get edited mid-build without going through inbox** → Claude and the user both editing the same note simultaneously. Mitigation: during active building, observations go to inbox; system notes get updated only at integration.
 - **Codex implements without a brief** → vault doesn't reflect what was built. Mitigation: every system going to Codex gets a `06_Codex_Plans/` file first.
 - **Codex edits design surfaces** → silent drift, design conversation skipped. Mitigation: convention-only — Codex's instructions tell it to write only to inbox. Claude reverts unauthorized edits during integration if it happens.
