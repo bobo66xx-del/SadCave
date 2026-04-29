@@ -15,6 +15,28 @@ end
 local function ensureBillboardLayout(bb, displayName)
 	bb.Size = UDim2.new(0, 200, 0, 50)
 
+	local titleLabel = bb:FindFirstChild("TitleLabel")
+	if not titleLabel or not titleLabel:IsA("TextLabel") then
+		if titleLabel then
+			titleLabel:Destroy()
+		end
+
+		titleLabel = Instance.new("TextLabel")
+		titleLabel.Name = "TitleLabel"
+		titleLabel.Parent = bb
+	end
+
+	titleLabel.Size = UDim2.new(1, 0, 0, 16)
+	titleLabel.Position = UDim2.new(0, 0, 0, 0)
+	titleLabel.BackgroundTransparency = 1
+	titleLabel.Font = Enum.Font.Gotham
+	titleLabel.TextSize = 11
+	titleLabel.TextColor3 = Color3.fromRGB(225, 215, 200)
+	titleLabel.TextTransparency = 0.25
+	titleLabel.TextStrokeTransparency = 0.7
+	titleLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+	titleLabel.TextYAlignment = Enum.TextYAlignment.Bottom
+
 	local nameLabel = bb:FindFirstChild("NameLabel")
 	if not nameLabel or not nameLabel:IsA("TextLabel") then
 		if nameLabel then
@@ -27,36 +49,15 @@ local function ensureBillboardLayout(bb, displayName)
 	end
 
 	nameLabel.Size = UDim2.new(1, 0, 0, 28)
-	nameLabel.Position = UDim2.new(0, 0, 0, 0)
+	nameLabel.Position = UDim2.new(0, 0, 0, 19)
 	nameLabel.BackgroundTransparency = 1
 	nameLabel.Font = Enum.Font.Gotham
 	nameLabel.TextSize = 16
 	nameLabel.TextColor3 = Color3.fromRGB(225, 215, 200)
 	nameLabel.TextStrokeTransparency = 0.6
 	nameLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-	nameLabel.TextYAlignment = Enum.TextYAlignment.Bottom
+	nameLabel.TextYAlignment = Enum.TextYAlignment.Top
 	nameLabel.Text = displayName
-
-	local titleLabel = bb:FindFirstChild("TitleLabel")
-	if not titleLabel or not titleLabel:IsA("TextLabel") then
-		if titleLabel then
-			titleLabel:Destroy()
-		end
-
-		titleLabel = Instance.new("TextLabel")
-		titleLabel.Name = "TitleLabel"
-		titleLabel.Parent = bb
-	end
-
-	titleLabel.Size = UDim2.new(1, 0, 0, 18)
-	titleLabel.Position = UDim2.new(0, 0, 0, 30)
-	titleLabel.BackgroundTransparency = 1
-	titleLabel.Font = Enum.Font.Gotham
-	titleLabel.TextSize = 12
-	titleLabel.TextColor3 = Color3.fromRGB(225, 215, 200)
-	titleLabel.TextStrokeTransparency = 0.7
-	titleLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-	titleLabel.TextYAlignment = Enum.TextYAlignment.Top
 
 	return bb
 end
