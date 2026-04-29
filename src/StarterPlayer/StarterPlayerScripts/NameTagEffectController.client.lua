@@ -1,8 +1,26 @@
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local DEFAULT_COLOR = Color3.fromRGB(225, 215, 200)
+local IS_MOBILE = UserInputService.TouchEnabled and not UserInputService.MouseEnabled
+local IS_DESKTOP = not IS_MOBILE
+
+local DESKTOP_BILLBOARD_SIZE = UDim2.new(0, 240, 0, 64)
+local DESKTOP_TITLE_SIZE = UDim2.new(1, 0, 0, 20)
+local DESKTOP_TITLE_POSITION = UDim2.new(0, 0, 0, 0)
+local DESKTOP_NAME_SIZE = UDim2.new(1, 0, 0, 36)
+local DESKTOP_NAME_POSITION = UDim2.new(0, 0, 0, 25)
+
+local MOVING_SPEED_THRESHOLD = 10
+local MOVING_FADE_DELAY = 1
+local STILLNESS_RESTORE_DELAY = 0.4
+local STILLNESS_FADE_TIME = 0.6
+local DISTANCE_FADE_START = 40
+local DISTANCE_FADE_SOFT_END = 80
+local DISTANCE_SOFT_AMOUNT = 0.85
+
 local controllers = {}
 
 local function blendColor(fromColor, toColor, alpha)
@@ -24,6 +42,12 @@ end
 local function disconnectAll(connections)
 	for _, connection in ipairs(connections) do
 		connection:Disconnect()
+	end
+end
+
+local function setIfDifferent(instance, propertyName, value)
+	if instance[propertyName] ~= value then
+		instance[propertyName] = value
 	end
 end
 
@@ -53,8 +77,110 @@ local function readEffectState(billboard)
 	return effect, tintColor
 end
 
-local function applyEffect(billboard, titleLabel)
+local function applyDesktopSizing(billboard, titleLabel, nameLabel)
+	if not IS_DESKTOP then
+		return
+	end
+
+	setIfDifferent(billboard, "Size", DESKTOP_BILLBOARD_SIZE)
+	setIfDifferent(titleLabel, "TextSize", 14)
+	setIfDifferent(titleLabel, "Size", DESKTOP_TITLE_SIZE)
+	setIfDifferent(titleLabel, "Position", DESKTOP_TITLE_POSITION)
+	setIfDifferent(nameLabel, "TextSize", 22)
+	setIfDifferent(nameLabel, "Size", DESKTOP_NAME_SIZE)
+	setIfDifferent(nameLabel, "Position", DESKTOP_NAME_POSITION)
+end
+
+local function readBaselineTransparency(billboard, titleLabel)
+	local baseline = billboard:GetAttribute("TitleBaselineTransparency")
+	if typeof(baseline) ~= "number" then
+		baseline = math.clamp(titleLabel.TextTransparency, 0, 1)
+		billboard:SetAttribute("TitleBaselineTransparency", baseline)
+	end
+
+	return math.clamp(baseline, 0, 1)
+end
+
+local function getDistanceFadeAmount(billboard)
+	local camera = Workspace.CurrentCamera
+	local adornee = billboard.Adornee
+	if not camera or not adornee or not adornee:IsA("BasePart") then
+		return 0
+	end
+
+	local distance = (camera.CFrame.Position - adornee.Position).Magnitude
+	if distance <= DISTANCE_FADE_START then
+		return 0
+	end
+
+	if distance <= DISTANCE_FADE_SOFT_END then
+		local alpha = (distance - DISTANCE_FADE_START) / (DISTANCE_FADE_SOFT_END - DISTANCE_FADE_START)
+		return math.clamp(alpha * DISTANCE_SOFT_AMOUNT, 0, DISTANCE_SOFT_AMOUNT)
+	end
+
+	return 1
+end
+
+local function moveToward(current, target, amount)
+	if current < target then
+		return math.min(current + amount, target)
+	end
+
+	if current > target then
+		return math.max(current - amount, target)
+	end
+
+	return current
+end
+
+local function updateTitlePresenceFade(billboard, controller, now, dt)
+	local titleLabel = controller.titleLabel
+	local adornee = billboard.Adornee
+	if not titleLabel or not titleLabel.Parent or not adornee or not adornee:IsA("BasePart") or not adornee.Parent then
+		return
+	end
+
+	local speed = adornee.AssemblyLinearVelocity.Magnitude
+	if speed > MOVING_SPEED_THRESHOLD then
+		controller.velocityHighSince = controller.velocityHighSince or now
+		controller.velocityLowSince = nil
+
+		if now - controller.velocityHighSince >= MOVING_FADE_DELAY then
+			controller.targetStillnessFade = 1
+		end
+	else
+		controller.velocityLowSince = controller.velocityLowSince or now
+		controller.velocityHighSince = nil
+
+		if now - controller.velocityLowSince >= STILLNESS_RESTORE_DELAY then
+			controller.targetStillnessFade = 0
+		end
+	end
+
+	local fadeStep = if STILLNESS_FADE_TIME > 0 then dt / STILLNESS_FADE_TIME else 1
+	controller.currentStillnessFade = moveToward(
+		controller.currentStillnessFade,
+		controller.targetStillnessFade,
+		math.clamp(fadeStep, 0, 1)
+	)
+
+	local distanceFade = getDistanceFadeAmount(billboard)
+	local fadeAmount = 1 - (1 - controller.currentStillnessFade) * (1 - distanceFade)
+	local appliedTransparency = controller.titleBaselineTransparency
+		+ (1 - controller.titleBaselineTransparency) * math.clamp(fadeAmount, 0, 1)
+
+	if math.abs(titleLabel.TextTransparency - appliedTransparency) > 0.001 then
+		titleLabel.TextTransparency = appliedTransparency
+	end
+end
+
+local function applyEffect(billboard, titleLabel, nameLabel)
 	local existing = controllers[billboard]
+	local currentStillnessFade = if existing then existing.currentStillnessFade else 0
+	local targetStillnessFade = if existing then existing.targetStillnessFade else 0
+	local velocityHighSince = if existing then existing.velocityHighSince else nil
+	local velocityLowSince = if existing then existing.velocityLowSince else nil
+
 	if existing then
 		existing.cleanup()
 	end
@@ -78,9 +204,18 @@ local function applyEffect(billboard, titleLabel)
 		clearEffectChildren(titleLabel)
 	end
 
-	controllers[billboard] = {
+	local controller = {
 		cleanup = cleanup,
+		titleLabel = titleLabel,
+		titleBaselineTransparency = readBaselineTransparency(billboard, titleLabel),
+		currentStillnessFade = currentStillnessFade,
+		targetStillnessFade = targetStillnessFade,
+		velocityHighSince = velocityHighSince,
+		velocityLowSince = velocityLowSince,
 	}
+	controllers[billboard] = controller
+
+	applyDesktopSizing(billboard, titleLabel, nameLabel)
 
 	local effect, tintColor = readEffectState(billboard)
 
@@ -131,12 +266,41 @@ local function applyEffect(billboard, titleLabel)
 	end
 
 	table.insert(connections, billboard:GetAttributeChangedSignal("TitleEffect"):Connect(function()
-		applyEffect(billboard, titleLabel)
+		applyEffect(billboard, titleLabel, nameLabel)
 	end))
 	table.insert(connections, billboard:GetAttributeChangedSignal("TitleTintColor"):Connect(function()
-		applyEffect(billboard, titleLabel)
+		applyEffect(billboard, titleLabel, nameLabel)
 	end))
+	if IS_DESKTOP then
+		table.insert(connections, billboard:GetPropertyChangedSignal("Size"):Connect(function()
+			applyDesktopSizing(billboard, titleLabel, nameLabel)
+		end))
+		table.insert(connections, titleLabel:GetPropertyChangedSignal("Size"):Connect(function()
+			applyDesktopSizing(billboard, titleLabel, nameLabel)
+		end))
+		table.insert(connections, titleLabel:GetPropertyChangedSignal("Position"):Connect(function()
+			applyDesktopSizing(billboard, titleLabel, nameLabel)
+		end))
+		table.insert(connections, titleLabel:GetPropertyChangedSignal("TextSize"):Connect(function()
+			applyDesktopSizing(billboard, titleLabel, nameLabel)
+		end))
+		table.insert(connections, nameLabel:GetPropertyChangedSignal("Size"):Connect(function()
+			applyDesktopSizing(billboard, titleLabel, nameLabel)
+		end))
+		table.insert(connections, nameLabel:GetPropertyChangedSignal("Position"):Connect(function()
+			applyDesktopSizing(billboard, titleLabel, nameLabel)
+		end))
+		table.insert(connections, nameLabel:GetPropertyChangedSignal("TextSize"):Connect(function()
+			applyDesktopSizing(billboard, titleLabel, nameLabel)
+		end))
+	end
 	table.insert(connections, titleLabel.AncestryChanged:Connect(function(_, parent)
+		if not parent then
+			cleanup()
+			controllers[billboard] = nil
+		end
+	end))
+	table.insert(connections, nameLabel.AncestryChanged:Connect(function(_, parent)
 		if not parent then
 			cleanup()
 			controllers[billboard] = nil
@@ -154,7 +318,12 @@ local function tryAttach(billboard)
 		return
 	end
 
-	applyEffect(billboard, titleLabel)
+	local nameLabel = billboard:FindFirstChild("NameLabel") or billboard:WaitForChild("NameLabel", 10)
+	if not nameLabel or not nameLabel:IsA("TextLabel") then
+		return
+	end
+
+	applyEffect(billboard, titleLabel, nameLabel)
 end
 
 for _, descendant in ipairs(Workspace:GetDescendants()) do
@@ -169,11 +338,15 @@ Workspace.DescendantAdded:Connect(function(descendant)
 	end
 end)
 
-RunService.Heartbeat:Connect(function()
+RunService.Heartbeat:Connect(function(dt)
+	local now = os.clock()
+
 	for billboard, controller in pairs(controllers) do
 		if not billboard.Parent then
 			controller.cleanup()
 			controllers[billboard] = nil
+		else
+			updateTitlePresenceFade(billboard, controller, now, dt)
 		end
 	end
 end)
