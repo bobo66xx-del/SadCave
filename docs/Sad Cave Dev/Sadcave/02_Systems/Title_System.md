@@ -497,6 +497,7 @@ Each brief is independently shippable. The sequence is a recommendation; if Tyle
 - ~~"glass hour" rename~~ → `gone quiet`
 - ~~"permanent resident" rename~~ → `always was here`
 - ~~"neon haze" rename~~ → `soft static`
+- ~~`fell_asleep_here` focus-vs-idle implementation~~ → **Idle**, via Roblox's `Player.Idled` event (default 20-minute mouse/keyboard inactivity). Tyler decided 2026-04-29 during AchievementTracker brief design pass. Idle is closer to the "fell asleep at the keyboard" semantics than focus-loss (which is just "switched windows"). Server-side hook on `player.Idled:Connect`; the 20-minute default is comfortably ≥ the 19-minute spec target. Implementation lives in [[../06_Codex_Plans/2026-04-29_AchievementTracker_v1]].
 
 ## Open Questions (remaining)
 
