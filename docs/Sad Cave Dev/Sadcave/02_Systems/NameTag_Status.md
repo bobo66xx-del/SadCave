@@ -67,6 +67,28 @@ Title row and level row are NOT on this list anymore: title row returned in PR #
 - After a class-swap of `TitleService` from Script → ModuleScript in PR #13, Studio retained the orphaned old `TitleService` Script instance — Rojo doesn't reach across class boundaries to delete it. Codex manually deleted the orphan during PR #13's playtest. Worth remembering for any future class-swap work in this area.
 - If a future brief wants to surface anything beyond name + title on the nametag (status icons, achievement badges, hide-during-dialogue), update this spec first and let the brief follow.
 
+## Polished Pass — Title-Above-Name (designed 2026-04-29, 🔵 Design-locked)
+
+The polished menu + nametag visual pass flips the BillboardGui's vertical zones. **Currently shipped**: NameLabel on top (28px tall), TitleLabel below (18px tall). **Polished design target**: TitleLabel on top (smaller, softer), NameLabel anchored beneath. The reframe is *title-as-epigraph* not *title-as-label* — see `Title_System.md` § "Polished Pass — Drawer + Title-Above-Name" for the full design intent and decision history.
+
+What changes in `NameTagScript.server.lua` `ensureBillboardLayout` (in implementation order, captured here so the Codex brief can pull from it directly):
+
+- Title row TOP: Gotham 11, lowercase, warm-grey at ~0.75 opacity, centered, `TextYAlignment = Bottom` so it hugs the gap above the name. Size ~16px tall, `Position UDim2.new(0, 0, 0, 0)`.
+- 2-3px breathing gap (no butt-edge).
+- Name row BOTTOM: Gotham 16, full warm-grey, centered, `TextYAlignment = Top`. Size ~28px tall, `Position UDim2.new(0, 0, 0, ~19)`.
+- BillboardGui height target ~48 (current 50 also fine — the spec is "the rows fit cleanly with breathing gap," not a strict pixel count).
+- `StudsOffset Vector3.new(0, 3, 0)` and `MaxDistance = 100` unchanged. Watchdog and `ensureBillboardLayout` idempotency unchanged.
+
+What changes in `NameTagEffectController.client.lua`:
+
+- `tint`, `shimmer`, `pulse` keep their existing animations but at slightly lower contrast — the title is smaller and at lower baseline opacity now, so full-contrast effects over-fight the eye.
+- `glow` swaps from the current `UIStroke`-as-border treatment to a soft low-opacity halo *under* the title text. Implementable as a transparent `UIStroke` at high transparency (~0.85) with thicker lineweight, or as a UIGradient applied to a slightly enlarged background frame behind the title text. The spec is "ambient halo, not bordered label" — Codex picks the cleanest implementation.
+- The `TitleEffect` / `TitleTintColor` / `TitleDisplay` attribute contract on the BillboardGui is unchanged — only the rendering of `glow` differs.
+
+**No server-side title plumbing changes.** TitleService, the equip/unequip flow, the auto-equip-highest behavior, and the migration code all stay intact. The polished pass is purely a UI / nametag visual rewrite.
+
+The Player Experience text at the top of this spec describes the *currently shipped* layout (title below the name). It will get rewritten in the same edit pass that ships the polished build, so the spec describes live reality. Until then, the polished design lives only in this subsection and in the cross-referenced Title_System spec.
+
 ## Related
 - [[XP_Progression]] (drives the presence-tick AFK state and emits the level changes that TitleService observes)
 - [[Title_System]] (owns the title definitions, ownership resolution, equip/unequip flow that feeds the title row here)

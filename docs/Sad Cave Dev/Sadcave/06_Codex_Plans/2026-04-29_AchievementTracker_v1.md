@@ -1,9 +1,9 @@
 # AchievementTracker — Codex Plan
 
 **Date:** 2026-04-29
-**Status:** 🟡 Building (Codex pushed `codex/achievement-tracker` head `2df4378`, Claude review passed playtest, awaiting Tyler's merge)
+**Status:** 🟢 Shipped — PR #20 (merged 2026-04-29 08:52:02 UTC, branch `codex/achievement-tracker`, head `2df4378`)
 *(legend: 🔵 Queued — written, awaiting Codex · 🟡 Building — Codex on branch · 🟢 Shipped — merged, include PR # and date · ⏸ Waiting — written but deliberately on hold · ⚫ Superseded — replaced or invalidated)*
-**Branch:** `codex/achievement-tracker` (head `2df4378`, pushed 2026-04-29 ~08:03 UTC, awaiting merge)
+**Branch:** `codex/achievement-tracker` (head `2df4378`, merged 2026-04-29 08:52:02 UTC as PR #20)
 **Related Systems:** [[../02_Systems/Title_System]], [[../02_Systems/Dialogue_System]], [[../02_Systems/XP_Progression]], [[../01_Vision/Player_Experience_Arcs]]
 
 **Driving notes:** First slot in the Title category activation sequence (anchored to the felt-shape map in `Player_Experience_Arcs` — Achievement category has the densest concentration of beats falling in the diagnosed-weak days 3–7 of the return arc). Title v2 surface is feature-complete on the player-facing side (PRs #12 / #13 / #14 / #17); only the level + gamepass categories actively check ownership today. This brief activates the achievement category — ~12 of the 60 titles in `TitleConfig` light up. Design decisions made in the 2026-04-29 design pass with Tyler:

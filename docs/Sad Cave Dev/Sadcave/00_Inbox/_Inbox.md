@@ -23,6 +23,8 @@
 <!-- Sessions 7 + 8 (2026-04-28) integrated. Recaps at 07_Sessions/2026-04-28_session_1.md and 2026-04-28_session_2.md. -->
 <!-- Session 9 (2026-04-28 session_3, PR #17 migration verification) integrated. Recap at 07_Sessions/2026-04-28_session_3.md. -->
 <!-- Session 10 (2026-04-28 session_4, Player Experience Arcs vision doc + QuietKeeper_Memory spec + Title category activation sequence) integrated. Recap at 07_Sessions/2026-04-28_session_4.md. -->
+<!-- Session 11 (2026-04-29 session_1, AchievementTracker brief + Codex review) integrated; PR #20 merge backfill pending in session_2. Recap at 07_Sessions/2026-04-29_session_1.md. -->
+<!-- Session 12 (2026-04-29 session_2, PR #20 backfill + polished-menu+nametag design pass + Codex brief) integrated. Recap at 07_Sessions/2026-04-29_session_2.md. -->
 
 ## 2026-04-29
 
