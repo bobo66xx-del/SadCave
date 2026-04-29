@@ -18,7 +18,7 @@ Titles are the **cosmetic identity layer** of Sad Cave. They appear under the pl
 
 ## Player Experience
 
-- Your title sits under your name on the nametag: lowercase, soft, like a whispered label
+- Your title sits **above** your name on the nametag: lowercase, soft, smaller than the name — like a quiet epigraph above a chapter, not a label stapled below (decided 2026-04-29 polish-pass design session; flipped from the original v2 below-the-name placement to read as part of identity rather than metadata)
 - You earn titles by being in the cave — leveling up, finding areas, doing things for the first time, coming back over time
 - Some titles have subtle visual flair (a slow color shift, a gentle glow) — never flashy
 - You choose which title to wear from a menu. Your collection grows as you play.
@@ -300,6 +300,139 @@ Combined key for all title-related persistence:
 
 - Read from v2 `TitleConfig` format (new field names: `display` instead of computed from ID, `tintColor` instead of hard-coded)
 - Effect rendering logic stays the same (shimmer/pulse/glow/tint are already implemented) — just map to the per-title `tintColor`
+
+---
+
+## Polished Pass — Drawer + Title-Above-Name (designed 2026-04-29)
+
+**Status:** 🔵 Design-locked, ready for a Codex brief. No code written yet.
+
+This is the design that drops in over the placeholder menu and lifts the nametag from "title row stapled below the name" to "title sitting above the name like an epigraph." Replaces the placeholder TitleMenu and reorders the BillboardGui labels. Captured here as the canonical design; the Codex brief in `06_Codex_Plans/` translates this into implementation steps and validation.
+
+### Design intent
+
+- **Title-as-identity, not title-as-metadata.** The current build reads as "name with a label attached." The polished pass reframes the title as the lens through which you see the person — like a museum nameplate or a chapter epigraph. Tyler's framing: *"sits in the name like someone actually cares."*
+- **The cave doesn't disappear when you open the menu.** A right-side drawer with the world dimmed-but-visible behind it lets the player watch their own nametag update as they pick — the moment of equipping a title is anchored in the world they're in, not abstracted to a modal.
+- **Categories make the collection legible.** Six sources of titles → six visible sections. The drawer should let a player see "I have 4 of 12 achievement titles" at a glance, which the flat placeholder list doesn't communicate.
+- **Voice carries through.** Locked-row hints use mixed voice — concrete categories stay mechanical; achievement and seasonal categories speak in indirect-poetic one-liners that match the in-cave tone.
+
+### Nametag — title above the name
+
+The BillboardGui's two stacked TextLabels swap vertical order. The new layout:
+
+| Row | Position | Size | Font | Color | Opacity | Notes |
+|-----|----------|------|------|-------|---------|-------|
+| `TitleLabel` (top) | `(0, 0)` | `(1, 0, 0, ~16)` | Gotham 11 | warm-grey `(225, 215, 200)` baseline; tinted per `tintColor` for `tint`/`shimmer`/`pulse`/`glow` titles | ~0.75 (slightly transparent — title whispers) | lowercase; `TextYAlignment = Bottom` so the title hugs the gap above the name |
+| (gap) | — | 2-3px breathing space | — | — | — | not a butt-edge; small visible separation |
+| `NameLabel` (bottom) | below title | `(1, 0, 0, ~28)` | Gotham 16 | warm-grey `(225, 215, 200)` | full | unchanged from current; `TextYAlignment = Top` |
+
+BillboardGui height stays around 48-50 (`(0, 200, 0, 48)` is a good target — current 50 also fine). `StudsOffset Vector3.new(0, 3, 0)` and `MaxDistance = 100` unchanged. Watchdog and `ensureBillboardLayout` idempotency requirements unchanged.
+
+**Effect rebalance for the new top position:**
+
+- `tint` — unchanged. Static color on the title text.
+- `shimmer` — keep the UIGradient ping-pong tween (3s period) but lower contrast: the gradient endpoints sit closer to baseline warm-grey. The title is smaller now and at lower opacity, so the same shimmer at full contrast would over-fight the eye for the small-text role.
+- `pulse` — keep the brightness oscillation (1.5s period) but with a smaller amplitude (e.g. brighten by 0.05 instead of 0.08).
+- `glow` — **swap the treatment.** Currently a `UIStroke` border around the text. New treatment: a soft low-opacity halo *under* the title text — implementable as a transparent UIStroke at higher transparency (~0.85) with thicker lineweight, *or* as a UIGradient applied to a slightly enlarged background frame behind the title text. Goal: the title reads as having atmosphere around it, not a label outline. Codex picks the cleanest implementation; the spec is "ambient halo, not bordered label."
+- Effect attributes (`TitleEffect`, `TitleTintColor`, `TitleDisplay`) on the BillboardGui stay the same — only the rendering changes.
+
+The tint chip / per-title color reads on the title text directly. No separate dot, no chip element.
+
+### Menu — right-side drawer
+
+A new `StarterGui.TitleMenu` shape that replaces the placeholder modal. Old `TitleMenuController.client.lua` gets rewritten; the placeholder programmatic build (Root frame + tabs + scrolls) is fully discarded.
+
+**Shell:**
+
+- ScreenGui properties unchanged: `ResetOnSpawn = false`, `IgnoreGuiInset = true`, `DisplayOrder = 20`.
+- Root Frame anchored to the right edge: `AnchorPoint = (1, 0.5)`, `Position = (1, 0, 0.5, 0)`, `Size = (~0.34, 0, 1, 0)` (target ~34% screen width, full height). UISizeConstraint `MinSize = (320, 0)`, `MaxSize = (520, math.huge)` for cross-resolution sanity.
+- Slide-in animation: `Position` tweens from `(1, screenWidth, 0.5, 0)` (off-screen right) → `(1, 0, 0.5, 0)` (resting). 0.3s, `Enum.EasingStyle.Quart`, `Enum.EasingDirection.Out`.
+- Slide-out: reverse, 0.25s, `Enum.EasingStyle.Quart`, `Enum.EasingDirection.In`.
+- Background: same warm-dark palette as placeholder — `BackgroundColor3 (20, 18, 22)` at `BackgroundTransparency = 0.05` (slightly more opaque than placeholder for readability), `UICorner` only on the left edge if Roblox supports per-corner radius (otherwise full radius), `UIStroke` warm-grey at high transparency for a hairline edge.
+- World dim: a sibling Frame parented to the same ScreenGui (or a separate `BlurFrame` ScreenGui) covering the full screen at `BackgroundColor3 (0, 0, 0)` with `BackgroundTransparency = 0.75` (so the cave dims to ~75% brightness). Fades from `1.0 → 0.75` over 0.2s on open, reverses on close. **No blur** — `Lighting.BlurEffect` is not used here.
+
+**Internal layout:**
+
+- Drawer is divided into category sections. Section order: `Level`, `Gamepass`, `Presence`, `Exploration`, `Achievement`, `Seasonal`. (This matches the `CATEGORY_ORDER` table the placeholder already uses.)
+- Each section header: lowercase category name in Gotham 13, warm-grey at 0.7 opacity, with a hairline rule below at warm-grey 0.85 transparency. e.g. `level`, `gamepass`, etc.
+- Within each section: owned titles first (sorted by `levelRequired` / `hoursRequired` / `display`), then locked titles in the same category (same sort).
+- Each title row:
+  - Owned: TextButton, ~36px tall, full width, `BackgroundColor3 (34, 30, 38)` at `BackgroundTransparency = 0.1`, soft `UICorner (0, 6)`. Title `display` text in Gotham 13 warm-grey, left-aligned with 12px left padding. Per-title `tintColor` reads on the title text itself (no separate dot). The currently-equipped title gets a quiet "wearing" caption beneath the title text in Gotham 10 warm-grey at 0.5 opacity. Hover: background lifts to `(42, 37, 47)` over 0.15s sine ease.
+  - Locked: Frame, same dimensions, `BackgroundTransparency = 0.4` (more transparent — locked rows recede). Title `display` in Gotham 13 warm-grey at 0.4 opacity. Hint text right-aligned in Gotham 11 warm-grey at 0.6 opacity, ~14px from right edge. Locked rows are not interactive; no hover state.
+- ScrollingFrame with `ScrollBarThickness = 4`, `ScrollBarImageColor3 (110, 102, 94)`, `AutomaticCanvasSize = Y`. Padding via `UIPadding`: 12px top, 16px bottom, 12px left, 12px right. UIListLayout: vertical, `Padding = UDim.new(0, 4)` between rows, `Padding = UDim.new(0, 12)` between sections (handled by per-section header insets).
+
+**Interaction:**
+
+- Click-to-commit. Click an owned row → fire `EquipTitle:FireServer(titleId)`. The 1s server-side rate limit (already in place from PR #14) handles spam.
+- Click the currently-equipped row → fire `UnequipTitle:FireServer()` to fall back to auto-equip-highest. (Same as placeholder.)
+- The unlock-notification fade ("new title: X") and the equipped-state update on the nametag come from the existing `TitleDataUpdated` payload path. With the world visible behind the drawer, the player sees the nametag update *while still looking at the drawer* — that's the design intent.
+- No hover-preview. Hover only changes the row's background color (for affordance), not the equipped title.
+
+**Locked-row hint copy (mixed voice):**
+
+| Category | Voice | Examples |
+|----------|-------|----------|
+| `level` | mechanical | `reach level 50`, `reach level 100` |
+| `gamepass` | softer rephrase | `from the title pack` |
+| `presence` | mechanical | `play for 24 hours`, `play for 100 hours` |
+| `exploration` | atmospheric-light | `find the deep cave`, `find the outside` |
+| `achievement` | indirect / poetic, hand-written per title | `rest for a long while` (`fell_asleep_here`), `stay until the early hours` (`up_too_late`), `the first time you sit` (`sat_down`), `say something to someone` (`said_something`), etc. — full table to write in the Codex brief; placeholder already has indirect copy for some, those carry through. |
+| `seasonal` | atmospheric | `only during certain times`, or season-specific when the brief author wants to color-code |
+
+The achievement category has 12 titles; each gets a unique line in the Codex brief. The brief author writes them; this spec captures the *voice rule* (indirect, poetic, lowercase, under 8 words ideally), not the lines themselves.
+
+### Entry point — slim edge tab on the right
+
+Replaces the top-right `titles` text button entirely. Old `StarterGui.TitlesToggleButton` ScreenGui + `TitlesToggleController.client.lua` get rewritten; the new shape:
+
+- A thin tab anchored to the right edge of the screen at all times. Roughly: `AnchorPoint = (1, 0.5)`, `Position = (1, 0, 0.5, 0)`, `Size = (0, 18, 0, 90)` — 18px wide, 90px tall, vertically centered on the right edge.
+- Visual: warm-dark background `(20, 18, 22)` at `BackgroundTransparency = 0.25`, `UICorner (0, 4)` on the left side only (or full corner with the right side clipped), warm-grey hairline `UIStroke`. A small lowercase vertical-text or rotated text reading `titles` (using `Rotation = -90` on a TextLabel) inside, Gotham 10 warm-grey at 0.6 opacity.
+- Hover: background opacity lifts from 0.25 → 0.15 over 0.15s sine ease; the tab inches outward by a few pixels (`Position` tweens to `(1, 4, 0.5, 0)` — emerging slightly from the edge to invite the click).
+- Click: opens the drawer (slide-in animation above). Visible state of the tab persists; the tab stays sticking out of the drawer's left edge so it can be clicked again to close.
+- The tab + the drawer slide together. When the drawer is open, the tab is conceptually attached to the drawer's left edge (visually, it might just stay anchored at `(1, 0, 0.5, 0)` and the drawer slides over it — the tab remains the close affordance).
+
+### Close paths
+
+All four work — they're all natural for a side panel:
+
+1. **Click outside the drawer.** A transparent click-catcher Frame covers the dimmed world area (left of the drawer) while the drawer is open. Click → close.
+2. **ESC key.** `UserInputService.InputBegan` listener checks `Enum.KeyCode.Escape` while drawer is open.
+3. **Small close button inside the drawer.** Top-right of the drawer, subtle `x` glyph in Gotham 14 warm-grey muted. Same shape as placeholder's close button.
+4. **Re-click the entry tab.** The tab functions as a toggle — open if closed, close if open.
+
+### Carry-forwards from placeholder review (folded into this design)
+
+- **BindableEvent decoupling:** the entry tab fires a `TitleMenu.OpenRequested` BindableEvent (created in `ReplicatedStorage` or a local context as appropriate); the drawer controller listens to it. Closing fires `TitleMenu.CloseRequested`. The tab no longer pokes `playerGui.TitleMenu.Root.Visible` directly.
+- **Row diffing on `TitleDataUpdated`:** instead of clearing all rows and rebuilding on every payload, the drawer controller diffs `ownedTitleIds` and `equippedTitle` against the previous render and updates only what changed. With ~60 titles this is a small speedup at low cost — but the bigger win is preventing scroll-position resets when a title unlock fires mid-session while the menu is open.
+- **Hint-copy voice pass:** mixed-voice hint copy lands as part of this brief. Achievement + seasonal hints are the polish-pass author's job; level/gamepass/presence/exploration hints carry over with minor tweaks.
+
+### What stays the same from PR #14
+
+- Server contract — `EquipTitle` / `UnequipTitle` RemoteEvents, server-side ownership re-resolution, 1s rate limit, `equippedManually` / `migratedFromV1` / `lastEquipTime` state fields, `notificationOnly` payloads for unlock notifications when manually-equipped.
+- Auto-equip-highest behavior (gamepass priority over level), level watcher self-heal on respawn, migration code for production cutover.
+- `TitleConfig.lua` (the data source).
+- `TitleRemotes.TitleDataUpdated` payload shape.
+- `NameTagEffectController.client.lua` reads `TitleEffect` / `TitleTintColor` attributes from the BillboardGui — that contract stays. Only the *visual rendering* of the `glow` effect changes (UIStroke → underglow halo).
+- `TitleService.lua` (no server-side changes for this brief).
+- The XPBar's combined level-up + new-title fade.
+
+### Out of scope for this brief
+
+- Mobile touch gesture polish (swipe-to-open the drawer from the right edge) — note as a follow-up if Tyler wants it later. Click-the-tab works on touch, just lacks the gesture richness.
+- Per-title detail view (click a title to see its category, unlock condition, when you earned it) — the hint text on locked rows + the section context already do most of this; a deeper detail surface can be a follow-up brief.
+- Title preview on hover (we explicitly chose click-to-commit). If players ask for it later, it's a small addition to this controller.
+- Filter / search inside the drawer — the categorized layout removes most of the need; if the title roster grows past ~80, revisit.
+- Toggle button mobile-vs-desktop variant — the slim edge tab works on both; mobile may want it slightly wider for thumb hits, but that's a tweak inside this brief, not a follow-up.
+
+### Where this goes next
+
+Tyler decides when to write the Codex brief. The brief lives at `06_Codex_Plans/YYYY-MM-DD_Title_Polished_Menu_Nametag_v1.md` (date when written) and translates this section into:
+- Files touched (rewrites of `TitleMenuController.client.lua`, `TitlesToggleController.client.lua`, `NameTagScript.server.lua` `ensureBillboardLayout`, `NameTagEffectController.client.lua` `glow` branch only).
+- Step-by-step build order.
+- Studio Test Checklist (visual checks across mobile + desktop, all 4 close paths, equip + unequip + auto-equip-highest interactions, all 4 effects rendered correctly).
+- Achievement hint copy table (12 lines to write).
+
+When the brief lands, this section's status moves from 🔵 Design-locked to 🟡 Building. When the PR ships, the placeholder's `_Cleanup_Backlog.md` entry retires.
 
 ---
 
