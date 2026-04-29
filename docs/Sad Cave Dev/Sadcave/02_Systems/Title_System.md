@@ -409,16 +409,71 @@ What MVP-1 ships visibly: a player joining the testing place sees a lowercase ti
 
 What MVP-2 ships visibly: players can open the (placeholder) menu, see what they own and what's locked, and manually equip any owned title. Manual choice replaces auto-equip-highest from MVP-1.
 
-**Follow-up briefs (post-MVP-2, recommended order):**
+**Follow-up briefs (post-MVP-2):** see *Category Activation Sequence* below — the canonical ordering anchored to the felt-shape map in [[../01_Vision/Player_Experience_Arcs]]. Polished TitleMenu and v1 retirement run as parallel tracks alongside the category activations.
 
-9. **Polished TitleMenu** — Tyler-led design session, drops in over the placeholder. No new game logic, just UI.
-10. **AchievementTracker + achievement category** — ~12 titles. Hooks into dialogue completion, sit detection, note submission, return-visit counter, group join, idle detection. Resolves the `fell_asleep_here` focus-vs-idle implementation question.
-11. **Presence category** — ~8 titles. Needs `ProgressionData.totalTimePlayed` reliably tracked (verify in current `ProgressionService` before brief; small augment first if missing).
-12. **Exploration category + Discovery source** — couples with `Area_Discovery` system (currently 🔵 Planned) and depends on `Workspace.InsideZones` existing in Studio (verify before brief). May land jointly with `Area_Discovery`.
-13. **Seasonal infrastructure + day-one launch date** — server-time window check + launch date locked in. Gates `day_one`, `hollow_night`, `cold_quiet`, `been_a_year`, `soft_spot`.
-14. **v1 retirement** — once v2 has been stable for some time, drop the `EquippedTitleV1` DataStore reads from migration code. Low priority.
+---
 
-Each brief is independently shippable. Each ships either a complete UI moment (MVP-1, MVP-2, polished menu) or activates a new title category (achievements, presence, exploration, seasonal).
+## Category Activation Sequence
+
+Re-ordered 2026-04-28 session_4 against [[../01_Vision/Player_Experience_Arcs]]. The four inactive categories (Achievement / Presence / Exploration / Seasonal) don't all serve the same horizon, and the diagnosed weakest stretch — days 3–7 of the return arc — should drive what activates first.
+
+### 1. AchievementTracker + Achievement category — *next*
+
+**Why first:** The Achievement category contains the highest concentration of beats that fall in days 3–7 of the return arc — the weakest stretch. `said_something`, `sat_down`, `came_back`, `knows_every_chair` (5 different seats), `keeps_coming_back` (10 return visits), `heard_them_all`, `up_too_late` — these are the surfaces that turn a passive return visit into a small earned moment. The first three fire in session 1–2 and lead the player into the loop. The middle batch fires in days 3–7 and fills the diagnosed gap.
+
+**Loyalty seeding:** `part_of_the_walls` (50 return visits) and `fell_asleep_here` are long-tail beats that seed the loyalty arc from the same brief. Two arcs served by one activation.
+
+**Costs:** ~12 titles needs ~12 hook implementations across existing systems (dialogue, sitting, notes, return counter, group join, idle detection). The hooks are mapped in this spec already (Achievements section). The biggest open choice is the focus-vs-idle implementation for `fell_asleep_here` — resolve at brief time.
+
+**Brief shape:** AchievementTracker ModuleScript + per-achievement hook-up + TitleConfig metadata for each. ~1 Codex session at the size of recent v2 work.
+
+### 2. Presence category — *second*
+
+**Why second:** Presence titles are time-spent milestones (1hr / 3hr / 8hr / 24hr / 72hr / 168hr / 500hr / 1000hr). The 3-hour and 8-hour titles land squarely in days 3–7 alongside the achievement beats — they reinforce the same gap from a different angle. Long-tail (500hr / 1000hr) seeds loyalty.
+
+**Why not first:** Presence on its own is *just a counter against thresholds*. It's mechanical recognition. Pairing it with Achievement first means the player is already in the rhythm of "things being noticed" by the time Presence ticks — the time titles land softer.
+
+**Costs:** Cheapest of the four to ship — single counter, no new hook authoring. Confirm `ProgressionData.totalTimePlayed` is being tracked reliably in current `ProgressionService` before the brief; augment first if missing.
+
+**Brief shape:** Verify-and-augment `totalTimePlayed` + activate Presence ownership check in TitleService. Smaller than AchievementTracker.
+
+### 3. Exploration category — *paired with Outside + Area_Discovery*
+
+**Why third:** Exploration titles need somewhere to explore. With only [[../03_Map_Locations/Cave_Entrance]] built and [[../03_Map_Locations/Outside]] still planned, shipping the category now would activate maybe 2 of 6 titles. Wait until at least Outside is built and ideally one more zone exists, so the category lands with 4+ active surfaces.
+
+**This is paired work, not a single brief:**
+- Build [[../03_Map_Locations/Outside]] (map work, requires Tyler-led design session for layout/feel)
+- Build [[Area_Discovery]] (currently 🔵 Planned — needs `Workspace.InsideZones` to exist; verify in Studio before brief)
+- Activate Exploration title category in TitleService (small, last)
+
+The Area_Discovery system also feeds the XP "Discovery" source, so this paired work resolves a stuck dependency for the XP curve as well.
+
+**Brief shape:** Three briefs minimum, possibly four. The largest body of work in the activation sequence.
+
+### 4. Seasonal — *last, gated by Seasonal_Layer infrastructure*
+
+**Why last:** Seasonal is the highest-leverage loyalty surface ("I was here last winter") but the most complex to do well — calendar awareness, content authoring per season, real tone risk if it tilts toward "themed events." Activating it before days 3–7 is plugged means firing seasonal content into a return arc that hasn't been fixed; the seasonal beats won't land because there's no loyal-player density to receive them.
+
+**Pre-requisite:** [[Seasonal_Layer]] (currently ⚪ Idea) graduates to a real system spec first. The Title_System Seasonal entries are the *output* surface of Seasonal_Layer — the calendar engine, environmental shifts, and NPC mood gating belong upstream.
+
+**Special case:** the `day_one` title is technically Seasonal (limited window) but doesn't need full Seasonal_Layer to exist — it just needs the v2 launch date locked in and a 7-day window check. Ship `day_one` opportunistically with whichever activation falls closest to launch; treat the rest of the Seasonal category as gated.
+
+**Brief shape:** Seasonal_Layer system spec → Seasonal_Layer build → Seasonal title category activation. Three steps over multiple sessions.
+
+### Parallel tracks (run alongside the sequence)
+
+These don't activate categories but improve the surrounding experience. Tyler picks when to slot each in:
+
+- **Polished TitleMenu + nametag title visual** — Tyler-led design session. Drops in over the placeholder menu and lifts the nametag title-row into something that "sits in the name like someone actually cares." Best slotted *after* AchievementTracker ships, so the menu has 12 more titles to display when it gets its polish pass — a more meaningful proving ground.
+- **v1 retirement** — once v2 has been stable for some time, drop the `EquippedTitleV1` DataStore reads from migration code. Low priority; can wait until after the full activation sequence completes.
+
+### What this sequence does for the felt-shape map
+
+- **Arrival arc:** mostly unchanged — already works. Achievement firsts give a small lift in session 1.
+- **Return arc days 3–7 (the weakest stretch):** AchievementTracker + Presence between them put 5–8 distinct beats into this window. This is the diagnosed gap closing.
+- **Loyalty arc:** seeded from day one (long-tail Achievement + Presence titles), then powered up by Exploration once the world is bigger, then sealed by Seasonal as the passport-stamp layer. Combined with [[QuietKeeper_Memory]], this gives loyal players multiple reinforcing surfaces of recognition.
+
+Each brief is independently shippable. The sequence is a recommendation; if Tyler has a reason to swap the order, document it in `_Decisions.md` so future sessions know why.
 
 ---
 
