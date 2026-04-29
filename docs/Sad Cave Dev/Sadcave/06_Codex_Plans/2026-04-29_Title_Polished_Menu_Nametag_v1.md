@@ -1,9 +1,9 @@
 # Title — Polished Menu + Nametag Visual — Codex Plan
 
 **Date:** 2026-04-29
-**Status:** 🔵 Queued
+**Status:** 🟢 Shipped — PR #23 (merged 2026-04-29 10:48:45 UTC, branch `codex/title-polish-pass`, head `c098f659`)
 *(legend: 🔵 Queued — written, awaiting Codex · 🟡 Building — Codex on branch · 🟢 Shipped — merged, include PR # and date · ⏸ Waiting — written but deliberately on hold · ⚫ Superseded — replaced or invalidated)*
-**Branch:** `codex/title-polish-pass` *(once started)*
+**Branch:** `codex/title-polish-pass` (head `c098f659`, merged 2026-04-29 10:48:45 UTC as PR #23)
 **Related Systems:** [[../02_Systems/Title_System]], [[../02_Systems/NameTag_Status]], [[../01_Vision/Tone_and_Rules]]
 
 **Driving notes:** This is the polished-menu pass that drops in over the placeholder TitleMenu shipped in PR #14 plus the nametag visual rework that flips the BillboardGui's vertical zones. Designed 2026-04-29 in a Tyler-led design session. Full design spec lives in `02_Systems/Title_System.md` § "Polished Pass — Drawer + Title-Above-Name" — read it first; this brief translates that section into implementation steps.
