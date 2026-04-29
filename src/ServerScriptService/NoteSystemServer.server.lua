@@ -8,6 +8,17 @@ local NoteSystem = ReplicatedStorage:WaitForChild("NoteSystem")
 local SubmitNote = NoteSystem:WaitForChild("SubmitNote")
 local NoteUpdated = NoteSystem:WaitForChild("NoteUpdated")
 local NoteResult = NoteSystem:WaitForChild("NoteResult")
+local NoteSubmitted = script:FindFirstChild("NoteSubmitted")
+if NoteSubmitted and not NoteSubmitted:IsA("BindableEvent") then
+	warn("[NoteSystem] Replacing non-BindableEvent NoteSubmitted child")
+	NoteSubmitted:Destroy()
+	NoteSubmitted = nil
+end
+if not NoteSubmitted then
+	NoteSubmitted = Instance.new("BindableEvent")
+	NoteSubmitted.Name = "NoteSubmitted"
+	NoteSubmitted.Parent = script
+end
 
 local COOLDOWN_SECONDS = 60
 local DISTANCE_BUFFER = 2
@@ -216,6 +227,7 @@ SubmitNote.OnServerEvent:Connect(function(player, spotId, rawText)
 	submitInFlightByUserId[userId] = nil
 	NoteUpdated:FireAllClients(spotId, filteredText)
 	sendResult(player, "posted", "Posted.", spotId)
+	NoteSubmitted:Fire(player, spotId)
 end)
 
 local function connectPrompt(notePart)

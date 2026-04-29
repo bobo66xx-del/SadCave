@@ -4,6 +4,13 @@ local TitleConfig = {}
 
 TitleConfig.DEFAULT_TITLE_ID = "new_here"
 TitleConfig.TITLE_PACK_GAMEPASS_ID = TITLE_PACK_GAMEPASS_ID
+TitleConfig.HEARD_THEM_ALL_MIN_NPCS = 3
+-- Set both timestamps to the v2 launch start and start+7days when real launch happens.
+-- Leave nil to keep day_one dormant.
+TitleConfig.LAUNCH_WINDOW = {
+	startUnix = nil,
+	endUnix = nil,
+}
 
 TitleConfig.titles = {
 	new_here = {
@@ -527,6 +534,21 @@ local gamepassTitleIds = {
 	"after_hours",
 }
 
+local achievementTitleIds = {
+	"said_something",
+	"sat_down",
+	"left_a_mark",
+	"came_back",
+	"heard_them_all",
+	"knows_every_chair",
+	"keeps_coming_back",
+	"part_of_the_walls",
+	"up_too_late",
+	"fell_asleep_here",
+	"one_of_us",
+	"day_one",
+}
+
 local function copyArray(source)
 	local result = {}
 	for index, value in ipairs(source) do
@@ -549,6 +571,10 @@ end
 
 function TitleConfig.GetGamepassTitleIds()
 	return copyArray(gamepassTitleIds)
+end
+
+function TitleConfig.GetAchievementTitleIds()
+	return copyArray(achievementTitleIds)
 end
 
 function TitleConfig.BuildPayload(titleId, newlyUnlocked)

@@ -20,8 +20,13 @@ local titleDataUpdated = nil
 local equipTitleRemote = nil
 local unequipTitleRemote = nil
 local started = false
+local progressionService = nil
+local achievementConnection = nil
 
 local TitleService = {}
+
+-- TitleData fields owned by this service:
+-- equippedTitle, equippedManually, migratedFromV1, achievements, npcsHeard.
 
 local function getTitleRemotes()
 	local titleRemotes = ReplicatedStorage:FindFirstChild("TitleRemotes")
@@ -129,35 +134,71 @@ local function buildOwnedTitleIds(ownedSet)
 	return ownedTitleIds
 end
 
+local effectAutoEquipScores = {
+	none = 2,
+	tint = 35,
+	shimmer = 100,
+	pulse = 300,
+	glow = 700,
+}
+
+local function getAutoEquipScore(title)
+	if not title then
+		return 0
+	end
+
+	if title.category == "level" then
+		return tonumber(title.levelRequired) or 0
+	end
+
+	if title.category == "achievement" then
+		return effectAutoEquipScores[title.effect] or 2
+	end
+
+	if title.category == "gamepass" then
+		return 100000
+	end
+
+	return 0
+end
+
 local function findNewlyUnlockedTitleId(previousOwnedSet, nextOwnedSet)
-	local newOwnedSet = {}
-	local hasNewTitle = false
+	local pickedTitleId = nil
+	local pickedScore = -1
 
 	for titleId, owned in pairs(nextOwnedSet or {}) do
 		if owned == true and not previousOwnedSet[titleId] then
-			newOwnedSet[titleId] = true
-			hasNewTitle = true
+			local title = TitleConfig.GetTitle(titleId)
+			local score = getAutoEquipScore(title)
+			if score > pickedScore then
+				pickedTitleId = titleId
+				pickedScore = score
+			end
 		end
 	end
 
-	if not hasNewTitle then
+	return pickedTitleId
+end
+
+local function getProgressionService()
+	if progressionService then
+		return progressionService
+	end
+
+	local progressionFolder = script.Parent:FindFirstChild("Progression")
+	local progressionModule = progressionFolder and progressionFolder:FindFirstChild("ProgressionService")
+	if not progressionModule then
 		return nil
 	end
 
-	for _, titleId in ipairs(TitleConfig.GetGamepassTitleIds()) do
-		if newOwnedSet[titleId] then
-			return titleId
-		end
+	local ok, result = pcall(require, progressionModule)
+	if not ok then
+		warn("[TitleService] Could not require ProgressionService:", result)
+		return nil
 	end
 
-	local pickedTitle = nil
-	for _, titleId in ipairs(TitleConfig.GetLevelTitleIds()) do
-		if newOwnedSet[titleId] then
-			pickedTitle = titleId
-		end
-	end
-
-	return pickedTitle
+	progressionService = result
+	return progressionService
 end
 
 local function migrateFromV1(player, titleData)
@@ -193,6 +234,7 @@ local function loadTitleData(player)
 		return {
 			equippedTitle = TitleConfig.DEFAULT_TITLE_ID,
 			achievements = {},
+			npcsHeard = {},
 			equippedManually = false,
 			migratedFromV1 = false,
 			loadFailed = true,
@@ -203,6 +245,7 @@ local function loadTitleData(player)
 		return migrateFromV1(player, {
 			equippedTitle = TitleConfig.DEFAULT_TITLE_ID,
 			achievements = {},
+			npcsHeard = {},
 			equippedManually = false,
 			migratedFromV1 = false,
 		})
@@ -216,6 +259,7 @@ local function loadTitleData(player)
 	local titleData = {
 		equippedTitle = equippedTitle,
 		achievements = copyDictionary(result.achievements),
+		npcsHeard = copyDictionary(result.npcsHeard),
 		equippedManually = result.equippedManually == true,
 		migratedFromV1 = result.migratedFromV1 == true,
 	}
@@ -233,9 +277,15 @@ local function saveTitleData(player)
 		return false
 	end
 
+	if state.loadFailed then
+		warn("[TitleService] Skipping save for", player.UserId, "because TitleData did not load cleanly")
+		return false
+	end
+
 	local data = {
 		equippedTitle = state.equippedTitle or TitleConfig.DEFAULT_TITLE_ID,
 		achievements = copyDictionary(state.achievements),
+		npcsHeard = copyDictionary(state.npcsHeard),
 		equippedManually = state.equippedManually == true,
 		migratedFromV1 = state.migratedFromV1 == true,
 	}
@@ -297,10 +347,13 @@ local function ensureState(player)
 	state = {
 		equippedTitle = TitleConfig.DEFAULT_TITLE_ID,
 		achievements = {},
+		npcsHeard = {},
 		ownedSet = {},
 		gamepassOwned = false,
 		equippedManually = false,
 		migratedFromV1 = false,
+		loadFailed = false,
+		loaded = false,
 		lastEquipTime = 0,
 	}
 	playerStates[player.UserId] = state
@@ -325,6 +378,14 @@ local function resolveOwnership(player)
 		end
 	end
 
+	for _, titleId in ipairs(TitleConfig.GetAchievementTitleIds()) do
+		local title = TitleConfig.GetTitle(titleId)
+		local achievementId = title and title.achievementId
+		if achievementId and state.achievements[achievementId] == true then
+			ownedSet[titleId] = true
+		end
+	end
+
 	ownedSet[TitleConfig.DEFAULT_TITLE_ID] = true
 	state.ownedSet = ownedSet
 
@@ -339,9 +400,24 @@ local function pickAutoEquip(ownedSet)
 	end
 
 	local pickedTitle = TitleConfig.DEFAULT_TITLE_ID
+	local pickedScore = getAutoEquipScore(TitleConfig.GetTitle(pickedTitle))
 	for _, titleId in ipairs(TitleConfig.GetLevelTitleIds()) do
 		if ownedSet[titleId] then
-			pickedTitle = titleId
+			local score = getAutoEquipScore(TitleConfig.GetTitle(titleId))
+			if score >= pickedScore then
+				pickedTitle = titleId
+				pickedScore = score
+			end
+		end
+	end
+
+	for _, titleId in ipairs(TitleConfig.GetAchievementTitleIds()) do
+		if ownedSet[titleId] then
+			local score = getAutoEquipScore(TitleConfig.GetTitle(titleId))
+			if score > pickedScore then
+				pickedTitle = titleId
+				pickedScore = score
+			end
 		end
 	end
 
@@ -520,9 +596,12 @@ local function onPlayerAdded(player)
 	local state = ensureState(player)
 	state.equippedTitle = loadedData.equippedTitle or TitleConfig.DEFAULT_TITLE_ID
 	state.achievements = copyDictionary(loadedData.achievements)
+	state.npcsHeard = copyDictionary(loadedData.npcsHeard)
 	state.equippedManually = loadedData.equippedManually == true
 	state.migratedFromV1 = loadedData.migratedFromV1 == true
+	state.loadFailed = loadedData.loadFailed == true
 	state.gamepassOwned = checkGamepass(player)
+	state.loaded = true
 
 	attachLevelWatcher(player)
 	if loadedData.migratedTitleId then
@@ -572,6 +651,30 @@ local function onGamepassPurchaseFinished(player, gamepassId, wasPurchased)
 	refreshAutoEquip(player, true)
 end
 
+local function connectAchievementTracker()
+	if achievementConnection then
+		return
+	end
+
+	local progressionFolder = script.Parent:FindFirstChild("Progression")
+	local trackerModule = progressionFolder and progressionFolder:FindFirstChild("AchievementTracker")
+	if not trackerModule then
+		return
+	end
+
+	local ok, tracker = pcall(require, trackerModule)
+	if not ok then
+		warn("[TitleService] Could not require AchievementTracker:", tracker)
+		return
+	end
+
+	if tracker and tracker.AchievementUnlocked then
+		achievementConnection = tracker.AchievementUnlocked:Connect(function(player)
+			refreshAutoEquip(player, true)
+		end)
+	end
+end
+
 function TitleService.Start()
 	if started then
 		return
@@ -581,6 +684,7 @@ function TitleService.Start()
 	getTitleDataUpdated()
 	getEquipTitleRemote().OnServerEvent:Connect(equipTitle)
 	getUnequipTitleRemote().OnServerEvent:Connect(unequipTitle)
+	connectAchievementTracker()
 
 	Players.PlayerAdded:Connect(onPlayerAdded)
 	Players.PlayerRemoving:Connect(onPlayerRemoving)
@@ -593,6 +697,43 @@ end
 
 function TitleService.GetPlayerTitlePayload(player)
 	return getPlayerTitlePayload(player)
+end
+
+function TitleService.GetTitleData(player)
+	local state = playerStates[player.UserId]
+	if state and state.loaded then
+		return state
+	end
+
+	return nil
+end
+
+function TitleService.WaitForTitleData(player, timeoutSeconds)
+	local deadline = os.clock() + (timeoutSeconds or 20)
+
+	while player.Parent and os.clock() < deadline do
+		local state = TitleService.GetTitleData(player)
+		if state then
+			return state
+		end
+
+		task.wait(0.1)
+	end
+
+	return nil
+end
+
+function TitleService.SaveTitleData(player)
+	return saveTitleData(player)
+end
+
+function TitleService.GetProgressionState(player)
+	local service = getProgressionService()
+	if service and service.GetState then
+		return service.GetState(player)
+	end
+
+	return nil
 end
 
 function TitleService.LoadAndMigrateForUserId(userId, storeKeyPrefix)

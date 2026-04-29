@@ -27,10 +27,28 @@ local function getOrCreateRemote(name)
 	return remote
 end
 
+local function getOrCreateBindable(name)
+	local bindable = script:FindFirstChild(name)
+	if bindable and not bindable:IsA("BindableEvent") then
+		warn("[DialogueDirector] Replacing non-BindableEvent child", name)
+		bindable:Destroy()
+		bindable = nil
+	end
+
+	if not bindable then
+		bindable = Instance.new("BindableEvent")
+		bindable.Name = name
+		bindable.Parent = script
+	end
+
+	return bindable
+end
+
 local playPlayerDialogueRemote = getOrCreateRemote("PlayPlayerDialogue")
 local playCharacterDialogueRemote = getOrCreateRemote("PlayCharacterDialogue")
 local playerChoiceSelectedRemote = getOrCreateRemote("PlayerDialogueChoiceSelected")
 local requestCharacterConversationRemote = getOrCreateRemote("RequestCharacterConversation")
+local conversationEndedBindable = getOrCreateBindable("ConversationEnded")
 
 local activeConversationByPlayer = {}
 local activeChoiceRequestsByPlayer = {}
@@ -612,6 +630,9 @@ local function startConversationForPlayer(player, characterId, conversationId)
 			warn("[DialogueDirector] Conversation failed:", err)
 		end
 		clearChoiceRequests(player)
+		if ok and player.Parent then
+			conversationEndedBindable:Fire(player, characterId)
+		end
 		if player.Parent then
 			activeConversationByPlayer[player] = nil
 		end
