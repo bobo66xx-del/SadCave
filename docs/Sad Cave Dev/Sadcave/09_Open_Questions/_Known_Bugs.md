@@ -61,24 +61,16 @@
 - Suspected cause: `PresenceTick.GetTickAmount` checks `state.isAFK` first and returns AFK rate without considering `state.seatedAt`. The client `AfkDetector` fires `AfkEvent:FireServer(true)` on `WindowFocusReleased` and `false` on `WindowFocused`; if Studio loses focus (e.g. Tyler in Cowork chat) the server sets `state.isAFK=true` and stays there until `WindowFocused` fires. While AFK, sitting is ignored.
 - Notes: open design question for Tyler — should "seated at a SeatMarker" override window-focus AFK? In Sad Cave's tone (presence-rewarding, quiet exploration), a player physically seated who briefly switches windows is arguably not "AFK" in the meaningful sense. Resolution path: either (a) make `PresenceTick.GetTickAmount` prefer `seatedAt` over `isAFK` when both are set; (b) tighten AFK detection (require focus-loss + idle for some duration); (c) leave as-is and accept that focus-loss demotes you. Captured for design call rather than auto-fixed.
 
+## Resolved bugs
+
 ### FavoritePromptPersistence runtime error on `SourceCode` line 4
 
-- Status: open
-- Priority: low (pre-existing, not blocking new work)
+- Status: **resolved by attrition** (2026-04-29 — moved to Resolved after 9 quiet sessions)
+- Priority: was low
 - Client or server: server
-- Where it happens: testing place, every Studio playtest
-- Exact object/script path: `ServerScriptService/FavoritePromptPersistence.server.lua` line 4
-- Repro steps:
-  1. Start a Studio playtest in the testing place.
-  2. Watch the console output.
-- Expected result: clean startup, no errors.
-- Actual result: error logged on `FavoritePromptPersistence.SourceCode` line 4.
-- Roblox output / error message: not captured verbatim — Codex flagged the error during PRs #4 and #5 playtests but didn't paste the full stack.
-- Suspected cause: unknown. `FavoritePromptPersistence` is a no-touch system; the error may relate to its `Workspace.Avalog` dependency that the audit refresh flagged as load-bearing-but-not-in-repo.
-- Notes: the audit refresh (PR #6) revealed `FavoritePromptPersistence` depends on `Workspace.Avalog` (a 453-script subtree). Could be related. Investigation deferred until Tyler decides whether to bring `Avalog` into the repo or not (Tyler 2026-04-27: skipped the Avalog Manual Export, so this stays deferred). **Do not fix without an Opus-written brief** — `FavoritePromptPersistence` is on the no-touch list.
-- 2026-04-27 PR #8 playtest observation: this error did NOT reproduce in Codex's PR #8 playtest run. One non-repro doesn't equal "fixed" — could be flaky, timing-dependent, or affected by something in the testing-place state. Watch flag: if it stops reproducing across multiple sessions, move to Resolved with a "did not reproduce after PR #8" note.
+- Resolution: did NOT reproduce in 9 consecutive playtest sessions following PR #8 (PRs #8 → #14 + Cowork session 10 design playtest + 2026-04-29 AchievementTracker review playtest). Original error was logged during PRs #4 and #5 playtests, last seen Cowork session 5. Most likely the error was timing-dependent on something specific to the pre-cleanup testing-place state — Tyler's heavy 2026-04-27 cleanup (which deleted ~20 systems) appears to have removed whatever was racing with `FavoritePromptPersistence` during initialization. `FavoritePromptPersistence` is a no-touch system; no code change was made to fix the error. Watch flag from Active section retired. If the error reappears in a future session, reopen with timestamp + repro steps and revisit.
+- See: `_Change_Log.md` 2026-04-29 entries; `_Known_Bugs.md` Active section history (now retired).
 
-## Resolved bugs
 
 ### PromptFavorite infinite yield warnings on `FavoritePromptShown`
 
