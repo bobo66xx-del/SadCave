@@ -595,6 +595,14 @@ function TitleService.GetPlayerTitlePayload(player)
 	return getPlayerTitlePayload(player)
 end
 
+function TitleService.LoadAndMigrateForUserId(userId, storeKeyPrefix)
+	-- Used by migration tooling and verification probes; normal player flow does not call this.
+	local stub = {
+		UserId = if storeKeyPrefix then storeKeyPrefix .. tostring(userId) else userId,
+	}
+	return loadTitleData(stub)
+end
+
 function TitleService.ApplyTitlePayloadToBillboard(billboard, payload)
 	applyTitlePayloadToBillboard(billboard, payload)
 end
