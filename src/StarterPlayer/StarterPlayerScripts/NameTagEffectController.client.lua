@@ -92,9 +92,9 @@ local function applyEffect(billboard, titleLabel)
 		local gradient = Instance.new("UIGradient")
 		gradient.Name = "TitleShimmerGradient"
 		gradient.Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, blendColor(DEFAULT_COLOR, tintColor, 0.25)),
-			ColorSequenceKeypoint.new(0.5, blendColor(DEFAULT_COLOR, tintColor, 0.9)),
-			ColorSequenceKeypoint.new(1, blendColor(DEFAULT_COLOR, tintColor, 0.25)),
+			ColorSequenceKeypoint.new(0, blendColor(DEFAULT_COLOR, tintColor, 0.2)),
+			ColorSequenceKeypoint.new(0.5, blendColor(DEFAULT_COLOR, tintColor, 0.7)),
+			ColorSequenceKeypoint.new(1, blendColor(DEFAULT_COLOR, tintColor, 0.2)),
 		})
 		gradient.Offset = Vector2.new(-1, 0)
 		gradient.Parent = titleLabel
@@ -112,7 +112,7 @@ local function applyEffect(billboard, titleLabel)
 		local tween = TweenService:Create(
 			titleLabel,
 			TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
-			{ TextColor3 = brighten(tintColor, 0.08) }
+			{ TextColor3 = brighten(tintColor, 0.05) }
 		)
 		table.insert(tweens, tween)
 		tween:Play()
@@ -122,8 +122,9 @@ local function applyEffect(billboard, titleLabel)
 		local stroke = Instance.new("UIStroke")
 		stroke.Name = "TitleGlowStroke"
 		stroke.Color = tintColor
-		stroke.Thickness = 1
-		stroke.Transparency = 0.55
+		stroke.Thickness = 2
+		stroke.Transparency = 0.85
+		stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		stroke.Parent = titleLabel
 	else
 		titleLabel.TextColor3 = DEFAULT_COLOR
