@@ -36,6 +36,7 @@
 -->
 
 <!-- Sessions 7 + 8 (2026-04-28) integrated. Recaps at 07_Sessions/2026-04-28_session_1.md and 2026-04-28_session_2.md. -->
+<!-- Session 9 (2026-04-28 session_3, PR #17 migration verification) integrated. Recap at 07_Sessions/2026-04-28_session_3.md. -->
 
 ## YYYY-MM-DD (template — do not write here, this is just a format example)
 

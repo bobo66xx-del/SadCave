@@ -305,6 +305,14 @@ Combined key for all title-related persistence:
 
 ## Migration Plan
 
+### Status
+
+PR #14 (2026-04-28 08:31 UTC) shipped the migration code; PR #17 (2026-04-29 03:08 UTC) verified it at runtime against synthetic DataStore data. All three migration cases were exercised — known v1 mapped to v2 (`regular → familiar_face`), unmapped v1 fell back to `new_here` (`saber_owner` test case), and `migratedFromV1=true` set on every case so re-reads don't happen. The production-cutover brief (later) flips the live cutover flag with a soak period + rollback plan + Tyler's go-ahead per `01_Vision/Environments.md`.
+
+### Tooling surface
+
+`TitleService.LoadAndMigrateForUserId(userId, storeKeyPrefix)` is a small public function on the TitleService module (added by PR #17). It builds a stub `{UserId = ...}` and calls the existing `loadTitleData` / `migrateFromV1` path so synthetic players or one-off mass-migration tooling can exercise migration without a real player join. Not called during normal player flow. The optional `storeKeyPrefix` parameter keys both `TitleData` and `EquippedTitleV1` DataStores under a prefixed namespace, isolating probe runs from any real player data.
+
 ### Player data
 
 - **Equipped title:** Players with a title equipped in `EquippedTitleV1` get migrated. On first join under v2:
