@@ -1,6 +1,6 @@
 # Title System
 
-**Status:** 🟡 Building — Title v2 player-facing surface is feature-complete except for the polished TitleMenu pass. MVP-1 shipped via PR #12 (2026-04-28 06:10 UTC, data + display layer). PR #13 (2026-04-28 07:22 UTC) cleaned up the TitleService architecture (ModuleScript pattern, respawn-resilient level watcher). MVP-2 shipped via PR #14 (2026-04-28 08:31 UTC, manual equip + placeholder menu + production-cutover migration). Polished TitleMenu is the only remaining v2 brief on the player-facing surface — it drops in over the placeholder; the placeholder is logged in `_Cleanup_Backlog.md` as the swap target.
+**Status:** 🟡 Building — Title v2 player-facing surface is feature-complete on polish, with the Achievement category live. MVP-1 shipped via PR #12 (2026-04-28 06:10 UTC, data + display layer). PR #13 (2026-04-28 07:22 UTC) cleaned up the TitleService architecture (ModuleScript pattern, respawn-resilient level watcher). MVP-2 shipped via PR #14 (2026-04-28 08:31 UTC, manual equip + placeholder menu + production-cutover migration). PR #17 (2026-04-29 03:08 UTC) runtime-verified the v1 → v2 migration. PR #20 (2026-04-29 08:52 UTC) activated the Achievement title category — 12 titles light up. **PR #23 (2026-04-29 10:48 UTC) shipped the polished menu + nametag visual pass** — title sits above the name as an epigraph, the placeholder modal is replaced by a right-side drawer over a dimmed-but-visible cave, six category sections with mixed-voice locked-row hints, slim edge tab replaces the top-right text button, all four close paths wired, `glow` effect rebalanced to ambient halo. Player-facing surface complete on polish; remaining v2 work is category activations (Presence next, then Exploration + Seasonal) and production cutover.
 
 > **Where we are:** Title v2 is **live and feature-complete** for the level + gamepass categories. Players see their auto-equipped highest title (or their manually-equipped choice) under their name, can open a small `titles` button in the top-right to browse owned + locked titles, can manually equip any owned title (which respects forever — auto-equip-highest is now first-time-only fallback), and milestone level-ups fire the combined `level N — new title: X` fade with a 5s hold even if they've manually equipped something else. Production-cutover migration code is shipped but un-exercised in testing (no v1 data exists there post-cleanup); production cutover gets its own brief later with a runtime migration test.
 >
@@ -303,11 +303,11 @@ Combined key for all title-related persistence:
 
 ---
 
-## Polished Pass — Drawer + Title-Above-Name (designed 2026-04-29)
+## Polished Pass — Drawer + Title-Above-Name (designed 2026-04-29, 🟢 Shipped via PR #23)
 
-**Status:** 🔵 Design-locked, ready for a Codex brief. No code written yet.
+**Status:** 🟢 Shipped — PR #23 merged 2026-04-29 10:48:45 UTC, branch `codex/title-polish-pass`, head `c098f659`. The 12 hand-written achievement hint lines below are live in `getHint(title)`. The drawer + title-above-name flip + glow rebalance are all in production. Codex playtest (via localhost source mirroring after Rojo plugin NetFail) confirmed the static + runtime object checks; tactile interactions (hover, ESC keypress, click-outside, mobile, Avalog rebuild) are wired but verified in normal play rather than via MCP.
 
-This is the design that drops in over the placeholder menu and lifts the nametag from "title row stapled below the name" to "title sitting above the name like an epigraph." Replaces the placeholder TitleMenu and reorders the BillboardGui labels. Captured here as the canonical design; the Codex brief in `06_Codex_Plans/` translates this into implementation steps and validation.
+This is the design that dropped in over the placeholder menu and lifted the nametag from "title row stapled below the name" to "title sitting above the name like an epigraph." Replaces the placeholder TitleMenu and reorders the BillboardGui labels. Captured here as the canonical design; the Codex brief at `06_Codex_Plans/2026-04-29_Title_Polished_Menu_Nametag_v1.md` translated this into the 9 implementation steps and validation.
 
 ### Design intent
 

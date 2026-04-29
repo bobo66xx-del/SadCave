@@ -29,18 +29,9 @@ For the audit trail. Each of these is gone from the testing place. None of them 
 
 ## 🟡 Still Pending Decision
 
-### Placeholder TitleMenu — swap target for the polished v2 menu
+### Placeholder TitleMenu — retired 2026-04-29 (PR #23)
 
-The TitleMenu and the small `titles` toggle button shipped in PR #14 (2026-04-28 08:31 UTC) are **deliberate placeholders** — `src/StarterGui/TitleMenu/TitleMenuController.client.lua` and `src/StarterGui/TitlesToggleButton/TitlesToggleController.client.lua` are programmatic ugly-but-functional UIs whose explicit purpose is to let the data flow (manual equip, ownership view, locked hints) be tested end-to-end without spending design time before real titles are flowing through. The polished v2 TitleMenu is its own future Codex brief that drops in over the placeholder; Tyler will run a focused design session for it (per `_Decisions.md` 2026-04-28 — "TitleMenu build approach — placeholder first, polished menu deferred").
-
-**What needs to happen when the polished menu lands:**
-- Replace the `src/StarterGui/TitleMenu/` files with the polished implementation (could keep the same ScreenGui name to preserve `ResetOnSpawn = false` and the toggle button's instance lookup).
-- Either replace `src/StarterGui/TitlesToggleButton/` with a new entry-point design or refactor it to fire a `BindableEvent` instead of poking `playerGui.TitleMenu.Root.Visible` directly (the placeholder's coupling is one of three carry-forward notes from PR #14's review).
-- Voice-pass on the locked-row hint copy — current placeholder hints (e.g. "rest for a long while" for `fell_asleep_here`, "visit late at night" for `up_too_late`) telegraph achievement conditions more directly than the spec's "do something special" fallback. Tyler may want subtler/different voice in the polished pass.
-- Replace the rebuild-on-every-event row rendering with a diff pattern (placeholder destroys+recreates all 56 rows on every `TitleDataUpdated` fire — fine at one player, target-of-opportunity for polish).
-- Retire this entry once the polished menu ships.
-
-**Decision needed:** none yet — Tyler picks the polished-menu design session timing.
+The placeholder TitleMenu and `titles` toggle button shipped in PR #14 were retired by **PR #23 (merged 2026-04-29 10:48:45 UTC, branch `codex/title-polish-pass`)**. `TitleMenuController.client.lua` was rewritten as the polished right-side drawer with six category sections, mixed-voice locked hints, BindableEvent decoupling, row diffing on `TitleDataUpdated`, and four close paths. `TitlesToggleController.client.lua` was rewritten as a slim 18×90px right-edge tab with rotated `titles` text. All three carry-forwards from PR #14's review (BindableEvent decoupling, voice-pass hints, row diffing) were folded into the polish-pass spec and shipped in the same brief. No further action needed — entry kept for the audit trail of when this transitioned.
 
 ### Donations / Tips
 
