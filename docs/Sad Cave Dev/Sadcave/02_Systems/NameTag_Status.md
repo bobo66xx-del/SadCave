@@ -1,6 +1,6 @@
 # NameTag / Status System
 
-**Status:** 🟢 Shipped — name + title build live as of PR #12 (merged 2026-04-28 06:10 UTC, branch `codex/title-v2-mvp1`) + PR #13 (merged 2026-04-28 07:22 UTC, branch `codex/title-v2-mvp1-followup`) + PR #23 (merged 2026-04-29 10:48:45 UTC, branch `codex/title-polish-pass`). Post-PR #9 the nametag was name-only at BillboardGui height 30; PR #12 added the title row back at height 50 with two stacked labels; PR #13 cleaned up how `NameTagScript` reaches into `TitleService` (direct `require`); PR #23 flipped the layout so the title sits *above* the name (Gotham 11 lowercase warm-grey at 0.75 opacity on top, 2-3px gap, Gotham 16 name underneath) and rebalanced the `glow` effect from a `UIStroke`-as-border treatment to an ambient halo (Thickness 2, Transparency 0.85, `ApplyStrokeMode.Border`). **Desktop Refinement Pass designed 2026-04-29** (Cowork session 14): desktop-only size bumps + stillness/distance fades on the title row, all client-side — see "Desktop Refinement Pass" section below; brief at `06_Codex_Plans/2026-04-29_Title_Tag_Tab_Desktop_Refinement_v1.md`.
+**Status:** 🟢 Shipped — name + title build live as of PR #12 (merged 2026-04-28 06:10 UTC, branch `codex/title-v2-mvp1`) + PR #13 (merged 2026-04-28 07:22 UTC, branch `codex/title-v2-mvp1-followup`) + PR #23 (merged 2026-04-29 10:48:45 UTC, branch `codex/title-polish-pass`) + **PR #25 (merged 2026-04-29 14:01:58 UTC, branch `codex/title-tag-tab-desktop-refinement`)**. PR #12 added the title row back at height 50 with two stacked labels; PR #13 cleaned up how `NameTagScript` reaches into `TitleService` (direct `require`); PR #23 flipped the layout so the title sits *above* the name and rebalanced `glow` to an ambient halo; **PR #25 (Desktop Refinement Pass) added per-client desktop sizing (BillboardGui 280×80, title 16pt, name 25pt), stillness fade tied to `presence rewards stillness` (title fades after sustained running > 2.0s, restores on stop), distance fade (title softens 20-40 studs, BillboardGui hides at MaxDistance 50 via client override), per-tab notification dot on title unlock, per-row notification dots in TitleMenu, edge tab cross-fades with drawer open/close (re-click-tab close path replaced by three remaining: outside-click, ESC, internal `x`).**
 
 ---
 
@@ -89,9 +89,9 @@ What changes in `NameTagEffectController.client.lua`:
 
 The Player Experience text at the top of this spec describes the *currently shipped* layout (title below the name). It will get rewritten in the same edit pass that ships the polished build, so the spec describes live reality. Until then, the polished design lives only in this subsection and in the cross-referenced Title_System spec.
 
-## Desktop Refinement Pass — Sizing + Stillness/Distance Fades (🔵 Queued, designed 2026-04-29)
+## Desktop Refinement Pass — Sizing + Stillness/Distance Fades (🟢 Shipped via PR #25, designed 2026-04-29, Iteration 1 final)
 
-Designed Cowork session 14 (2026-04-29) after Tyler's live review of PR #23 — nametag and edge tab read too small on desktop monitors while reading correctly on mobile. Bundle splits into Brief A (high-impact) + Brief B (medium polish); Brief A is queued at `06_Codex_Plans/2026-04-29_Title_Tag_Tab_Desktop_Refinement_v1.md`. Full design captured in [[Title_System]] § "Desktop Refinement Pass" — this section mirrors the nametag-relevant bits.
+Shipped via PR #25 (`codex/title-tag-tab-desktop-refinement`, head `9bca238`, merged 2026-04-29 14:01:58 UTC). Two-iteration same-branch loop. Final values: bigger proportional desktop bump (title 16 / name 25 / 280×80), longer stillness threshold (2.0s sustained-high), halved distance fade with halved MaxDistance (20-40-50), tab fades out when drawer opens, per-row notification dots in the menu. Full design in [[Title_System]] § "Desktop Refinement Pass" — this section mirrors the nametag-relevant bits.
 
 ### Architecture shift — sizing moves client-side
 
@@ -103,35 +103,44 @@ The current build sets all nametag sizing on the **server** in `NameTagScript.se
 
 Codex's call whether to extend `NameTagEffectController.client.lua` or add a sibling controller (e.g. `NameTagPresenceController.client.lua`) — see brief for the recommendation.
 
-### Desktop sizing values
+### Desktop sizing values (Iteration 1: proportional bump up)
 
-Mobile values stay at PR #23 baseline; desktop bumps roughly 25-37% per element.
+Mobile values stay at PR #23 baseline. Iteration 1 bumped desktop further than the initial pass — first round used title 14 / name 22 / 240×64; live review felt still small at distance, bumped proportionally.
 
-| Element | Mobile (baseline) | Desktop (new) |
-|---------|-------------------|---------------|
-| `BillboardGui.Size` | `(0, 200, 0, 50)` | `(0, 240, 0, 64)` |
-| `TitleLabel.TextSize` | 11 | 14 |
-| `TitleLabel.Size.Y.Offset` | 16 | 20 |
+| Element | Mobile (baseline) | Desktop (Iteration 1 final) |
+|---------|-------------------|-----------------------------|
+| `BillboardGui.Size` | `(0, 200, 0, 50)` | `(0, 280, 0, 80)` |
+| `TitleLabel.TextSize` | 11 | 16 |
+| `TitleLabel.Size.Y.Offset` | 16 | 22 |
 | `TitleLabel.Position.Y.Offset` | 0 | 0 |
-| `NameLabel.TextSize` | 16 | 22 |
-| `NameLabel.Size.Y.Offset` | 28 | 36 |
-| `NameLabel.Position.Y.Offset` | 19 | 25 |
+| `NameLabel.TextSize` | 16 | 25 |
+| `NameLabel.Size.Y.Offset` | 28 | 41 |
+| `NameLabel.Position.Y.Offset` | 19 | 28 |
 | `StudsOffset` | `(0, 3, 0)` | `(0, 3, 0)` (unchanged) |
-| `MaxDistance` | 100 | 100 (unchanged) |
+| `MaxDistance` | 100 (server) | **50 (client-side override, BOTH platforms)** |
 
-### Stillness fade on the title row
+The MaxDistance override applies to mobile too, not just desktop. The server's value stays at 100 (so server-replicated property reads still see 100 for any tooling), but the client tag controller writes 50 to every observed NameTag's MaxDistance and re-applies if the property is reset.
 
-Title fades out when the viewed character is sprinting / running fast, fades back in when they slow down. Name row stays unchanged. Per-character per-client state. Detail thresholds:
+### Stillness fade on the title row (Iteration 1: longer running threshold)
 
-- Out trigger: `humanoidRootPart.AssemblyLinearVelocity.Magnitude > 10 stud/s` sustained `≥ 1.0s` → fade title `TextTransparency` from baseline (~0.25) to 1.0 over 0.6s ease-out sine.
+Title fades out when the viewed character is sprinting / running fast (sustained), fades back in when they slow down. Name row stays unchanged. Per-character per-client state.
+
+- Out trigger: `humanoidRootPart.AssemblyLinearVelocity.Magnitude > 10 stud/s` sustained **`≥ 2.0s`** *(Iteration 1: was 1.0s)* → fade title `TextTransparency` from baseline (~0.25) to 1.0 over 0.6s ease-out sine.
 - Return trigger: velocity `< 10 stud/s` sustained `≥ 0.4s` → fade back over 0.6s ease-out sine.
-- Asymmetry (1.0s out / 0.4s back) biases toward "presence-rewarding" — you have to slow down briefly before the title returns, but you can pause-then-walk without losing it.
+- Asymmetry (2.0s out / 0.4s back) biases toward "presence-rewarding" — you have to actually run sustained, not just walk briskly through, before the title commits to fading; but a brief stop returns it quickly.
 
 This is the **thesis move**: UI behavior tied to Sad Cave's "presence rewards stillness" core. Composes with effect transparency (multiplies, doesn't replace).
 
-### Distance fade on the title row
+### Distance fade on the title row (Iteration 1: halved bands + halved MaxDistance)
 
-Title softens as viewer's camera moves further from the viewed character. 0–40 studs at baseline; 40–80 fade linearly to 0.85; 80–100 fully transparent. Name optionally fades to 0.5 at the edge of `MaxDistance` — Codex's call. 10Hz update cadence. Composes multiplicatively with stillness fade and effect transparency.
+Title softens as viewer's camera moves further from the viewed character. Iteration 1 halved both the fade bands and the BillboardGui's MaxDistance.
+
+- 0–20 studs *(was 0–40)*: title at baseline.
+- 20–40 studs *(was 40–80)*: title fades linearly to 0.85.
+- 40–50 studs: title fully transparent; BillboardGui itself disappears at MaxDistance = 50 *(was 100)*.
+- 10Hz update cadence. Composes multiplicatively with stillness fade and effect transparency.
+
+Combined with the size bump above, the design intent is "bigger nearby, gone sooner at distance" — coherent with the polished pass's tone of presence-with-a-tighter-range.
 
 ### Coupling concern with effects
 
