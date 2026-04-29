@@ -91,6 +91,9 @@ local ownedTitleIds = {}
 local equippedTitleId = nil
 local rowRecords = {}
 local sectionFrames = {}
+local unlockedThisSession = {}
+local dotsClearedFromMenu = {}
+local firstOwnedPayloadReceived = false
 local isOpen = false
 local activeRootTween = nil
 local activeDimTween = nil
@@ -217,13 +220,45 @@ local function normalizeOwnedTitleIds(titleIds)
 		return nextOwnedTitleIds
 	end
 
-	for _, titleId in ipairs(titleIds) do
-		if typeof(titleId) == "string" then
-			nextOwnedTitleIds[titleId] = true
+	for key, value in pairs(titleIds) do
+		if typeof(value) == "string" then
+			nextOwnedTitleIds[value] = true
+		elseif value == true and typeof(key) == "string" then
+			nextOwnedTitleIds[key] = true
 		end
 	end
 
 	return nextOwnedTitleIds
+end
+
+local function shouldShowRowNotifyDot(titleId)
+	return unlockedThisSession[titleId] == true and dotsClearedFromMenu[titleId] ~= true
+end
+
+local function makeRowNotifyDot(row)
+	local dot = Instance.new("Frame")
+	dot.Name = "RowNotifyDot"
+	dot.AnchorPoint = Vector2.new(1, 0.5)
+	dot.Position = UDim2.new(1, -10, 0.5, 0)
+	dot.Size = UDim2.new(0, 4, 0, 4)
+	dot.BackgroundColor3 = COLORS.text
+	dot.BackgroundTransparency = 0.6
+	dot.BorderSizePixel = 0
+	dot.ZIndex = 25
+	dot.Parent = row
+
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(1, 0)
+	corner.Parent = dot
+
+	local tween = TweenService:Create(
+		dot,
+		TweenInfo.new(2.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
+		{ BackgroundTransparency = 0.2 }
+	)
+	tween:Play()
+
+	return dot, tween
 end
 
 local dimOverlay = Instance.new("TextButton")
@@ -458,7 +493,13 @@ local function makeOwnedRow(title)
 		end
 	end)
 
-	return row, wearingLabel
+	local rowNotifyDot = nil
+	local rowNotifyTween = nil
+	if shouldShowRowNotifyDot(title.id) then
+		rowNotifyDot, rowNotifyTween = makeRowNotifyDot(row)
+	end
+
+	return row, wearingLabel, rowNotifyDot, rowNotifyTween
 end
 
 local function makeLockedRow(title)
@@ -511,9 +552,9 @@ local function makeLockedRow(title)
 end
 
 local function createRow(title, owned)
-	local row, wearingLabel
+	local row, wearingLabel, rowNotifyDot, rowNotifyTween
 	if owned then
-		row, wearingLabel = makeOwnedRow(title)
+		row, wearingLabel, rowNotifyDot, rowNotifyTween = makeOwnedRow(title)
 	else
 		row = makeLockedRow(title)
 	end
@@ -524,12 +565,18 @@ local function createRow(title, owned)
 		row = row,
 		owned = owned,
 		wearingLabel = wearingLabel,
+		rowNotifyDot = rowNotifyDot,
+		rowNotifyTween = rowNotifyTween,
 	}
 end
 
 local function replaceRow(title, owned)
 	local existingRecord = rowRecords[title.id]
 	if existingRecord and existingRecord.row then
+		if existingRecord.rowNotifyTween then
+			existingRecord.rowNotifyTween:Cancel()
+		end
+
 		existingRecord.row:Destroy()
 	end
 
@@ -558,6 +605,56 @@ local function applyOwnedDiff(nextOwnedTitleIds)
 	end
 
 	ownedTitleIds = nextOwnedTitleIds
+end
+
+local function recordNewUnlocks(nextOwnedTitleIds)
+	if not firstOwnedPayloadReceived then
+		firstOwnedPayloadReceived = true
+		return
+	end
+
+	for titleId in pairs(nextOwnedTitleIds) do
+		if ownedTitleIds[titleId] ~= true then
+			unlockedThisSession[titleId] = true
+			dotsClearedFromMenu[titleId] = nil
+		end
+	end
+end
+
+local function fadeOutAndDestroyRowDot(record)
+	local dot = record.rowNotifyDot
+	if not dot then
+		return
+	end
+
+	if record.rowNotifyTween then
+		record.rowNotifyTween:Cancel()
+	end
+
+	record.rowNotifyDot = nil
+	record.rowNotifyTween = nil
+
+	local tween = TweenService:Create(
+		dot,
+		TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out),
+		{ BackgroundTransparency = 1 }
+	)
+	tween.Completed:Connect(function()
+		if dot.Parent then
+			dot:Destroy()
+		end
+	end)
+	tween:Play()
+end
+
+local function clearMenuRowNotificationDots()
+	for titleId in pairs(unlockedThisSession) do
+		dotsClearedFromMenu[titleId] = true
+	end
+
+	for _, record in pairs(rowRecords) do
+		fadeOutAndDestroyRowDot(record)
+	end
 end
 
 for _, title in ipairs(allTitles) do
@@ -599,6 +696,7 @@ local function closeDrawer(shouldBroadcast)
 	end
 
 	isOpen = false
+	clearMenuRowNotificationDots()
 	cancelTween(activeRootTween)
 	cancelTween(activeDimTween)
 
@@ -665,7 +763,9 @@ TitleDataUpdated.OnClientEvent:Connect(function(payload)
 	equippedTitleId = nextEquippedTitleId
 
 	if payload.ownedTitleIds then
-		applyOwnedDiff(normalizeOwnedTitleIds(payload.ownedTitleIds))
+		local nextOwnedTitleIds = normalizeOwnedTitleIds(payload.ownedTitleIds)
+		recordNewUnlocks(nextOwnedTitleIds)
+		applyOwnedDiff(nextOwnedTitleIds)
 	end
 
 	updateWearing(previousEquippedTitleId, equippedTitleId)

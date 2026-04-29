@@ -7,18 +7,19 @@ local DEFAULT_COLOR = Color3.fromRGB(225, 215, 200)
 local IS_MOBILE = UserInputService.TouchEnabled and not UserInputService.MouseEnabled
 local IS_DESKTOP = not IS_MOBILE
 
-local DESKTOP_BILLBOARD_SIZE = UDim2.new(0, 240, 0, 64)
-local DESKTOP_TITLE_SIZE = UDim2.new(1, 0, 0, 20)
+local DESKTOP_BILLBOARD_SIZE = UDim2.new(0, 280, 0, 80)
+local DESKTOP_TITLE_SIZE = UDim2.new(1, 0, 0, 22)
 local DESKTOP_TITLE_POSITION = UDim2.new(0, 0, 0, 0)
-local DESKTOP_NAME_SIZE = UDim2.new(1, 0, 0, 36)
-local DESKTOP_NAME_POSITION = UDim2.new(0, 0, 0, 25)
+local DESKTOP_NAME_SIZE = UDim2.new(1, 0, 0, 41)
+local DESKTOP_NAME_POSITION = UDim2.new(0, 0, 0, 28)
+local NAME_TAG_MAX_DISTANCE = 50
 
 local MOVING_SPEED_THRESHOLD = 10
-local MOVING_FADE_DELAY = 1
+local MOVING_FADE_DELAY = 2
 local STILLNESS_RESTORE_DELAY = 0.4
 local STILLNESS_FADE_TIME = 0.6
-local DISTANCE_FADE_START = 40
-local DISTANCE_FADE_SOFT_END = 80
+local DISTANCE_FADE_START = 20
+local DISTANCE_FADE_SOFT_END = 40
 local DISTANCE_SOFT_AMOUNT = 0.85
 
 local controllers = {}
@@ -83,12 +84,16 @@ local function applyDesktopSizing(billboard, titleLabel, nameLabel)
 	end
 
 	setIfDifferent(billboard, "Size", DESKTOP_BILLBOARD_SIZE)
-	setIfDifferent(titleLabel, "TextSize", 14)
+	setIfDifferent(titleLabel, "TextSize", 16)
 	setIfDifferent(titleLabel, "Size", DESKTOP_TITLE_SIZE)
 	setIfDifferent(titleLabel, "Position", DESKTOP_TITLE_POSITION)
-	setIfDifferent(nameLabel, "TextSize", 22)
+	setIfDifferent(nameLabel, "TextSize", 25)
 	setIfDifferent(nameLabel, "Size", DESKTOP_NAME_SIZE)
 	setIfDifferent(nameLabel, "Position", DESKTOP_NAME_POSITION)
+end
+
+local function applyMaxDistance(billboard)
+	setIfDifferent(billboard, "MaxDistance", NAME_TAG_MAX_DISTANCE)
 end
 
 local function readBaselineTransparency(billboard, titleLabel)
@@ -216,6 +221,7 @@ local function applyEffect(billboard, titleLabel, nameLabel)
 	controllers[billboard] = controller
 
 	applyDesktopSizing(billboard, titleLabel, nameLabel)
+	applyMaxDistance(billboard)
 
 	local effect, tintColor = readEffectState(billboard)
 
@@ -294,6 +300,9 @@ local function applyEffect(billboard, titleLabel, nameLabel)
 			applyDesktopSizing(billboard, titleLabel, nameLabel)
 		end))
 	end
+	table.insert(connections, billboard:GetPropertyChangedSignal("MaxDistance"):Connect(function()
+		applyMaxDistance(billboard)
+	end))
 	table.insert(connections, titleLabel.AncestryChanged:Connect(function(_, parent)
 		if not parent then
 			cleanup()

@@ -17,12 +17,18 @@ local LABEL_SIZE = if IS_DESKTOP then UDim2.new(1, 0, 0.67, 0) else UDim2.new(1,
 local LABEL_TEXT_SIZE = if IS_DESKTOP then 13 else 10
 local TAB_BACKGROUND = Color3.fromRGB(20, 18, 22)
 local WARM_GREY = Color3.fromRGB(225, 215, 200)
+local TAB_RESTING_BACKGROUND_TRANSPARENCY = 0.25
+local TAB_HOVER_BACKGROUND_TRANSPARENCY = 0.15
+local TAB_PRESS_BACKGROUND_TRANSPARENCY = 0.05
+local TAB_LABEL_TRANSPARENCY = 0.4
+local TAB_STROKE_TRANSPARENCY = 0.82
 
 local isOpen = false
 local hovering = false
 local pressing = false
 local openRequested = nil
 local closeRequested = nil
+local tabVisibilityTweens = {}
 local dotFadeTween = nil
 local dotPulseTween = nil
 local dotVisible = false
@@ -35,7 +41,7 @@ button.AnchorPoint = Vector2.new(1, 0.5)
 button.Position = TAB_RESTING_POSITION
 button.Size = TAB_SIZE
 button.BackgroundColor3 = TAB_BACKGROUND
-button.BackgroundTransparency = 0.25
+button.BackgroundTransparency = TAB_RESTING_BACKGROUND_TRANSPARENCY
 button.BorderSizePixel = 0
 button.AutoButtonColor = false
 button.Text = ""
@@ -48,7 +54,7 @@ corner.Parent = button
 
 local stroke = Instance.new("UIStroke")
 stroke.Color = WARM_GREY
-stroke.Transparency = 0.82
+stroke.Transparency = TAB_STROKE_TRANSPARENCY
 stroke.Thickness = 1
 stroke.Parent = button
 
@@ -62,7 +68,7 @@ label.Font = Enum.Font.Gotham
 label.Text = "titles"
 label.TextSize = LABEL_TEXT_SIZE
 label.TextColor3 = WARM_GREY
-label.TextTransparency = 0.4
+label.TextTransparency = TAB_LABEL_TRANSPARENCY
 label.TextXAlignment = Enum.TextXAlignment.Center
 label.TextYAlignment = Enum.TextYAlignment.Center
 label.Rotation = -90
@@ -125,6 +131,11 @@ local function showNotifyDot()
 	dotVisible = true
 	cancelDotTweens()
 
+	if isOpen then
+		notifyDot.BackgroundTransparency = 1
+		return
+	end
+
 	local tween = TweenService:Create(
 		notifyDot,
 		TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out),
@@ -142,6 +153,61 @@ local function showNotifyDot()
 		end
 	end)
 	tween:Play()
+end
+
+local function cancelTabVisibilityTweens()
+	for _, tween in ipairs(tabVisibilityTweens) do
+		tween:Cancel()
+	end
+
+	table.clear(tabVisibilityTweens)
+end
+
+local function addTabVisibilityTween(instance, tweenInfo, goal)
+	local tween = TweenService:Create(instance, tweenInfo, goal)
+	table.insert(tabVisibilityTweens, tween)
+	tween:Play()
+end
+
+local function setTabVisible(visible)
+	cancelTabVisibilityTweens()
+
+	if visible then
+		button.Active = true
+		addTabVisibilityTween(button, TweenInfo.new(0.25, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+			BackgroundTransparency = TAB_RESTING_BACKGROUND_TRANSPARENCY,
+		})
+		addTabVisibilityTween(label, TweenInfo.new(0.25, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+			TextTransparency = TAB_LABEL_TRANSPARENCY,
+		})
+		addTabVisibilityTween(stroke, TweenInfo.new(0.25, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+			Transparency = TAB_STROKE_TRANSPARENCY,
+		})
+
+		if dotVisible then
+			startDotPulse()
+		else
+			addTabVisibilityTween(notifyDot, TweenInfo.new(0.25, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+				BackgroundTransparency = 1,
+			})
+		end
+	else
+		hovering = false
+		pressing = false
+		button.Active = false
+		addTabVisibilityTween(button, TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+			BackgroundTransparency = 1,
+		})
+		addTabVisibilityTween(label, TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+			TextTransparency = 1,
+		})
+		addTabVisibilityTween(stroke, TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+			Transparency = 1,
+		})
+		addTabVisibilityTween(notifyDot, TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+			BackgroundTransparency = 1,
+		})
+	end
 end
 
 local function clearNotifyDot()
@@ -201,11 +267,14 @@ local function fallbackDirectToggle()
 	local root = titleMenu and titleMenu:FindFirstChild("Root")
 
 	if root and root:IsA("GuiObject") then
-		root.Visible = not root.Visible
-		isOpen = root.Visible
 		if isOpen then
-			clearNotifyDot()
+			return
 		end
+
+		root.Visible = true
+		isOpen = true
+		clearNotifyDot()
+		setTabVisible(false)
 	else
 		warn("[TitlesToggle] TitleMenu bindables and fallback Root were not ready")
 	end
@@ -232,10 +301,12 @@ local function connectMenuBindables()
 	openRequested.Event:Connect(function()
 		isOpen = true
 		clearNotifyDot()
+		setTabVisible(false)
 	end)
 
 	closeRequested.Event:Connect(function()
 		isOpen = false
+		setTabVisible(true)
 	end)
 end
 
@@ -279,67 +350,75 @@ local function connectTitleUpdates()
 end
 
 button.MouseEnter:Connect(function()
+	if isOpen then
+		return
+	end
+
 	hovering = true
 	if pressing and IS_DESKTOP then
-		tweenTab(0.05, TAB_HOVER_POSITION)
+		tweenTab(TAB_PRESS_BACKGROUND_TRANSPARENCY, TAB_HOVER_POSITION)
 	else
-		tweenTab(0.15, TAB_HOVER_POSITION)
+		tweenTab(TAB_HOVER_BACKGROUND_TRANSPARENCY, TAB_HOVER_POSITION)
 	end
 end)
 
 button.MouseLeave:Connect(function()
+	if isOpen then
+		return
+	end
+
 	hovering = false
 	if pressing and IS_DESKTOP then
-		tweenTab(0.05, TAB_RESTING_POSITION)
+		tweenTab(TAB_PRESS_BACKGROUND_TRANSPARENCY, TAB_RESTING_POSITION)
 	else
-		tweenTab(0.25, TAB_RESTING_POSITION)
+		tweenTab(TAB_RESTING_BACKGROUND_TRANSPARENCY, TAB_RESTING_POSITION)
 	end
 end)
 
 button.MouseButton1Down:Connect(function()
-	if not IS_DESKTOP then
+	if isOpen or not IS_DESKTOP then
 		return
 	end
 
 	pressing = true
 	TweenService:Create(button, TweenInfo.new(0.05, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
-		BackgroundTransparency = 0.05,
+		BackgroundTransparency = TAB_PRESS_BACKGROUND_TRANSPARENCY,
 	}):Play()
 end)
 
 button.MouseButton1Up:Connect(function()
-	if not IS_DESKTOP then
+	if isOpen or not IS_DESKTOP then
 		return
 	end
 
 	pressing = false
 	TweenService:Create(button, TweenInfo.new(0.08, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
-		BackgroundTransparency = if hovering then 0.15 else 0.25,
+		BackgroundTransparency = if hovering then TAB_HOVER_BACKGROUND_TRANSPARENCY else TAB_RESTING_BACKGROUND_TRANSPARENCY,
 	}):Play()
 end)
 
 UserInputService.InputEnded:Connect(function(input)
-	if not IS_DESKTOP or not pressing or input.UserInputType ~= Enum.UserInputType.MouseButton1 then
+	if isOpen or not IS_DESKTOP or not pressing or input.UserInputType ~= Enum.UserInputType.MouseButton1 then
 		return
 	end
 
 	pressing = false
 	TweenService:Create(button, TweenInfo.new(0.08, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
-		BackgroundTransparency = if hovering then 0.15 else 0.25,
+		BackgroundTransparency = if hovering then TAB_HOVER_BACKGROUND_TRANSPARENCY else TAB_RESTING_BACKGROUND_TRANSPARENCY,
 	}):Play()
 end)
 
 button.MouseButton1Click:Connect(function()
+	if isOpen then
+		return
+	end
+
 	if not openRequested or not closeRequested then
 		fallbackDirectToggle()
 		return
 	end
 
-	if isOpen then
-		closeRequested:Fire()
-	else
-		openRequested:Fire()
-	end
+	openRequested:Fire()
 end)
 
 task.spawn(connectMenuBindables)
