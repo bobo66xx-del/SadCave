@@ -1,6 +1,6 @@
 # NameTag / Status System
 
-**Status:** 🟢 Shipped — name + title build live as of PR #12 (merged 2026-04-28 06:10 UTC, branch `codex/title-v2-mvp1`) + PR #13 (merged 2026-04-28 07:22 UTC, branch `codex/title-v2-mvp1-followup`) + PR #23 (merged 2026-04-29 10:48:45 UTC, branch `codex/title-polish-pass`). Post-PR #9 the nametag was name-only at BillboardGui height 30; PR #12 added the title row back at height 50 with two stacked labels; PR #13 cleaned up how `NameTagScript` reaches into `TitleService` (direct `require`); PR #23 flipped the layout so the title sits *above* the name (Gotham 11 lowercase warm-grey at 0.75 opacity on top, 2-3px gap, Gotham 16 name underneath) and rebalanced the `glow` effect from a `UIStroke`-as-border treatment to an ambient halo (Thickness 2, Transparency 0.85, `ApplyStrokeMode.Border`).
+**Status:** 🟢 Shipped — name + title build live as of PR #12 (merged 2026-04-28 06:10 UTC, branch `codex/title-v2-mvp1`) + PR #13 (merged 2026-04-28 07:22 UTC, branch `codex/title-v2-mvp1-followup`) + PR #23 (merged 2026-04-29 10:48:45 UTC, branch `codex/title-polish-pass`). Post-PR #9 the nametag was name-only at BillboardGui height 30; PR #12 added the title row back at height 50 with two stacked labels; PR #13 cleaned up how `NameTagScript` reaches into `TitleService` (direct `require`); PR #23 flipped the layout so the title sits *above* the name (Gotham 11 lowercase warm-grey at 0.75 opacity on top, 2-3px gap, Gotham 16 name underneath) and rebalanced the `glow` effect from a `UIStroke`-as-border treatment to an ambient halo (Thickness 2, Transparency 0.85, `ApplyStrokeMode.Border`). **Desktop Refinement Pass designed 2026-04-29** (Cowork session 14): desktop-only size bumps + stillness/distance fades on the title row, all client-side — see "Desktop Refinement Pass" section below; brief at `06_Codex_Plans/2026-04-29_Title_Tag_Tab_Desktop_Refinement_v1.md`.
 
 ---
 
@@ -88,6 +88,58 @@ What changes in `NameTagEffectController.client.lua`:
 **No server-side title plumbing changes.** TitleService, the equip/unequip flow, the auto-equip-highest behavior, and the migration code all stay intact. The polished pass is purely a UI / nametag visual rewrite.
 
 The Player Experience text at the top of this spec describes the *currently shipped* layout (title below the name). It will get rewritten in the same edit pass that ships the polished build, so the spec describes live reality. Until then, the polished design lives only in this subsection and in the cross-referenced Title_System spec.
+
+## Desktop Refinement Pass — Sizing + Stillness/Distance Fades (🔵 Queued, designed 2026-04-29)
+
+Designed Cowork session 14 (2026-04-29) after Tyler's live review of PR #23 — nametag and edge tab read too small on desktop monitors while reading correctly on mobile. Bundle splits into Brief A (high-impact) + Brief B (medium polish); Brief A is queued at `06_Codex_Plans/2026-04-29_Title_Tag_Tab_Desktop_Refinement_v1.md`. Full design captured in [[Title_System]] § "Desktop Refinement Pass" — this section mirrors the nametag-relevant bits.
+
+### Architecture shift — sizing moves client-side
+
+The current build sets all nametag sizing on the **server** in `NameTagScript.server.lua` `ensureBillboardLayout`. Desktop-vs-mobile is a per-client property (it's about the viewing player's device, not the viewed player's), so size adjustment has to happen client-side. The refinement pass introduces a client controller that:
+
+- Detects local platform once at startup using `UserInputService.TouchEnabled and not UserInputService.MouseEnabled` (canonical project pattern from `XPBarController.client.lua`).
+- For every NameTag BillboardGui it observes (via the existing `Workspace.DescendantAdded` pattern already used by `NameTagEffectController`), applies desktop-scale sizing if local platform is desktop. Mobile clients see the server's baseline (mobile-sized) layout.
+- Re-applies on respawn — server's `ensureBillboardLayout` runs when a fresh BillboardGui is needed, the client's controller picks up the new BillboardGui from `DescendantAdded` and re-applies its sizing.
+
+Codex's call whether to extend `NameTagEffectController.client.lua` or add a sibling controller (e.g. `NameTagPresenceController.client.lua`) — see brief for the recommendation.
+
+### Desktop sizing values
+
+Mobile values stay at PR #23 baseline; desktop bumps roughly 25-37% per element.
+
+| Element | Mobile (baseline) | Desktop (new) |
+|---------|-------------------|---------------|
+| `BillboardGui.Size` | `(0, 200, 0, 50)` | `(0, 240, 0, 64)` |
+| `TitleLabel.TextSize` | 11 | 14 |
+| `TitleLabel.Size.Y.Offset` | 16 | 20 |
+| `TitleLabel.Position.Y.Offset` | 0 | 0 |
+| `NameLabel.TextSize` | 16 | 22 |
+| `NameLabel.Size.Y.Offset` | 28 | 36 |
+| `NameLabel.Position.Y.Offset` | 19 | 25 |
+| `StudsOffset` | `(0, 3, 0)` | `(0, 3, 0)` (unchanged) |
+| `MaxDistance` | 100 | 100 (unchanged) |
+
+### Stillness fade on the title row
+
+Title fades out when the viewed character is sprinting / running fast, fades back in when they slow down. Name row stays unchanged. Per-character per-client state. Detail thresholds:
+
+- Out trigger: `humanoidRootPart.AssemblyLinearVelocity.Magnitude > 10 stud/s` sustained `≥ 1.0s` → fade title `TextTransparency` from baseline (~0.25) to 1.0 over 0.6s ease-out sine.
+- Return trigger: velocity `< 10 stud/s` sustained `≥ 0.4s` → fade back over 0.6s ease-out sine.
+- Asymmetry (1.0s out / 0.4s back) biases toward "presence-rewarding" — you have to slow down briefly before the title returns, but you can pause-then-walk without losing it.
+
+This is the **thesis move**: UI behavior tied to Sad Cave's "presence rewards stillness" core. Composes with effect transparency (multiplies, doesn't replace).
+
+### Distance fade on the title row
+
+Title softens as viewer's camera moves further from the viewed character. 0–40 studs at baseline; 40–80 fade linearly to 0.85; 80–100 fully transparent. Name optionally fades to 0.5 at the edge of `MaxDistance` — Codex's call. 10Hz update cadence. Composes multiplicatively with stillness fade and effect transparency.
+
+### Coupling concern with effects
+
+`NameTagEffectController.client.lua` already manipulates `TextColor3` and stroke per active effect. The new fade behaviors adjust `TextTransparency`. They're orthogonal axes and compose, but the controller managing fade should *read* the effect's baseline transparency (not assume hardcoded 0.25) and fade between baseline and 1.0. If Codex chooses to extend `NameTagEffectController` rather than add a sibling, the existing effect logic needs to expose its baseline as a tracked value rather than implicit per-branch.
+
+### Brief B items (deferred, no file yet)
+
+Captured in [[Title_System]] § "Desktop Refinement Pass" → "Brief B": background-aware stroke tuning, breath between rows, hover affordance on tab, edge anchor recess, drawer-dim while menu open. Ships after Brief A in its own brief on its own branch.
 
 ## Related
 - [[XP_Progression]] (drives the presence-tick AFK state and emits the level changes that TitleService observes)

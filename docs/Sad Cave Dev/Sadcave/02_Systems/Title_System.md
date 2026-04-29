@@ -1,6 +1,6 @@
 # Title System
 
-**Status:** 🟡 Building — Title v2 player-facing surface is feature-complete on polish, with the Achievement category live. MVP-1 shipped via PR #12 (2026-04-28 06:10 UTC, data + display layer). PR #13 (2026-04-28 07:22 UTC) cleaned up the TitleService architecture (ModuleScript pattern, respawn-resilient level watcher). MVP-2 shipped via PR #14 (2026-04-28 08:31 UTC, manual equip + placeholder menu + production-cutover migration). PR #17 (2026-04-29 03:08 UTC) runtime-verified the v1 → v2 migration. PR #20 (2026-04-29 08:52 UTC) activated the Achievement title category — 12 titles light up. **PR #23 (2026-04-29 10:48 UTC) shipped the polished menu + nametag visual pass** — title sits above the name as an epigraph, the placeholder modal is replaced by a right-side drawer over a dimmed-but-visible cave, six category sections with mixed-voice locked-row hints, slim edge tab replaces the top-right text button, all four close paths wired, `glow` effect rebalanced to ambient halo. Player-facing surface complete on polish; remaining v2 work is category activations (Presence next, then Exploration + Seasonal) and production cutover.
+**Status:** 🟡 Building — Title v2 player-facing surface is feature-complete on polish, with the Achievement category live. MVP-1 shipped via PR #12 (2026-04-28 06:10 UTC, data + display layer). PR #13 (2026-04-28 07:22 UTC) cleaned up the TitleService architecture (ModuleScript pattern, respawn-resilient level watcher). MVP-2 shipped via PR #14 (2026-04-28 08:31 UTC, manual equip + placeholder menu + production-cutover migration). PR #17 (2026-04-29 03:08 UTC) runtime-verified the v1 → v2 migration. PR #20 (2026-04-29 08:52 UTC) activated the Achievement title category — 12 titles light up. PR #23 (2026-04-29 10:48 UTC) shipped the polished menu + nametag visual pass — title sits above the name as an epigraph, the placeholder modal is replaced by a right-side drawer over a dimmed-but-visible cave, six category sections with mixed-voice locked-row hints, slim edge tab replaces the top-right text button, all four close paths wired, `glow` effect rebalanced to ambient halo. **Desktop Refinement Pass designed 2026-04-29** (Cowork session 14): desktop-only nametag and edge-tab size bumps + four behavior refinements (stillness fade, distance fade, notification dot, tactile press) — see "Desktop Refinement Pass" section below; brief queued at `06_Codex_Plans/2026-04-29_Title_Tag_Tab_Desktop_Refinement_v1.md`. Player-facing surface complete on polish; remaining v2 work is category activations (Presence next, then Exploration + Seasonal) and production cutover.
 
 > **Where we are:** Title v2 is **live and feature-complete** for the level + gamepass categories. Players see their auto-equipped highest title (or their manually-equipped choice) under their name, can open a small `titles` button in the top-right to browse owned + locked titles, can manually equip any owned title (which respects forever — auto-equip-highest is now first-time-only fallback), and milestone level-ups fire the combined `level N — new title: X` fade with a 5s hold even if they've manually equipped something else. Production-cutover migration code is shipped but un-exercised in testing (no v1 data exists there post-cleanup); production cutover gets its own brief later with a runtime migration test.
 >
@@ -433,6 +433,130 @@ Tyler decides when to write the Codex brief. The brief lives at `06_Codex_Plans/
 - Achievement hint copy table (12 lines to write).
 
 When the brief lands, this section's status moves from 🔵 Design-locked to 🟡 Building. When the PR ships, the placeholder's `_Cleanup_Backlog.md` entry retires.
+
+---
+
+## Desktop Refinement Pass — Sizing + Presence Behaviors (designed 2026-04-29, 🔵 Queued)
+
+**Status:** 🔵 Queued — design-locked Cowork session 14 (2026-04-29). Brief at `06_Codex_Plans/2026-04-29_Title_Tag_Tab_Desktop_Refinement_v1.md`. Tyler-led design call after live review of PR #23: nametag and edge tab read too small on desktop while reading correctly on mobile. Bundle of size bumps + behavior refinements. Splits into two briefs (A high-impact, B medium polish) to keep review blast radius small per round; this section captures both bundles.
+
+### Why this exists
+
+Tyler's playtest of PR #23 surfaced two desktop-specific reads (with screenshots): the nametag stack (title-above-name) is legible on mobile but undersized on desktop monitors, especially at distance; the right-side edge tab is barely visible against busy backgrounds (rocky cave wall) on desktop. Mobile sizing of both elements feels right and stays unchanged. Tyler also asked for an open-ended design critique while in the polish surface — the additional refinements below came from that conversation.
+
+### Architecture note
+
+**Sizing has to live client-side.** The nametag layout is currently set server-side in `NameTagScript.server.lua`, but desktop-vs-mobile is a per-client property — each viewer should see nametags sized for their own device, not the viewed player's device. The refinement pass moves layout adjustment to a client controller that detects local platform once and applies sizing to every NameTag BillboardGui it observes. The server's `ensureBillboardLayout` continues to set a baseline (mobile-sized) layout; the client-side controller scales up on desktop. The same client controller handles re-application when the server re-creates a tag on respawn (via the existing `Workspace.DescendantAdded` listener pattern).
+
+The same logic governs **stillness fade** and **distance fade** — they're per-frame observations the local client makes about each viewed character. No server cooperation needed.
+
+The platform-detection pattern is the canonical project idiom from `XPBarController.client.lua`:
+
+```lua
+local UserInputService = game:GetService("UserInputService")
+local isMobile = UserInputService.TouchEnabled and not UserInputService.MouseEnabled
+```
+
+### Brief A — high-impact bundle (this brief, 🔵 Queued)
+
+The five changes that deliver the most felt difference. Coherent enough to ship in one Codex round.
+
+#### 1. Desktop nametag size bumps
+
+The BillboardGui and its two TextLabels scale up on desktop only.
+
+| Element | Mobile (current, baseline) | Desktop (new) | Delta |
+|---------|----------------------------|---------------|-------|
+| `BillboardGui.Size` | `(0, 200, 0, 50)` | `(0, 240, 0, 64)` | +20% width, +28% height |
+| `TitleLabel.TextSize` | 11 | 14 | +27% |
+| `TitleLabel.Size.Y.Offset` | 16 | 20 | +25% (room for larger text) |
+| `TitleLabel.Position.Y.Offset` | 0 | 0 | unchanged (still top) |
+| `NameLabel.TextSize` | 16 | 22 | +37% |
+| `NameLabel.Size.Y.Offset` | 28 | 36 | +29% |
+| `NameLabel.Position.Y.Offset` | 19 | 25 | gap between rows widens to ~5px (Brief B narrows the gap question if needed) |
+
+Total desktop stack: 20px title + 5px gap + 36px name + small slack = 64px. Width bumps 200 → 240 to give long titles like "always was here" (15 chars) room without clipping at the new larger size.
+
+`StudsOffset Vector3.new(0, 3, 0)` and `MaxDistance = 100` unchanged.
+
+#### 2. Desktop edge-tab size bumps
+
+| Element | Mobile (current, baseline) | Desktop (new) | Delta |
+|---------|----------------------------|---------------|-------|
+| Tab `Size` | `(0, 18, 0, 90)` | `(0, 24, 0, 120)` | +33% width, +33% height |
+| Label `TextSize` | 10 | 13 | +30% |
+| Label `Size` | `(1, 0, 0, 60)` | `(1, 0, 0.67, 0)` | proportional to tab height (was offset, becomes scale) |
+| Hover slide outward | 4px (`(1, 4, 0.5, 0)`) | 4px (unchanged — feel, not size) | unchanged |
+
+Both anchor and resting position stay `(1, 0.5)` and `(1, 0, 0.5, 0)`.
+
+#### 3. Stillness fade on the title row
+
+When the viewed character moves fast (sprinting / running), the title row fades out; when they slow down or stop, it fades back in. Name row stays unchanged at all times.
+
+- **Trigger threshold:** `humanoidRootPart.AssemblyLinearVelocity.Magnitude > 10 stud/s` sustained for `≥ 1.0s` → start fading title `TextTransparency` from baseline (~0.25) to fully transparent (1.0) over 0.6s, ease-out sine.
+- **Return threshold:** velocity drops `< 10 stud/s` sustained for `≥ 0.4s` → fade back to baseline over 0.6s, ease-out sine.
+- **Hysteresis** matters — without sustained-window thresholds, the title would flicker during normal walking pauses. The 1.0s out / 0.4s back asymmetry biases toward "presence-rewarding": you have to slow down for almost half a second before the title returns, but you can stand-still-then-walk briefly without losing it.
+- **Per-character state.** Each viewed character keeps its own velocity-sustained-window timer. State lives in the controller's tracking table.
+- **Coupling concern with effects.** The `tint`/`shimmer`/`pulse`/`glow` effects in `NameTagEffectController.client.lua` already manipulate `TextColor3` (and stroke); this fade adjusts `TextTransparency`. They're orthogonal axes and can compose, but the controller managing fade should *read* the effect's baseline transparency and fade between that and 1.0 — not assume the baseline is hardcoded 0.25.
+
+This is the **thesis move** — UI behavior tied to Sad Cave's "presence rewards stillness" core. Title appears for players who hold still, not for players sprinting through.
+
+#### 4. Distance fade on the title row
+
+Title row softens as the viewer's camera moves further from the viewed character. Reinforces "presence has a range." Name row stays at its baseline opacity (or fades only at the very edge of `MaxDistance`).
+
+- Camera-to-adornee distance bands:
+  - 0–40 studs: title at baseline transparency (~0.25)
+  - 40–80 studs: title fades linearly from baseline to 0.85
+  - 80–100 studs: title fully transparent (1.0); name still visible at baseline
+- Name row optionally fades from baseline to 0.5 over 80–100 studs (subtle distance softening) — Codex's call whether to include or leave at full opacity.
+- Update cadence: 10Hz (every 0.1s) is plenty — no need for per-frame. Use `task.wait(0.1)` loop or accumulator on Heartbeat.
+
+Composes with stillness fade by **multiplying** the resulting transparency: a far-away running player's title is fully transparent; a close-and-still player's title is at baseline.
+
+#### 5. Notification dot on the edge tab
+
+When a new title unlocks during a session, the edge tab gets a small soft warm dot indicating "something new in here." Currently the only signal is the nametag fade ("new title: X") which is brief and easy to miss; the tab itself has no signal.
+
+- **Visual:** small circle (Frame with full-radius UICorner), 6×6px, anchored near the bottom of the tab (~12px from the bottom, horizontally centered). Color `Color3.fromRGB(225, 215, 200)` (warm grey, same as the label). `BackgroundTransparency` slow sine pulse between 0.2 and 0.6 over a 2.5s period.
+- **Show trigger:** listen for `TitleRemotes.TitleDataUpdated`; on each payload, diff `OwnedTitleIds` against the previous render. If the set grew, show the dot.
+- **Hide trigger:** dot disappears (smooth 0.4s fade-out) when the player opens the menu via any path (tab click, future hotkey, etc.). Stays until then — no auto-clear timeout.
+- **Not shown initially.** First payload (which contains the player's full owned set on join) does NOT trigger the dot. Only subsequent in-session unlocks do. Track the "first payload" boolean per player session.
+
+#### 6. Tactile press feedback on tab click
+
+When the tab is clicked on desktop, it gives a 100ms press response before the drawer slide kicks off. Removes the "did anything happen?" gap between click and drawer-visible.
+
+- **On `MouseButton1Down`:** tab `BackgroundTransparency` dims from 0.25 → 0.05 over 0.05s (snappier than the 0.15s hover).
+- **On `MouseButton1Up`:** tab eases back to either resting (if click-release outside the tab) or hover state (if release inside tab) over 0.1s.
+- **Mobile parity:** mobile uses the same `Activated` event for the click (already wired), but the down/up dim is desktop-only since mobile has no `MouseButton1Down`/`Up` story. Acceptable gap — tactile feedback on touch usually comes from the device's haptic anyway.
+
+### Brief B — medium polish bundle (deferred, no file yet)
+
+These are captured here but no `06_Codex_Plans/` file exists. They ship right after Brief A, in their own brief, on their own branch. Splitting them out keeps Brief A's review small and lets Tyler course-correct between rounds.
+
+1. **Background-aware stroke tuning on the title row.** The labels already have `TextStrokeTransparency` (0.7 title, 0.6 name) and black `TextStrokeColor3`. On grass and outside lighting (Tyler's screenshots #1 and #5), the warm-grey title still gets eaten despite the stroke. Possible adjustments: tighter stroke transparency on the title (0.7 → 0.5), or a UIStroke instead of TextStrokeTransparency for finer control. Test the new desktop 14pt size first — the larger text may resolve the legibility hit on its own.
+2. **Breath between the rows.** Current gap is 2-3px. After the desktop bump (which already widens to ~5px naturally), Brief B re-evaluates whether to widen further on both desktop and mobile, or leave alone.
+3. **Hover affordance on the desktop tab.** Current hover is a 4px outward slide. Add a slow opacity bump from ~75% to 100%, or a thin underline grow under the rotated `titles` word. Desktop-only — discoverability tool the mobile experience doesn't need.
+4. **Edge anchor recess.** Tab currently floats against the screen edge. Add a barely-perceptible 2px-wide darker rectangle behind the tab where it meets the right edge — reads as "attached to the page" rather than "pasted on top of the world." Desktop and mobile.
+5. **Drawer-dim while menu open.** When the drawer is showing, the tab is redundant — the player has clearly found it. Drop tab opacity to ~50% while drawer is open; restore on close. Reduces visual noise during menu interaction.
+
+### Held entirely (not in either brief, may revisit)
+
+1. **Title-row letter tracking.** Whether 11pt → 14pt small lowercase Gotham wants positive tracking. Wait until desktop 14pt is live and feel-tested. May be moot at the larger size.
+2. **First-time edge-tab pulse.** A single slow attention pull on first character spawn (or first level-up) to signal "this exists." Held until real playtests show discoverability is actually a problem post-size-bump. If players post-Brief-A find the tab fine, this stays held; if they miss it, revisit.
+
+### Out of scope for both briefs
+
+- **Server-side nametag changes.** Layout work is client-side only. Server `NameTagScript.server.lua` and `ensureBillboardLayout` stay unchanged.
+- **`TitleService` server changes.** No remote contract changes, no DataStore changes, no `TitleConfig` data changes.
+- **Effect rebalances.** `tint`/`shimmer`/`pulse`/`glow` continue per the polished pass. Stillness/distance fades compose with effects via transparency multiplication, not effect replacement.
+- **Mobile size adjustments.** Mobile sizing of nametag and tab stays exactly as PR #23 shipped them.
+
+### Where this goes next
+
+Tyler kicks off Codex against `06_Codex_Plans/2026-04-29_Title_Tag_Tab_Desktop_Refinement_v1.md` (Brief A). When Brief A ships and Tyler has played with it, we revisit and write Brief B as a fresh file. Held items are revisited per their conditions above.
 
 ---
 
