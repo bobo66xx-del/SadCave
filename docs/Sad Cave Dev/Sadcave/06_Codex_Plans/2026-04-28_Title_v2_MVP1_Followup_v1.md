@@ -1,9 +1,8 @@
 # Title v2 MVP-1 — Post-Merge Follow-Up — Codex Plan
 
 **Date:** 2026-04-28
-**Status:** 🔵 Queued
-*(legend: 🔵 Queued — written, awaiting Codex · 🟡 Building — Codex on branch · 🟢 Shipped — merged, include PR # and date · ⏸ Waiting — written but deliberately on hold · ⚫ Superseded — replaced or invalidated)*
-**Branch:** `codex/title-v2-mvp1-followup` *(once started)*
+**Status:** 🟢 Shipped — PR #13 (merged 2026-04-28 07:22:37 UTC, branch `codex/title-v2-mvp1-followup`, head `f0fec8c`). Backfilled 2026-04-29 session-4 integration after status was missed in earlier wraps.
+**Branch:** `codex/title-v2-mvp1-followup` (merged)
 **Related Systems:** [[../02_Systems/Title_System]], [[../02_Systems/NameTag_Status]]
 **Driving notes:** Post-merge Claude review of PR #12 (`codex/title-v2-mvp1`, merged 2026-04-28 06:10:58 UTC) flagged two non-blocking architectural notes. Tyler asked to clean both up before MVP-2 lands so they don't compound. This brief covers both.
 
