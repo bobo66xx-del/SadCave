@@ -1,9 +1,9 @@
 # Title v2 Migration — Runtime Verification — Codex Plan
 
 **Date:** 2026-04-28
-**Status:** 🔵 Queued
+**Status:** 🟢 Shipped — PR #17 (merged 2026-04-29 03:08 UTC, branch `codex/title-v2-migration-verification`, head `e3d11fd`, merge commit `3ad5880`)
 *(legend: 🔵 Queued — written, awaiting Codex · 🟡 Building — Codex on branch · 🟢 Shipped — merged, include PR # and date · ⏸ Waiting — written but deliberately on hold · ⚫ Superseded — replaced or invalidated)*
-**Branch:** `codex/title-v2-migration-verification` *(once started)*
+**Branch:** `codex/title-v2-migration-verification` (merged + deleted)
 **Related Systems:** [[../02_Systems/Title_System]]
 **Driving notes:** PR #14 (`codex/title-v2-mvp2`, merged 2026-04-28 08:31 UTC) shipped the production-cutover migration code that reads `EquippedTitleV1` and maps via `TitleConfig.MIGRATION`. Codex's PR #14 playtest noted: "Migration was static/best-effort only; I did not write fake DataStore values for the real test user." So the migration logic exists, matches the spec via static review, but has never been exercised at runtime. Before the production-cutover PR (which will flip the cutover flag for live players) ships, we want one concrete runtime confirmation that the migration path actually works end-to-end. This brief does that confirmation cleanly, against synthetic data, with no production risk.
 
