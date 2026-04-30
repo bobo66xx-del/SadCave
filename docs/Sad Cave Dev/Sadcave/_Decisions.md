@@ -28,6 +28,13 @@ YYYY-MM-DD — <Topic>
 
 ## 2026
 
+2026-04-30 — Nametag Aura Pass scrapped (not redesigned)
+- Decision: Scrap the Stillness Bloom Aura Pass (Direction A from session 15's design conversation) entirely. No v2 attempt this round; do not redesign with a different visual approach in the same session.
+- Why: Codex's `codex/nametag-aura-pass` commit `63090ce` implemented the spec faithfully but the dark-cushion-as-legibility-base (`AuraCushion` Frame at `Color3.fromRGB(15, 13, 18)` / 0.55 BackgroundTransparency, sized larger than the BillboardGui itself) rendered as a giant dark slab behind the nametag in playtest — not as ambient atmospheric weight. Root cause is the design call (dark plate underneath text), not implementation specifics or Codex execution. Tyler: *"scrap the whole aura pass, i dont think we can do it. maybe another time. i just want to get the game out asap at this point, im getting annoyed at everything."* Combined with the project hiatus call later in the same session, no rework attempt was warranted; the surface stays at the post-PR-#27 simpler stillness + distance fade baseline.
+- Alternatives considered: (a) full redesign with a UIStroke + halo-outside-text approach (no dark plate underneath); (b) shrink the cushion to fit the text bounds and drop transparency to ~0.9 with a tinted (not black) color. Both rejected by Tyler — done with the surface for now.
+- Lives in: `06_Codex_Plans/2026-04-29_Nametag_Aura_Pass_v1.md` (status flipped 🔵 Queued → ⚫ Scrapped); `02_Systems/NameTag_Status.md` (status line updated, Aura Pass design section kept as historical record below); `00_Index.md` (Aura Pass dropped from Active Focus, Plans & Logs entry flipped to ⚫ Scrapped); branch `codex/nametag-aura-pass` deleted local + remote.
+- Reversibility: easy. Design is fully written down in `NameTag_Status.md` § "Aura Pass — Stillness Bloom" and the Codex plan file, both kept as historical records. If future-Tyler revisits, recommend trying a different visual direction (B Inscribed Plaque / C Tethered Presence / D Atmospheric Whisper from the session 15 design conversation — D's particle layer and B's material treatments were already held as v2 candidates) over re-attempting Direction A as-is. Lesson worth carrying: visual designs that depend on alpha-blending behavior in 3D space should be prototyped in-engine before being briefed into a Codex run.
+
 ### April
 
 <!-- New entries go directly below this line -->

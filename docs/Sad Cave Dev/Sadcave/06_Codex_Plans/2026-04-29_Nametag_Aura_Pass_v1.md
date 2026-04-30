@@ -1,7 +1,7 @@
 # Nametag Aura Pass — Stillness Bloom — Codex Plan
 
 **Date:** 2026-04-29
-**Status:** 🔵 Queued
+**Status:** ⚫ Scrapped 2026-04-30 (per Tyler: "scrap the whole aura pass, i dont think we can do it. maybe another time." Codex's `codex/nametag-aura-pass` commit `63090ce` implemented this brief faithfully but the dark-cushion-as-legibility-base read as a giant dark slab in playtest — root cause is the design call, not implementation. Branch deleted local + remote, working tree reverted to pre-aura `NameTagEffectController.client.lua`. Spec kept as historical record for possible future revival; recommend a different visual direction (B Inscribed Plaque / C Tethered Presence / D Atmospheric Whisper) over re-trying Direction A. See `07_Sessions/2026-04-30_session_1.md` and `_Decisions.md` 2026-04-30 entry.)
 *(legend: 🔵 Queued — written, awaiting Codex · 🟡 Building — Codex on branch · 🟢 Shipped — merged, include PR # and date · ⏸ Waiting — written but deliberately on hold · ⚫ Superseded — replaced or invalidated)*
 **Branch:** `codex/nametag-aura-pass` *(once started)*
 **Related Systems:** [[../02_Systems/NameTag_Status]] § "Aura Pass — Stillness Bloom" (canonical design home) · [[../02_Systems/Title_System]]
