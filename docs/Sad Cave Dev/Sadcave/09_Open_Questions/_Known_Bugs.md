@@ -26,6 +26,23 @@
 
 ## Active bugs
 
+### `up_too_late` achievement fires at the wrong time of day
+
+- Status: open (root cause confirmed; one-line fix identified, not yet shipped)
+- Priority: medium
+- Client or server: client (the bug originates in the client's UTC-offset formula; the server's hour-check is correct)
+- Where it happens: testing place (and would happen everywhere). Tyler runtime-tested 2026-04-29 ≈ 10:59pm Central time during Cowork session 15.
+- Exact object/script path: client `StarterPlayer.StarterPlayerScripts.AchievementClient` (`src/StarterPlayer/StarterPlayerScripts/AchievementClient.client.lua`); server-side hour check in `ServerScriptService.Progression.AchievementTracker` (`src/ServerScriptService/Progression/AchievementTracker.lua`) function `checkUpTooLate` is correct.
+- Repro steps:
+  1. Be in any non-UTC timezone (Tyler is in Central time, UTC-5 with daylight saving).
+  2. Join the testing place at any time of day other than the player's own local 3am-4:59am.
+  3. Watch for the `new title: up too late` fade.
+- Expected result: title fires only when the player's local clock is between 03:00 and 04:59. Should not fire at 10:59pm.
+- Actual result: title fires at 10:59pm CDT. By coincidence, 10:59pm CDT = 03:59 UTC, which satisfies the server's UTC-hour check. The bug is silent for players whose local time happens to align with UTC and incorrect for everyone else.
+- Roblox output / error message: none. The achievement fires through the normal path with no warning.
+- Suspected cause: confirmed root cause. The client formula `os.difftime(os.time(), os.time(os.date("!*t", now)))` always returns 0 in Roblox because both `os.time()` and `os.time(os.date("!*t", now))` operate in UTC — they're equal, the difference is zero. The client sends offset=0 to the server; the server then computes "local time" as `UTC + 0 = UTC` and checks UTC hours. For Tyler in Central time, his 10:59pm = UTC 03:59 the next day, satisfies `hour == 3`, fires. For US East coast (UTC-4 in DST) it would fire at 11pm-12:59am local. For Tokyo (UTC+9) it would fire at noon-1:59pm local.
+- Notes: fix is one function in `AchievementClient.client.lua`. Replace the body of `getUtcOffsetSeconds` with: `local utc = os.date("!*t"); local localTime = os.date("*t"); return os.time(localTime) - os.time(utc)`. The unprefixed `*t` form returns the player's machine local time on the **client** (server-side both forms return UTC). The fix is independent of any other Brief B work — can ship as a tiny one-file PR (~5 lines) on its own branch (`codex/up-too-late-offset-fix` or similar) any time Tyler wants. Bug originated in PR #20 (AchievementTracker shipped 2026-04-29 08:52:02 UTC). Bug also discovered the same way `_Cleanup_Backlog.md` patterns work — a runtime test surfaced what static review missed; the formula reads correct in standard Lua but is wrong in Roblox's UTC-only `os` library context.
+
 ### XPBar invisible to player despite GUI hierarchy reporting it as rendered
 
 - Status: open
