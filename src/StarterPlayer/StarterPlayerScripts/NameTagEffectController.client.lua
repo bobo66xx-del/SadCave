@@ -12,7 +12,11 @@ local DESKTOP_TITLE_SIZE = UDim2.new(1, 0, 0, 22)
 local DESKTOP_TITLE_POSITION = UDim2.new(0, 0, 0, 0)
 local DESKTOP_NAME_SIZE = UDim2.new(1, 0, 0, 41)
 local DESKTOP_NAME_POSITION = UDim2.new(0, 0, 0, 28)
+local MOBILE_TITLE_SIZE = UDim2.new(1, 0, 0, 16)
+local MOBILE_TITLE_POSITION = UDim2.new(0, 0, 0, 0)
+local MOBILE_NAME_POSITION = UDim2.new(0, 0, 0, 21)
 local NAME_TAG_MAX_DISTANCE = 50
+local TITLE_STROKE_TRANSPARENCY = 0.5
 
 local MOVING_SPEED_THRESHOLD = 10
 local MOVING_FADE_DELAY = 2
@@ -92,8 +96,22 @@ local function applyDesktopSizing(billboard, titleLabel, nameLabel)
 	setIfDifferent(nameLabel, "Position", DESKTOP_NAME_POSITION)
 end
 
+local function applyMobileSpacing(titleLabel, nameLabel)
+	if not IS_MOBILE then
+		return
+	end
+
+	setIfDifferent(titleLabel, "Size", MOBILE_TITLE_SIZE)
+	setIfDifferent(titleLabel, "Position", MOBILE_TITLE_POSITION)
+	setIfDifferent(nameLabel, "Position", MOBILE_NAME_POSITION)
+end
+
 local function applyMaxDistance(billboard)
 	setIfDifferent(billboard, "MaxDistance", NAME_TAG_MAX_DISTANCE)
+end
+
+local function applyTitleStroke(titleLabel)
+	setIfDifferent(titleLabel, "TextStrokeTransparency", TITLE_STROKE_TRANSPARENCY)
 end
 
 local function readBaselineTransparency(billboard, titleLabel)
@@ -221,7 +239,9 @@ local function applyEffect(billboard, titleLabel, nameLabel)
 	controllers[billboard] = controller
 
 	applyDesktopSizing(billboard, titleLabel, nameLabel)
+	applyMobileSpacing(titleLabel, nameLabel)
 	applyMaxDistance(billboard)
+	applyTitleStroke(titleLabel)
 
 	local effect, tintColor = readEffectState(billboard)
 
@@ -300,8 +320,22 @@ local function applyEffect(billboard, titleLabel, nameLabel)
 			applyDesktopSizing(billboard, titleLabel, nameLabel)
 		end))
 	end
+	if IS_MOBILE then
+		table.insert(connections, titleLabel:GetPropertyChangedSignal("Size"):Connect(function()
+			applyMobileSpacing(titleLabel, nameLabel)
+		end))
+		table.insert(connections, titleLabel:GetPropertyChangedSignal("Position"):Connect(function()
+			applyMobileSpacing(titleLabel, nameLabel)
+		end))
+		table.insert(connections, nameLabel:GetPropertyChangedSignal("Position"):Connect(function()
+			applyMobileSpacing(titleLabel, nameLabel)
+		end))
+	end
 	table.insert(connections, billboard:GetPropertyChangedSignal("MaxDistance"):Connect(function()
 		applyMaxDistance(billboard)
+	end))
+	table.insert(connections, titleLabel:GetPropertyChangedSignal("TextStrokeTransparency"):Connect(function()
+		applyTitleStroke(titleLabel)
 	end))
 	table.insert(connections, titleLabel.AncestryChanged:Connect(function(_, parent)
 		if not parent then

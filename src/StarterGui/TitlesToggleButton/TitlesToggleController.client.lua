@@ -21,7 +21,11 @@ local TAB_RESTING_BACKGROUND_TRANSPARENCY = 0.25
 local TAB_HOVER_BACKGROUND_TRANSPARENCY = 0.15
 local TAB_PRESS_BACKGROUND_TRANSPARENCY = 0.05
 local TAB_LABEL_TRANSPARENCY = 0.4
+local TAB_LABEL_HOVER_TRANSPARENCY = 0.2
 local TAB_STROKE_TRANSPARENCY = 0.82
+local RECESS_SIZE = if IS_DESKTOP then UDim2.new(0, 2, 0, 130) else UDim2.new(0, 2, 0, 100)
+local RECESS_BACKGROUND = Color3.fromRGB(15, 15, 17)
+local RECESS_BACKGROUND_TRANSPARENCY = 0.25
 
 local isOpen = false
 local hovering = false
@@ -29,11 +33,23 @@ local pressing = false
 local openRequested = nil
 local closeRequested = nil
 local tabVisibilityTweens = {}
+local labelHoverTween = nil
 local dotFadeTween = nil
 local dotPulseTween = nil
 local dotVisible = false
 local previousOwnedSet = {}
 local firstPayloadReceived = false
+
+local edgeRecess = Instance.new("Frame")
+edgeRecess.Name = "EdgeRecess"
+edgeRecess.AnchorPoint = Vector2.new(1, 0.5)
+edgeRecess.Position = TAB_RESTING_POSITION
+edgeRecess.Size = RECESS_SIZE
+edgeRecess.BackgroundColor3 = RECESS_BACKGROUND
+edgeRecess.BackgroundTransparency = RECESS_BACKGROUND_TRANSPARENCY
+edgeRecess.BorderSizePixel = 0
+edgeRecess.ZIndex = 29
+edgeRecess.Parent = screenGui
 
 local button = Instance.new("TextButton")
 button.Name = "EdgeTab"
@@ -95,6 +111,28 @@ local function tweenTab(backgroundTransparency, position)
 		BackgroundTransparency = backgroundTransparency,
 		Position = position,
 	}):Play()
+end
+
+local function cancelLabelHoverTween()
+	if labelHoverTween then
+		labelHoverTween:Cancel()
+		labelHoverTween = nil
+	end
+end
+
+local function tweenLabelTransparency(textTransparency, duration)
+	cancelLabelHoverTween()
+
+	local tween = TweenService:Create(label, TweenInfo.new(duration, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+		TextTransparency = textTransparency,
+	})
+	labelHoverTween = tween
+	tween.Completed:Connect(function()
+		if labelHoverTween == tween then
+			labelHoverTween = nil
+		end
+	end)
+	tween:Play()
 end
 
 local function cancelDotTweens()
@@ -171,9 +209,13 @@ end
 
 local function setTabVisible(visible)
 	cancelTabVisibilityTweens()
+	cancelLabelHoverTween()
 
 	if visible then
 		button.Active = true
+		addTabVisibilityTween(edgeRecess, TweenInfo.new(0.25, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+			BackgroundTransparency = RECESS_BACKGROUND_TRANSPARENCY,
+		})
 		addTabVisibilityTween(button, TweenInfo.new(0.25, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
 			BackgroundTransparency = TAB_RESTING_BACKGROUND_TRANSPARENCY,
 		})
@@ -195,6 +237,9 @@ local function setTabVisible(visible)
 		hovering = false
 		pressing = false
 		button.Active = false
+		addTabVisibilityTween(edgeRecess, TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+			BackgroundTransparency = 1,
+		})
 		addTabVisibilityTween(button, TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
 			BackgroundTransparency = 1,
 		})
@@ -355,6 +400,10 @@ button.MouseEnter:Connect(function()
 	end
 
 	hovering = true
+	if IS_DESKTOP then
+		tweenLabelTransparency(TAB_LABEL_HOVER_TRANSPARENCY, 0.15)
+	end
+
 	if pressing and IS_DESKTOP then
 		tweenTab(TAB_PRESS_BACKGROUND_TRANSPARENCY, TAB_HOVER_POSITION)
 	else
@@ -368,6 +417,10 @@ button.MouseLeave:Connect(function()
 	end
 
 	hovering = false
+	if IS_DESKTOP then
+		tweenLabelTransparency(TAB_LABEL_TRANSPARENCY, 0.2)
+	end
+
 	if pressing and IS_DESKTOP then
 		tweenTab(TAB_PRESS_BACKGROUND_TRANSPARENCY, TAB_RESTING_POSITION)
 	else
